@@ -23,11 +23,18 @@ def main(argv):
          outputfile = arg
    print ('Input file is : ', inputfile)
    print ('Output file is : ', outputfile)
+   argsdict = {"in": inputfile, "out": "outputfile"}
+   return argsdict
 
 if __name__ == "__main__":
     print ('Argument List:', str(sys.argv))
 
-    main(sys.argv[1:])
+    argsdict = main(sys.argv[1:])
+
+    f = open(argsdict["in"], "r")
+    # print lphy script
+    print(f.read())
+
 
         # data =  InputStream(input(">>> "))
         # # lexer
