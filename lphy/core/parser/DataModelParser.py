@@ -1,5 +1,6 @@
-# Generated from ~/WorkSpace/LPhyRevPy/lphy/core/parser/DataModel.g4 by ANTLR 4.12.0
+# Generated from LPhyRevPy/lphy/core/parser/DataModel.g4 by ANTLR 4.12.0
 # encoding: utf-8
+
 from antlr4 import *
 from io import StringIO
 import sys

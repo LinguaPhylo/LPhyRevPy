@@ -1,4 +1,4 @@
-# Generated from ~/WorkSpace/LPhyRevPy/lphy/core/parser/DataModel.g4 by ANTLR 4.12.0
+# Generated from LPhyRevPy/lphy/core/parser/DataModel.g4 by ANTLR 4.12.0
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .DataModelParser import DataModelParser
