@@ -5,7 +5,7 @@ from lphy.core.parser.DataModelParser import DataModelParser
 from lphy.core.parser.DataModelVisitor import DataModelVisitor
 
 
-def main(argv):
+def parse_args(argv):
    inputfile = ''
    outputfile = ''
    try:
@@ -26,24 +26,28 @@ def main(argv):
    argsdict = {"in": inputfile, "out": "outputfile"}
    return argsdict
 
+
+def main():
+   argsdict = parse_args(sys.argv[1:])
+
+   f = open(argsdict["in"], "r")
+   # print lphy script
+   print(f.read())
+
+   # data =  InputStream(input(">>> "))
+   # # lexer
+   # lexer = MyGrammerLexer(data)
+   # stream = CommonTokenStream(lexer)
+   # # parser
+   # parser = MyGrammerParser(stream)
+   # tree = parser.expr()
+   # # evaluator
+   # visitor = MyVisitor()
+   # output = visitor.visit(tree)
+   # print(output)
+
 if __name__ == "__main__":
     print ('Argument List:', str(sys.argv))
 
-    argsdict = main(sys.argv[1:])
+    main()
 
-    f = open(argsdict["in"], "r")
-    # print lphy script
-    print(f.read())
-
-
-        # data =  InputStream(input(">>> "))
-        # # lexer
-        # lexer = MyGrammerLexer(data)
-        # stream = CommonTokenStream(lexer)
-        # # parser
-        # parser = MyGrammerParser(stream)
-        # tree = parser.expr()
-        # # evaluator
-        # visitor = MyVisitor()
-        # output = visitor.visit(tree)
-        # print(output)
