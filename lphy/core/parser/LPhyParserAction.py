@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import overload
 
 from antlr4 import InputStream, CommonTokenStream, ParseTreeVisitor
 
@@ -6,15 +7,17 @@ import DataModelLexer
 import DataModelParser
 
 import SimulatorLexer
+import SimulatorParser
 
 
 class LPhyParserAction:
 
+    @overload
     @abstractmethod
     def parse(self, sentence):
         pass
 
-    @abstractmethod
+    @overload
     def parse(self, sentence: str, visitor: ParseTreeVisitor, hasDataModelBlock: bool):
         # empty data block or model block
         if not str(sentence).endswith(";") and str(sentence).strip() != "":
@@ -35,4 +38,10 @@ class LPhyParserAction:
         if hasDataModelBlock:
             parser = DataModelParser(tokens)
             # add custom error listener
-            parse_tree = parser.input()
+            parseTree = parser.input()
+        else:
+            parser = SimulatorParser(tokens)
+            # add custom error listener
+            parseTree = parser.input()
+
+        return visitor.visit(parseTree)
