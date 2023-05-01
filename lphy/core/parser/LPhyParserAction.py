@@ -10,14 +10,13 @@ import SimulatorLexer
 import SimulatorParser
 
 
-class LPhyParserAction:
+class LPhyParserAction(object):
 
     @overload
     @abstractmethod
-    def parse(self, sentence):
+    def parse(self, sentence: str):
         pass
 
-    @overload
     def parse(self, sentence: str, visitor: ParseTreeVisitor, hasDataModelBlock: bool):
         # empty data block or model block
         if not str(sentence).endswith(";") and str(sentence).strip() != "":

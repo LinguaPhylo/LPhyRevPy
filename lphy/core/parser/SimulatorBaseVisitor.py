@@ -8,7 +8,7 @@ else:
 
 # This class defines a complete generic visitor for a parse tree produced by SimulatorParser.
 
-class SimulatorVisitor(ParseTreeVisitor):
+class SimulatorBaseVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by SimulatorParser#input.
     def visitInput(self, ctx:SimulatorParser.InputContext):
