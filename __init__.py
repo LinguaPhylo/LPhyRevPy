@@ -1,8 +1,10 @@
 import sys, getopt
+
 from antlr4 import *
-from lphy.core.parser.DataModelLexer import DataModelLexer
-from lphy.core.parser.DataModelParser import DataModelParser
-from lphy.core.parser.DataModelVisitor import DataModelVisitor
+
+from lphy.core.parser.antlr.LPhyLexer import LPhyLexer
+from lphy.core.parser.antlr.LPhyParser import LPhyParser
+from lphy.core.parser.LPhyASTVisitor import LPhyASTVisitor
 
 
 def parse_args(argv):
@@ -30,21 +32,34 @@ def parse_args(argv):
 def main():
    argsdict = parse_args(sys.argv[1:])
 
-   f = open(argsdict["in"], "r")
+   with open(argsdict["in"], 'r') as f:
+      input_string = f.read()
    # print lphy script
-   print(f.read())
+   print(input_string)
 
-   # data =  InputStream(input(">>> "))
-   # # lexer
-   # lexer = MyGrammerLexer(data)
-   # stream = CommonTokenStream(lexer)
-   # # parser
-   # parser = MyGrammerParser(stream)
-   # tree = parser.expr()
-   # # evaluator
-   # visitor = MyVisitor()
-   # output = visitor.visit(tree)
-   # print(output)
+   # empty data block or model block
+   #if not str(sentence).endswith(";") and str(sentence).strip() != "":
+   #   sentence = str(sentence) + ";"
+
+   input_string = "Θ ~ LogNormal(meanlog=3.0, sdlog=1.0);"
+
+   stream =  InputStream(input_string)
+   # lexer
+   lexer = LPhyLexer(stream)
+   # get tokens
+   tokens = CommonTokenStream(lexer)
+   # parser
+   parser = LPhyParser(tokens)
+
+   # start rule "input"
+   tree = parser.input_()
+   #tree = parser.structured_input()
+
+   # evaluator
+   visitor = LPhyASTVisitor()
+   output = visitor.visit(tree)
+   print(output)
+
 
 if __name__ == "__main__":
     print ('Argument List:', str(sys.argv))
