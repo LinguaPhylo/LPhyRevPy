@@ -41,6 +41,7 @@ def main():
    #if not str(sentence).endswith(";") and str(sentence).strip() != "":
    #   sentence = str(sentence) + ";"
 
+   # Rev: theta ~ dnNormal(3.0, 1.0)
    input_string = "Θ ~ LogNormal(meanlog=3.0, sdlog=1.0);"
 
    stream =  InputStream(input_string)

@@ -5,9 +5,9 @@ from lphy.core.parser.antlr.LPhyVisitor import LPhyVisitor
 class LPhyASTVisitor(LPhyVisitor):
 
     # Override methods as needed for AST-specific operations
-    def visitInput(self, ctx:LPhyParser.InputContext):
-        # Your AST-specific visitInput implementation here
-        return super().visitChildren(ctx)
+    # def visitInput(self, ctx:LPhyParser.InputContext):
+    #     # Your AST-specific visitInput implementation here
+    #     return super().visitChildren(ctx)
 
     def visitStructured_input(self, ctx: LPhyParser.Structured_inputContext):
         return super().visitStructured_input(ctx)
