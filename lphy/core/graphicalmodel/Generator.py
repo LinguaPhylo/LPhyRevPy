@@ -1,19 +1,13 @@
+from lphy.core.graphicalmodel.GraphicalModelNode import GraphicalModelNode
 
 
-class Generator:
+class Generator(GraphicalModelNode):
 
+    def get_inputs(self):
+        return self.get_params().values()
 
-
-    # inputs are the arguments of a function or distribution or
-    # the function/distribution that produced this model node value/variable.
-    def getInputs(self) -> list:
+    def get_params(self) -> dict:
         pass
-
-    # return a unique string representing this graphical model node.
-    # For named variables it should be the name.
-    def get_unique_id(self) -> str:
-        pass
-
 
     def get_name(self) -> str:
         pass
@@ -25,12 +19,6 @@ class Generator:
     def code_string(self) -> str:
         pass
 
-    # return the character symbol, for function '=' and for generative distribution '~'
-    def generator_code_char(self) -> str:
-        pass
-
-    def get_inputs(self):
-        return self.get_params().values()
-
-    def get_params(self) -> dict:
+    # return the specification operator, for function '=' and for generative distribution '~'
+    def specification_operator(self) -> str:
         pass

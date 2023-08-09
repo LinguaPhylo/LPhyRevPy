@@ -4,8 +4,10 @@ from lphy.core.graphicalmodel.Generator import Generator
 
 
 class Function(Generator):
-
     param_map = ValueDict()
 
     def set_param(self, param_name: str, value: Value):
         self.param_map[param_name] = value
+
+    def specification_operator(self):
+        return '='

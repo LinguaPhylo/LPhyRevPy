@@ -37,6 +37,7 @@ class LPhyASTVisitor(LPhyVisitor):
         return super().visitVar(ctx)
 
     def visitRange_list(self, ctx: LPhyParser.Range_listContext):
+        #TODO
         return super().visitRange_list(ctx)
 
     def visitDeterm_relation(self, ctx: LPhyParser.Determ_relationContext):

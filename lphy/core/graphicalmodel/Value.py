@@ -1,8 +1,9 @@
 from lphy.core.graphicalmodel import Function
 from lphy.core.graphicalmodel import Generator
+from lphy.core.graphicalmodel.GraphicalModelNode import GraphicalModelNode
 
 
-class Value:
+class Value(GraphicalModelNode):
     # must be Generator
     outputs = []
 
@@ -15,10 +16,10 @@ class Value:
 
     def __init__(self, value, func: Function):
         self.__init__(None, value, func)
-        
+
     def __init__(self, id_: str, value, func: Function):
+        super().__init__(value)
         self.id = id_
-        self.value = value
         self.func = func
 
     def get_id(self):
