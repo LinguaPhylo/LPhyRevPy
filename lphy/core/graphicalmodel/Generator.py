@@ -1,8 +1,6 @@
 
-from core.graphicalmodel.GraphicalModel import GraphicalModel
 
-
-class Generator(GraphicalModel):
+class Generator:
     def getName(self) -> str:
         pass
 
