@@ -1,13 +1,11 @@
+from lphy.core.graphicalmodel.Value import Value
+from lphy.core.graphicalmodel.ValueDict import ValueDict
+from lphy.core.graphicalmodel.Generator import Generator
 
 
-class GraphicalModel:
+class Function(Generator):
 
-    # inputs are the arguments of a function or distribution or
-    # the function/distribution that produced this model node value/variable.
-    def getInputs(self) -> list:
-        pass
+    param_map = ValueDict()
 
-    # return a unique string representing this graphical model node.
-    # For named variables it should be the name.
-    def getUniqueId(self) -> str:
-        pass
+    def set_param(self, param_name: str, value: Value):
+        self.param_map[param_name] = value

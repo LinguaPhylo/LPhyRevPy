@@ -1,4 +1,6 @@
 from lphy.core.graphicalmodel.Value import Value
+from lphy.core.graphicalmodel.ValueDict import ValueDict
+from lphy.core.graphicalmodel.ValueSet import ValueSet
 
 
 class LPhyMetaParser:
@@ -6,22 +8,8 @@ class LPhyMetaParser:
     DATA = "data"
     MODEL = "model"
 
-    class ValueDict(dict):
-        def __setitem__(self, key, value):
-            if isinstance(value, Value):
-                super().__setitem__(key, value)
-            else:
-                raise ValueError("The value of {key} must be instances of the Value class ! But {type(value)}")
-
     data_dict = ValueDict()
     model_dict = ValueDict()
-
-    class ValueSet(set):
-        def add(self, value):
-            if isinstance(value, Value):
-                super().add(value)
-            else:
-                raise ValueError("The value {value} must be instances of the Value class ! But {type(value)}")
 
     data_val_set = ValueSet()
     model_val_set = ValueSet()
