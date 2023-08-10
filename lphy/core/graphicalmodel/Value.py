@@ -32,4 +32,8 @@ class Value(GraphicalModelNode):
     def is_anonymous(self):
         return self.id is None or self.id.strip() == ""
 
-
+    # return a unique id for this value for internal purposes.
+    def get_unique_id(self) -> str:
+        if not self.is_anonymous():
+            return self.get_id()
+        return str(hash(self))

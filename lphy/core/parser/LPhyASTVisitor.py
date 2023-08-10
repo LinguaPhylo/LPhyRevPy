@@ -1,6 +1,9 @@
-from antlr4 import *
+from lphy.core.error.Errors import ParsingException
+from lphy.core.graphicalmodel.Function import Function
 from lphy.core.parser.antlr.LPhyParser import LPhyParser
 from lphy.core.parser.antlr.LPhyVisitor import LPhyVisitor
+from lphy.core.vectorization.RangeList import RangeList
+
 
 class LPhyASTVisitor(LPhyVisitor):
 
@@ -36,14 +39,38 @@ class LPhyASTVisitor(LPhyVisitor):
     def visitVar(self, ctx: LPhyParser.VarContext):
         return super().visitVar(ctx)
 
+    # return a RangeList function.
     def visitRange_list(self, ctx: LPhyParser.Range_listContext):
+        return self.visitChildren(ctx)
         #TODO
-        return super().visitRange_list(ctx)
+        nodes = []
+
+        for i in range(ctx.getChildCount()):
+            o = self.visit(ctx.getChild(i))
+
+            if isinstance(o, (IntegerValue, IntegerArrayValue, Range)):
+                nodes.append(o)
+            elif isinstance(o, Function):
+                f = o
+                if isinstance(f.value(), (int, list)):
+                    nodes.append(o)
+                else:
+                    error_message = "Expected function returning Integer or Integer[]: " + str(o)
+                    raise ParsingException(error_message, ctx)
+            elif o is None:
+                # ignore commas
+                pass
+            else:
+                error_message = "Expected Integer value, or Range, in range list, but found: " + str(o)
+                raise ParsingException(error_message, ctx)
+
+        return RangeList(nodes)
 
     def visitDeterm_relation(self, ctx: LPhyParser.Determ_relationContext):
         return super().visitDeterm_relation(ctx)
 
     def visitStoch_relation(self, ctx: LPhyParser.Stoch_relationContext):
+        # TODO
         return super().visitStoch_relation(ctx)
 
     def visitLiteral(self, ctx: LPhyParser.LiteralContext):
@@ -59,9 +86,11 @@ class LPhyASTVisitor(LPhyVisitor):
         return super().visitBooleanLiteral(ctx)
 
     def visitExpression_list(self, ctx: LPhyParser.Expression_listContext):
+        # TODO
         return super().visitExpression_list(ctx)
 
     def visitUnnamed_expression_list(self, ctx: LPhyParser.Unnamed_expression_listContext):
+        # TODO
         return super().visitUnnamed_expression_list(ctx)
 
     def visitMapFunction(self, ctx: LPhyParser.MapFunctionContext):
@@ -77,12 +106,14 @@ class LPhyASTVisitor(LPhyVisitor):
         return super().visitDistribution(ctx)
 
     def visitNamed_expression(self, ctx: LPhyParser.Named_expressionContext):
+        # TODO
         return super().visitNamed_expression(ctx)
 
     def visitArray_construction(self, ctx: LPhyParser.Array_constructionContext):
         return super().visitArray_construction(ctx)
 
     def visitExpression(self, ctx: LPhyParser.ExpressionContext):
+        # TODO
         return super().visitExpression(ctx)
 
 
