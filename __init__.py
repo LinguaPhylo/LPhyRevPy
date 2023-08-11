@@ -3,9 +3,7 @@ import sys
 
 from antlr4 import *
 
-from lphy.core.parser.LPhyASTVisitor import LPhyASTVisitor
-from lphy.core.parser.antlr.LPhyLexer import LPhyLexer
-from lphy.core.parser.antlr.LPhyParser import LPhyParser
+from core.parser.LPhyMetaParser import LPhyMetaParser
 
 
 def parse_args(argv):
@@ -45,23 +43,8 @@ def main():
     # Rev: theta ~ dnNormal(3.0, 1.0)
     input_string = "Θ ~ LogNormal(meanlog=3.0, sdlog=1.0);"
 
-    stream = InputStream(input_string)
-    # lexer
-    lexer = LPhyLexer(stream)
-    # get tokens
-    tokens = CommonTokenStream(lexer)
-    # parser
-    parser = LPhyParser(tokens)
-
-    # start rule "input"
-    tree = parser.input_()
-    # tree = parser.structured_input()
-
-    # AST-specific operations
-    visitor = LPhyASTVisitor()
-    # Traverse parse tree, constructing tree along the way
-    output = visitor.visit(tree)
-    print(output)
+    meta_parser = LPhyMetaParser()
+    meta_parser.parse(input_string, LPhyMetaParser.MODEL)
 
 
 if __name__ == "__main__":

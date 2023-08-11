@@ -1,6 +1,10 @@
-from lphy.core.graphicalmodel.Value import Value
-from lphy.core.graphicalmodel.ValueDict import ValueDict
-from lphy.core.graphicalmodel.ValueSet import ValueSet
+from antlr4 import InputStream, CommonTokenStream
+
+from core.parser.LPhyASTVisitor import LPhyASTVisitor
+from core.parser.antlr.LPhyLexer import LPhyLexer
+from core.parser.antlr.LPhyParser import LPhyParser
+from core.graphicalmodel.Value import Value
+from core.graphicalmodel.ValueCollections import ValueSet, ValueDict
 
 
 class LPhyMetaParser:
@@ -14,11 +18,31 @@ class LPhyMetaParser:
     data_val_set = ValueSet()
     model_val_set = ValueSet()
 
+    _lines = [str]
+
+    def parse(self, input_string: str, context: str):
+        stream = InputStream(input_string)
+        # lexer
+        lexer = LPhyLexer(stream)
+        # get tokens
+        tokens = CommonTokenStream(lexer)
+        # parser
+        parser = LPhyParser(tokens)
+
+        # start rule "input"
+        tree = parser.input_()
+        # tree = parser.structured_input()
+
+        # AST-specific operations
+        visitor = LPhyASTVisitor(self, context)
+        # Traverse parse tree, constructing tree along the way
+        return visitor.visit(tree)
+
     def put(self, id_: str, value, context: str):
         if context.lower() == "data":
             self.data_dict[id_] = value
             self.data_val_set.add(value)
-        #elif context == "model":
+        # elif context == "model":
         else:
             self.model_dict[id_] = value
             self.model_val_set.add(value)

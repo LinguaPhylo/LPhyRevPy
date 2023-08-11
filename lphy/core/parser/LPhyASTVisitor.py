@@ -1,11 +1,16 @@
+from LPhyMetaParser import LPhyMetaParser
 from lphy.core.error.Errors import ParsingException
 from lphy.core.graphicalmodel.Function import Function
-from lphy.core.parser.antlr.LPhyParser import LPhyParser
-from lphy.core.parser.antlr.LPhyVisitor import LPhyVisitor
+from antlr.LPhyParser import LPhyParser
+from antlr.LPhyVisitor import LPhyVisitor
 from lphy.core.vectorization.RangeList import RangeList
 
 
 class LPhyASTVisitor(LPhyVisitor):
+
+    def __init__(self, meta_parser: LPhyMetaParser, context: str):
+        self._context = context
+        self._meta_parser = meta_parser
 
     # Override methods as needed for AST-specific operations
     # def visitInput(self, ctx:LPhyParser.InputContext):
@@ -37,6 +42,7 @@ class LPhyASTVisitor(LPhyVisitor):
         return super().visitRelation(ctx)
 
     def visitVar(self, ctx: LPhyParser.VarContext):
+        # TODO
         return super().visitVar(ctx)
 
     # return a RangeList function.
@@ -71,7 +77,31 @@ class LPhyASTVisitor(LPhyVisitor):
 
     def visitStoch_relation(self, ctx: LPhyParser.Stoch_relationContext):
         # TODO
-        return super().visitStoch_relation(ctx)
+        if self._context == LPhyMetaParser.DATA:
+            raise ParsingException("Generative distributions are not allowed in the data block! "
+                                   "Use model block for Generative distributions.", ctx)
+
+        gen_dist = self.visit(ctx.getChild(2))
+        var = self.visit(ctx.getChild(0))
+        variable = gen_dist.create_var_by_id(var.get_id())
+
+        # TODO
+        # if isinstance(gen_dist, VectorizedDistribution) and DataClampingUtils.is_data_clamping(var, parser):
+        #     array = self._meta_parser.data_dict[var.get_id()].value()
+        #     if isinstance(array, list):
+        #         variable = DataClampingUtils.get_data_clamped_vectorized_random_variable(var.get_id(), gen_dist, array)
+        #         print( "Data clamping: the value of " + var.get_id() +
+        #                " in the 'model' block is replaced by the value of " +
+        #                var.get_id() + " in the 'data' block ." )
+        #
+        # else:
+        #     variable = gen_dist.sample(var.get_id())
+
+        if variable is not None and not var.is_ranged_var():
+            self._meta_parser.put(variable.get_id(), variable, self._context)
+            return variable
+        else:
+            raise ParsingException("Data clamping requires to data as array object !", ctx)
 
     def visitLiteral(self, ctx: LPhyParser.LiteralContext):
         return super().visitLiteral(ctx)

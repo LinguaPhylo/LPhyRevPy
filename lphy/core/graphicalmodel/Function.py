@@ -1,8 +1,10 @@
-from lphy.core.graphicalmodel.Value import Value
-from lphy.core.graphicalmodel.ValueDict import ValueDict
-from lphy.core.graphicalmodel.Generator import Generator
+from abc import ABC, abstractmethod
+from Value import Value
+from Generator import Generator
+from ValueCollections import ValueDict
 
 
+# TODO can this merge with DeterministicFunction?
 class Function(Generator):
     param_map = ValueDict()
 
@@ -11,3 +13,24 @@ class Function(Generator):
 
     def specification_operator(self):
         return '='
+
+    # TODO
+
+
+class DeterministicFunction(Function, ABC):
+
+    @abstractmethod
+    def apply(self) -> Value:
+        pass
+
+    def generate(self) -> Value:
+        return self.apply()
+
+    def value(self) -> Value:
+        return self.apply().value()
+
+    def get_unique_id(self) -> str:
+        return str(hash(self))
+
+    # TODO
+

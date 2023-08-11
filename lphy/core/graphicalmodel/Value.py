@@ -1,14 +1,19 @@
-from lphy.core.graphicalmodel import Function
-from lphy.core.graphicalmodel import Generator
-from lphy.core.graphicalmodel.GraphicalModelNode import GraphicalModelNode
+from Function import Function
+from Generator import Generator
+from GraphicalModelNode import GraphicalModelNode
 
 
 class Value(GraphicalModelNode):
     # must be Generator
     outputs = []
 
+    def __init__(self, id_: str, value, func: Function):
+        super().__init__(value)
+        self.id = id_
+        self.func = func
     def __init__(self, value):
         self.__init__(None, value, None)
+        self.id = None
 
     def __init__(self, id_: str, value):
         # single trailing underscore avoids conflicts with keywords or built-in names
@@ -17,10 +22,8 @@ class Value(GraphicalModelNode):
     def __init__(self, value, func: Function):
         self.__init__(None, value, func)
 
-    def __init__(self, id_: str, value, func: Function):
-        super().__init__(value)
+    def set_id(self, id_: str):
         self.id = id_
-        self.func = func
 
     def get_id(self):
         return self.id
