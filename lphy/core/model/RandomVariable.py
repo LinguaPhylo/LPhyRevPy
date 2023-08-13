@@ -1,7 +1,9 @@
 from typing import List
-from Value import Value  # Import the base class
+
 from core.graphicalmodel.GenerativeDistribution import GenerativeDistribution
 from core.graphicalmodel.GraphicalModelNode import GraphicalModelNode
+
+from Value import Value  # Import the base class
 
 
 class RandomVariable(Value):

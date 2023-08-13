@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from Value import Value
+
 from Generator import Generator
+from Value import Value
 from ValueCollections import ValueDict
 
 

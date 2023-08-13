@@ -1,5 +1,5 @@
 from RandomVariable import RandomVariable
-from lphy.core.graphicalmodel.Generator import Generator
+from lphy.core.model.Generator import Generator
 
 
 class GenerativeDistribution(Generator):

@@ -1,6 +1,6 @@
-from lphy.core.graphicalmodel.Function import Function
-from lphy.core.graphicalmodel.GraphicalModelNode import GraphicalModelNode
-from lphy.core.graphicalmodel.Value import Value
+from lphy.core.model.Function import Function
+from lphy.core.model.GraphicalModelNode import GraphicalModelNode
+from lphy.core.model.Value import Value
 
 
 class RangeList(Function):

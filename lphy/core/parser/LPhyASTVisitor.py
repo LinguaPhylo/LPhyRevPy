@@ -1,8 +1,13 @@
+import logging
+
 from LPhyMetaParser import LPhyMetaParser
-from lphy.core.error.Errors import ParsingException
-from lphy.core.graphicalmodel.Function import Function
 from antlr.LPhyParser import LPhyParser
 from antlr.LPhyVisitor import LPhyVisitor
+from lphy.core.error.Errors import ParsingException
+from lphy.core.model.Function import Function
+from lphy.core.model.Value import Value
+from lphy.core.parser.ParserUtils import ParserUtils
+from lphy.core.parser.argument.ArgumentValue import ArgumentValue
 from lphy.core.vectorization.RangeList import RangeList
 
 
@@ -120,8 +125,21 @@ class LPhyASTVisitor(LPhyVisitor):
         return super().visitExpression_list(ctx)
 
     def visitUnnamed_expression_list(self, ctx: LPhyParser.Unnamed_expression_listContext):
-        # TODO
-        return super().visitUnnamed_expression_list(ctx)
+        values = []
+        for i in range(0, ctx.getChildCount(), 2):
+            obj = self.visit(ctx.getChild(i))
+            if isinstance(obj, Function):
+                value = obj.apply()
+                value.set_function(obj)
+                values.append(value)
+            elif isinstance(obj, Value):
+                value = obj
+                values.append(value)
+            elif obj is None:
+                values.append(None)
+            else:
+                raise ParsingException("Found a non-value, non-function in unnamed expression list: " + str(obj), ctx)
+        return values
 
     def visitMapFunction(self, ctx: LPhyParser.MapFunctionContext):
         return super().visitMapFunction(ctx)
@@ -133,17 +151,58 @@ class LPhyASTVisitor(LPhyVisitor):
         return super().visitMethodCall(ctx)
 
     def visitDistribution(self, ctx: LPhyParser.DistributionContext):
-        return super().visitDistribution(ctx)
+        name = ctx.getChild(0).getText()
+        f = self.visit(ctx.getChild(2))
+        arguments = {}
+
+        for v in f:
+            if v is not None:
+                arguments[v.get_name()] = v.get_value()
+            else:
+                raise ParsingException("Argument unexpectedly null", ctx)
+
+        #TODO
+        matches = ParserUtils.get_matching_generative_distributions(name, arguments)
+
+        if len(matches) == 0:
+            raise ParsingException("No generative distribution named " + name + " found matching arguments " + str(arguments), ctx)
+        elif len(matches) == 1:
+            generator = matches[0]
+            for key, value in arguments.items():
+                generator.set_input(key, value)
+            return generator
+        else:
+            logging.warning("Found " + str(len(matches)) + " matches for " + name + ". Picking first one!")
+            generator = matches[0]
+            for key, value in arguments.items():
+                generator.set_input(key, value)
+            return generator
 
     def visitNamed_expression(self, ctx: LPhyParser.Named_expressionContext):
-        # TODO
-        return super().visitNamed_expression(ctx)
+        name = ctx.getChild(0).getText()
+        obj = self.visit(ctx.getChild(2))
+
+        if isinstance(obj, Function):
+            value = obj.apply()
+            value.set_function(obj)
+            v = ArgumentValue(name, value, parser, context)
+            return v
+
+        if isinstance(obj, Value):
+            value = obj
+            v = ArgumentValue(name, value, parser, context)
+            return v
+
+        return obj
 
     def visitArray_construction(self, ctx: LPhyParser.Array_constructionContext):
         return super().visitArray_construction(ctx)
 
+    # return and array of ArgumentValue objects
     def visitExpression(self, ctx: LPhyParser.ExpressionContext):
-        # TODO
-        return super().visitExpression(ctx)
+        argument_values = []
+        for i in range(0, ctx.getChildCount(), 2):
+            argument_values.append(self.visit(ctx.getChild(i)))
+        return argument_values
 
 
