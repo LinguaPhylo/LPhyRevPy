@@ -3,7 +3,7 @@ import sys
 
 from antlr4 import *
 
-from core.parser.LPhyMetaParser import LPhyMetaParser
+from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
 
 
 def parse_args(argv):

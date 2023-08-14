@@ -9,7 +9,7 @@ import sys
 def main():
     logging.basicConfig(level=logging.DEBUG)
 
-    # For illustrative purposes.
+    # TODO have to add __init__, pkgutil.walk_packages cannot search children pkgs recursively in non-module
     module_name = 'lphy.base'
 
     # found_classes = find_classes_in_module(module_name, Generator)
@@ -33,8 +33,9 @@ def list_classes_in_package(package_name):
     package = import_module(package_name)
     class_list = get_classes_from_module(package)
 
-    for importer, modname, ispkg in pkgutil.walk_packages(package.__path__):
-        full_module_name = f"{package_name}.{modname}"
+    for loader, module_name, ispkg in pkgutil.walk_packages(package.__path__):
+        #module = loader.find_module(module_name).load_module(module_name)
+        full_module_name = f"{package_name}.{module_name}"
         module = import_module(full_module_name)
         class_list.extend(get_classes_from_module(module))
 

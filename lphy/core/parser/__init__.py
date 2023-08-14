@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from LPhyMetaParser import LPhyMetaParser
+from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
 
 
 def main():

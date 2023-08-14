@@ -1,10 +1,10 @@
 from antlr4 import InputStream, CommonTokenStream
 
-from core.parser.LPhyASTVisitor import LPhyASTVisitor
-from core.parser.antlr.LPhyLexer import LPhyLexer
-from core.parser.antlr.LPhyParser import LPhyParser
-from core.graphicalmodel.Value import Value
-from core.graphicalmodel.ValueCollections import ValueSet, ValueDict
+from lphy.core.parser.LPhyASTVisitor import LPhyASTVisitor
+from lphy.core.parser.antlr.LPhyLexer import LPhyLexer
+from lphy.core.parser.antlr.LPhyParser import LPhyParser
+from lphy.core.model.Value import Value
+from lphy.core.model.ValueCollections import ValueSet, ValueDict
 
 
 class LPhyMetaParser:
