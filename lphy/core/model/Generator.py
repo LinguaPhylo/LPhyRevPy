@@ -3,6 +3,10 @@ from .GraphicalModelNode import GraphicalModelNode
 
 class Generator(GraphicalModelNode):
 
+    # return the specification operator, for function '=' and for generative distribution '~'
+    def specification_operator(self) -> str:
+        pass
+
     def get_inputs(self):
         return self.get_params().values()
 
@@ -17,8 +21,4 @@ class Generator(GraphicalModelNode):
         pass
 
     def code_string(self) -> str:
-        pass
-
-    # return the specification operator, for function '=' and for generative distribution '~'
-    def specification_operator(self) -> str:
         pass

@@ -8,11 +8,11 @@ class Function(Generator):
     from .ValueCollections import ValueDict
     param_map = ValueDict()
 
-    def set_param(self, param_name: str, value: "Value"):
-        self.param_map[param_name] = value
-
     def specification_operator(self):
         return '='
+
+    def set_param(self, param_name: str, value: "Value"):
+        self.param_map[param_name] = value
 
     # TODO
 
@@ -29,8 +29,6 @@ class DeterministicFunction(Function, ABC):
     def value(self) -> "Value":
         return self.apply().value()
 
-    def get_unique_id(self) -> str:
-        return str(hash(self))
 
     # TODO
 

@@ -4,7 +4,7 @@ from LPhyMetaParser import LPhyMetaParser
 from antlr.LPhyParser import LPhyParser
 from antlr.LPhyVisitor import LPhyVisitor
 from lphy.core.error.Errors import ParsingException
-from lphy.core.model.Function import Function
+from lphy.core.model.Function import Function,DeterministicFunction
 from lphy.core.model.Value import Value
 from lphy.core.parser.ParserUtils import ParserUtils
 from lphy.core.parser.argument.ArgumentValue import ArgumentValue
@@ -61,7 +61,7 @@ class LPhyASTVisitor(LPhyVisitor):
 
             if isinstance(o, (IntegerValue, IntegerArrayValue, Range)):
                 nodes.append(o)
-            elif isinstance(o, Function):
+            elif isinstance(o, DeterministicFunction):
                 f = o
                 if isinstance(f.value(), (int, list)):
                     nodes.append(o)
@@ -88,7 +88,6 @@ class LPhyASTVisitor(LPhyVisitor):
 
         gen_dist = self.visit(ctx.getChild(2))
         var = self.visit(ctx.getChild(0))
-        variable = gen_dist.create_var_by_id(var.get_id())
 
         # TODO
         # if isinstance(gen_dist, VectorizedDistribution) and DataClampingUtils.is_data_clamping(var, parser):
@@ -100,7 +99,9 @@ class LPhyASTVisitor(LPhyVisitor):
         #                var.get_id() + " in the 'data' block ." )
         #
         # else:
-        #     variable = gen_dist.sample(var.get_id())
+
+        # it only provides id, no value is sampled
+        variable = gen_dist.sample(var.get_id())
 
         if variable is not None and not var.is_ranged_var():
             self._meta_parser.put(variable.get_id(), variable, self._context)
@@ -128,7 +129,7 @@ class LPhyASTVisitor(LPhyVisitor):
         values = []
         for i in range(0, ctx.getChildCount(), 2):
             obj = self.visit(ctx.getChild(i))
-            if isinstance(obj, Function):
+            if isinstance(obj, DeterministicFunction):
                 value = obj.apply()
                 value.set_function(obj)
                 values.append(value)
@@ -165,7 +166,8 @@ class LPhyASTVisitor(LPhyVisitor):
         matches = ParserUtils.get_matching_generative_distributions(name, arguments)
 
         if len(matches) == 0:
-            raise ParsingException("No generative distribution named " + name + " found matching arguments " + str(arguments), ctx)
+            raise ParsingException("No generative distribution named " + name +
+                                   " found matching arguments " + str(arguments), ctx)
         elif len(matches) == 1:
             generator = matches[0]
             for key, value in arguments.items():
@@ -182,7 +184,7 @@ class LPhyASTVisitor(LPhyVisitor):
         name = ctx.getChild(0).getText()
         obj = self.visit(ctx.getChild(2))
 
-        if isinstance(obj, Function):
+        if isinstance(obj, DeterministicFunction):
             value = obj.apply()
             value.set_function(obj)
             v = ArgumentValue(name, value, parser, context)

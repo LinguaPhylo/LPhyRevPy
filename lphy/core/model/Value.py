@@ -1,26 +1,18 @@
 from .GraphicalModelNode import GraphicalModelNode
 
 
+# Value could be generated from Function
 class Value(GraphicalModelNode):
     from .Function import Function
     from .Generator import Generator
     # must be Generator
     outputs = []
 
-    def __init__(self, id_: str, value, func: Function):
+    def __init__(self, value, id_: str = None, func: Function = None):
         super().__init__(value)
+        # single trailing underscore avoids conflicts with keywords or built-in names
         self.id = id_
         self.func = func
-    def __init__(self, value):
-        self.__init__(None, value, None)
-        self.id = None
-
-    def __init__(self, id_: str, value):
-        # single trailing underscore avoids conflicts with keywords or built-in names
-        self.__init__(id_, value, None)
-
-    def __init__(self, value, func: Function):
-        self.__init__(None, value, func)
 
     def set_id(self, id_: str):
         self.id = id_
@@ -32,10 +24,11 @@ class Value(GraphicalModelNode):
         if gen not in self.outputs:
             self.outputs.append(gen)
 
+    # an anonymous value, such as constants
     def is_anonymous(self):
         return self.id is None or self.id.strip() == ""
 
-    # return a unique id for this value for internal purposes.
+    # overwrite the default to return the id for a non-anonymous value.
     def get_unique_id(self) -> str:
         if not self.is_anonymous():
             return self.get_id()
