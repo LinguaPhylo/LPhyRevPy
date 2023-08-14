@@ -1,4 +1,4 @@
-from Value import Value
+from .Value import Value
 
 
 class ValueSet(set):

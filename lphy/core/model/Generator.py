@@ -1,4 +1,4 @@
-from GraphicalModelNode import GraphicalModelNode
+from .GraphicalModelNode import GraphicalModelNode
 
 
 class Generator(GraphicalModelNode):

@@ -1,9 +1,9 @@
-from Function import Function
-from Generator import Generator
-from GraphicalModelNode import GraphicalModelNode
+from .GraphicalModelNode import GraphicalModelNode
 
 
 class Value(GraphicalModelNode):
+    from .Function import Function
+    from .Generator import Generator
     # must be Generator
     outputs = []
 

@@ -1,15 +1,14 @@
 from abc import ABC, abstractmethod
 
-from Generator import Generator
-from Value import Value
-from ValueCollections import ValueDict
+from .Generator import Generator
 
 
 # TODO can this merge with DeterministicFunction?
 class Function(Generator):
+    from .ValueCollections import ValueDict
     param_map = ValueDict()
 
-    def set_param(self, param_name: str, value: Value):
+    def set_param(self, param_name: str, value: "Value"):
         self.param_map[param_name] = value
 
     def specification_operator(self):
@@ -21,13 +20,13 @@ class Function(Generator):
 class DeterministicFunction(Function, ABC):
 
     @abstractmethod
-    def apply(self) -> Value:
+    def apply(self) -> "Value":
         pass
 
-    def generate(self) -> Value:
+    def generate(self) -> "Value":
         return self.apply()
 
-    def value(self) -> Value:
+    def value(self) -> "Value":
         return self.apply().value()
 
     def get_unique_id(self) -> str:

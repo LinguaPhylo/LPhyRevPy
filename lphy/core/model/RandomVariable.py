@@ -1,12 +1,11 @@
 from typing import List
 
-from core.graphicalmodel.GenerativeDistribution import GenerativeDistribution
-from core.graphicalmodel.GraphicalModelNode import GraphicalModelNode
-
-from Value import Value  # Import the base class
+from .GraphicalModelNode import GraphicalModelNode
+from .Value import Value  # Import the base class
 
 
 class RandomVariable(Value):
+    from .GenerativeDistribution import GenerativeDistribution
 
     def __init__(self, id_: str, value, gen_dist: GenerativeDistribution):
         super().__init__(id_, value)
