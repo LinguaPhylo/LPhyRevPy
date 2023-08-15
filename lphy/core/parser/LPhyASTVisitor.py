@@ -1,20 +1,35 @@
 import logging
+import numpy as np
+from typing import List
 
-from LPhyMetaParser import LPhyMetaParser
 from antlr.LPhyParser import LPhyParser
 from antlr.LPhyVisitor import LPhyVisitor
 from lphy.core.error.Errors import ParsingException
-from lphy.core.model.Function import Function,DeterministicFunction
+from lphy.core.model.Function import DeterministicFunction
 from lphy.core.model.Value import Value
 from lphy.core.parser.ParserUtils import ParserUtils
 from lphy.core.parser.argument.ArgumentValue import ArgumentValue
 from lphy.core.vectorization.RangeList import RangeList
 
 
+def _get_value_or_function(obj, ctx, meta_parser: "LPhyMetaParser", block: str):
+    if isinstance(obj, Value):
+        meta_parser.add_to_value_set(obj, block)
+        return obj
+    if isinstance(obj, DeterministicFunction):
+        func = obj
+        val = func.apply()
+        val.set_function(func)
+        meta_parser.add_to_value_set(val, block)
+        return val
+    raise ParsingException(f"Expecting value or function but got {obj} !", ctx)
+
+
 class LPhyASTVisitor(LPhyVisitor):
 
-    def __init__(self, meta_parser: LPhyMetaParser, context: str):
-        self._context = context
+    # type hint with forward declaration LPhyMetaParser, to avoid circular dependencies
+    def __init__(self, meta_parser: "LPhyMetaParser", block: str):
+        self._block = block
         self._meta_parser = meta_parser
 
     # Override methods as needed for AST-specific operations
@@ -53,7 +68,7 @@ class LPhyASTVisitor(LPhyVisitor):
     # return a RangeList function.
     def visitRange_list(self, ctx: LPhyParser.Range_listContext):
         return self.visitChildren(ctx)
-        #TODO
+        # TODO
         nodes = []
 
         for i in range(ctx.getChildCount()):
@@ -81,8 +96,8 @@ class LPhyASTVisitor(LPhyVisitor):
         return super().visitDeterm_relation(ctx)
 
     def visitStoch_relation(self, ctx: LPhyParser.Stoch_relationContext):
-        # TODO
-        if self._context == LPhyMetaParser.DATA:
+        from .LPhyMetaParser import LPhyMetaParser
+        if self._block == LPhyMetaParser.DATA:
             raise ParsingException("Generative distributions are not allowed in the data block! "
                                    "Use model block for Generative distributions.", ctx)
 
@@ -104,13 +119,19 @@ class LPhyASTVisitor(LPhyVisitor):
         variable = gen_dist.sample(var.get_id())
 
         if variable is not None and not var.is_ranged_var():
-            self._meta_parser.put(variable.get_id(), variable, self._context)
+            self._meta_parser.put(variable.get_id(), variable, self._block)
             return variable
         else:
             raise ParsingException("Data clamping requires to data as array object !", ctx)
 
     def visitLiteral(self, ctx: LPhyParser.LiteralContext):
-        return super().visitLiteral(ctx)
+        text = ctx.getText()
+        if text.startswith('"'):
+            if text.endswith('"'):
+                return Value(text[1:-1])
+            else:
+                raise RuntimeError(f"Attempted to strip quotes, but the string {text} was not quoted.")
+        return Value(text)  # suppose to be constants
 
     def visitFloatingPointLiteral(self, ctx: LPhyParser.FloatingPointLiteralContext):
         return super().visitFloatingPointLiteral(ctx)
@@ -121,9 +142,9 @@ class LPhyASTVisitor(LPhyVisitor):
     def visitBooleanLiteral(self, ctx: LPhyParser.BooleanLiteralContext):
         return super().visitBooleanLiteral(ctx)
 
-    def visitExpression_list(self, ctx: LPhyParser.Expression_listContext):
-        # TODO
-        return super().visitExpression_list(ctx)
+    def visitExpression_list(self, ctx: LPhyParser.Expression_listContext) -> List[ArgumentValue]:
+        list_values = [self.visit(ctx.getChild(i)) for i in range(0, ctx.getChildCount(), 2)]
+        return list_values
 
     def visitUnnamed_expression_list(self, ctx: LPhyParser.Unnamed_expression_listContext):
         values = []
@@ -158,11 +179,14 @@ class LPhyASTVisitor(LPhyVisitor):
 
         for v in f:
             if v is not None:
-                arguments[v.get_name()] = v.get_value()
+                if isinstance(v, ArgumentValue):
+                    arguments[v.get_name()] = v.get_value()
+                else:
+                    raise ParsingException("Expecting ArgumentValue for " + name + ": " + f, ctx)
             else:
                 raise ParsingException("Argument unexpectedly null", ctx)
 
-        #TODO
+        # TODO
         matches = ParserUtils.get_matching_generative_distributions(name, arguments)
 
         if len(matches) == 0:
@@ -187,12 +211,12 @@ class LPhyASTVisitor(LPhyVisitor):
         if isinstance(obj, DeterministicFunction):
             value = obj.apply()
             value.set_function(obj)
-            v = ArgumentValue(name, value, parser, context)
+            v = ArgumentValue(name, value, self._meta_parser, self._block)
             return v
 
         if isinstance(obj, Value):
             value = obj
-            v = ArgumentValue(name, value, parser, context)
+            v = ArgumentValue(name, value, self._meta_parser, self._block)
             return v
 
         return obj
@@ -202,9 +226,45 @@ class LPhyASTVisitor(LPhyVisitor):
 
     # return and array of ArgumentValue objects
     def visitExpression(self, ctx: LPhyParser.ExpressionContext):
-        argument_values = []
-        for i in range(0, ctx.getChildCount(), 2):
-            argument_values.append(self.visit(ctx.getChild(i)))
-        return argument_values
+        # Deals with single token expressions -- either an id or a map expression
+        if ctx.getChildCount() == 1:
+            child_context = ctx.getChild(0)
+            # if this is a map just return the map Value
+            if child_context.getText().startswith("{"):
+                obj = self.visit(child_context)
+                return obj
 
+            key = child_context.getText()
+            if self._meta_parser.has_value(key, self._block):
+                return self._meta_parser.get_value(key, self._block)
 
+        expression = None
+        if ctx.getChildCount() >= 2:
+            s = ctx.getChild(1).getText()
+            # getChild(1) to parse the array index, e.g. x[0]
+            if s == "[":
+                return self._visit_index_range(ctx)
+
+            # TODO: handle built-in functions
+
+            s = ctx.getChild(0).getText()
+
+            if s == "!":
+                f1 = self.visit(ctx.getChild(2))
+                # TODO expression = ExpressionNode1Arg(ctx.getText(), ExpressionNode1Arg.not_op(), f1)
+                return expression
+            # Parsing array moves to visit_array_expression
+
+        return super().visitExpression(ctx)
+
+    def _visit_index_range(self, ctx):
+        child = self.visit(ctx.getChild(0))
+
+        array = _get_value_or_function(child, ctx)
+
+        if not isinstance(array.value(), (np.ndarray, list)):
+            raise ParsingException(f"Expected value {array} to be an array.", ctx)
+
+        range_list = self.visit(ctx.getChild(2))
+        # TODO
+        return self.get_indexed_value(array, range_list)

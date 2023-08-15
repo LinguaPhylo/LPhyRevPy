@@ -1,8 +1,7 @@
-from .Value import Value
-
 
 class ValueSet(set):
     def add(self, value):
+        from .Value import Value
         if isinstance(value, Value):
             super().add(value)
         else:
@@ -11,6 +10,7 @@ class ValueSet(set):
 
 class ValueDict(dict):
     def __setitem__(self, key, value):
+        from .Value import Value
         if isinstance(value, Value):
             super().__setitem__(key, value)
         else:

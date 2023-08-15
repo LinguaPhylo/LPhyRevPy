@@ -1,15 +1,11 @@
-from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
 
 
 class ArgumentValue:
 
-    def __init__(self, name, value, meta_parser: LPhyMetaParser, block):
+    def __init__(self, name, value, meta_parser: "LPhyMetaParser", block: str):
         self.name = name
         self.value = value
-        if block == LPhyMetaParser.DATA:
-            meta_parser.data_val_set.add(value)
-        else:
-            meta_parser.model_val_set.add(value)
+        meta_parser.add_to_value_set(value, block)
 
     def get_name(self):
         return self.name

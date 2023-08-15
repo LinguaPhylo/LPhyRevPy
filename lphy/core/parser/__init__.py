@@ -1,17 +1,11 @@
-import argparse
+import logging
 import sys
-
-from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
 
 
 def main():
-    parser = argparse.ArgumentParser(description="LPhy Parser")
-    parser.add_argument("filename", help="Name of the input file")
-    args = parser.parse_args()
+    logging.basicConfig(level=logging.DEBUG)
 
-    if args.filename:
-        with open(args.filename, "r") as fin:
-            input_string = fin.read()
+    from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
 
     # Rev: theta ~ dnNormal(3.0, 1.0)
     input_string = "Θ ~ LogNormal(meanlog=3.0, sdlog=1.0);"
