@@ -19,6 +19,16 @@ def main():
     print(f"Loading generative distributions from {module_name} : ")
     pp.pprint(found_classes)
 
+    # Get the constructor of LogNormal
+    constructor = found_classes[0].__init__
+
+    # Get the parameters of the constructor
+    parameters = inspect.signature(constructor).parameters
+
+    # Print the parameters and their default values
+    for param_name, param in parameters.items():
+        print(f"Parameter: {param_name}, Default Value: {param.default}")
+
 
 def list_classes_in_package(package_name):
     package = import_module(package_name)
@@ -47,7 +57,7 @@ def import_module(module_name):
     if module_name in sys.modules:
         logging.warning(f"{module_name!r} already in sys.modules")
     elif (spec := importlib.util.find_spec(module_name)) is not None:
-        # perform the actual import 
+        # perform the actual import
         module = importlib.util.module_from_spec(spec)
         sys.modules[module_name] = module
         spec.loader.exec_module(module)

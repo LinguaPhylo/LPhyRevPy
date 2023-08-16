@@ -1,9 +1,7 @@
 import getopt
 import sys
 
-from antlr4 import *
-
-from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
+from core import LPhyMetaParser
 
 
 def parse_args(argv):
