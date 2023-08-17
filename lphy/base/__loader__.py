@@ -6,17 +6,17 @@ import pprint
 import sys
 
 
+# TODO have to add __init__, pkgutil.walk_packages cannot search children pkgs recursively in non-module
+MODULE_NAME = 'lphy.base'
+
 # TODO why __loader__ has to be under lphy.base?
 def main():
     logging.basicConfig(level=logging.DEBUG)
 
-    # TODO have to add __init__, pkgutil.walk_packages cannot search children pkgs recursively in non-module
-    module_name = 'lphy.base'
-
     # found_classes = find_classes_in_module(module_name, Generator)
-    found_classes = list_classes_in_package(module_name)
+    found_classes = list_classes_in_package(MODULE_NAME)
     pp = pprint.PrettyPrinter(indent=2)
-    print(f"Loading generative distributions from {module_name} : ")
+    print(f"Loading generative distributions from {MODULE_NAME} : ")
     pp.pprint(found_classes)
 
     # Get the constructor of LogNormal
@@ -31,7 +31,10 @@ def main():
 
 
 def list_classes_in_package(package_name):
-    package = import_module(package_name)
+    if package_name not in sys.modules:
+        package = import_module(package_name)
+    else:
+        package = sys.modules[package_name]
     class_list = get_classes_from_module(package)
 
     for loader, module_name, ispkg in pkgutil.walk_packages(package.__path__):

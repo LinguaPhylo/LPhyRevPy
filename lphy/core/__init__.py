@@ -5,7 +5,7 @@ import sys
 def main():
     logging.basicConfig(level=logging.DEBUG)
 
-    from core.parser.LPhyMetaParser import LPhyMetaParser
+    from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
 
     # Rev: theta ~ dnNormal(3.0, 1.0)
     input_string = "Θ ~ LogNormal(meanlog=3.0, sdlog=1.0);"

@@ -1,7 +1,7 @@
 import inspect
 import pprint
 
-from core.error.Errors import UnsupportedOperationException
+from lphy.core.error.Errors import UnsupportedOperationException
 from lphy.core.parser.argument import ArgumentUtils
 from lphy.core.model.Generator import Generator
 
@@ -17,16 +17,22 @@ def get_matching_functions(name, arg_values):
     return matches
 
 
-def get_matching_generative_distributions(name, arguments) -> [Generator]:
+def get_matching_generative_distributions(gene_name, arguments) -> [Generator]:
     matches = []
 
-    generators = LoaderManager.get_all_generative_distribution_classes(name)
+    from lphy.base.__loader__ import list_classes_in_package, MODULE_NAME
+    found_classes = list_classes_in_package(MODULE_NAME)
+
+    #TODO list_classes_in_package returns NoneType
+
+    filtered_classes = [obj for obj in found_classes if obj.name == gene_name]
+    generators = set(filtered_classes)
 
     if generators is not None:
         for gen_class in generators:
-            matches.extend(_get_generator_by_arguments(name, arguments, gen_class))
+            matches.extend(_get_generator_by_arguments(gene_name, arguments, gen_class))
     else:
-        raise RuntimeError(f"No generator with name {name} available.")
+        raise RuntimeError(f"No generator with name {gene_name} available.")
     return matches
 
 
@@ -37,6 +43,7 @@ def _get_generator_by_arguments(name, params: dict, generator_class: str):
     matches = []
 
     for constructor in ArgumentUtils.get_constructors(generator_class):
+        # args_map -> ItemsView[_KT, _VT_co]
         args_map = ArgumentUtils.get_arguments(constructor)
         arg_values = []
 
@@ -63,17 +70,19 @@ def _get_generator_by_arguments(name, params: dict, generator_class: str):
     return matches
 
 
+# Map<String, Value> arguments, args_map -> ItemsView[_KT, _VT_co]
 def _match(arguments, args_map):
     required_arguments = set()
     optional_arguments = set()
     keys = set(arguments.keys())
 
-    for argument_inf in argument_info:
-        if argument_inf.optional:
-            optional_arguments.add(argument_inf.name)
+    for param_name, param in args_map.items():
+        if param.default == inspect.Parameter.empty:
+            required_arguments.add(param)
         else:
-            required_arguments.add(argument_inf.name)
+            optional_arguments.add(param)
 
+    # return false if not all required arguments are present
     if not keys.issuperset(required_arguments):
         return False
 

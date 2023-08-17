@@ -2,12 +2,13 @@ import logging
 import numpy as np
 from typing import List
 
-from antlr.LPhyParser import LPhyParser
-from antlr.LPhyVisitor import LPhyVisitor
+from lphy.core.parser.antlr.LPhyParser import LPhyParser
+from lphy.core.parser.antlr.LPhyVisitor import LPhyVisitor
 from lphy.core.error.Errors import ParsingException
 from lphy.core.model.Function import DeterministicFunction
 from lphy.core.model.Value import Value
-from lphy.core.parser.ParserUtils import ParserUtils
+from lphy.core.parser import ParserUtils
+
 from lphy.core.parser.argument.ArgumentValue import ArgumentValue
 from lphy.core.vectorization.RangeList import RangeList
 

@@ -13,6 +13,7 @@ def get_arguments_by_index(cls, constructor_index: int):
     return get_arguments(init_methods[constructor_index])
 
 
+# return items of param_name, param
 def get_arguments(constructor):
     # Get the parameters of the constructor
     parameters = inspect.signature(constructor).parameters

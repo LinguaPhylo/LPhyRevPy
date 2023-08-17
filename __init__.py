@@ -1,7 +1,7 @@
 import getopt
 import sys
 
-from core import LPhyMetaParser
+from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
 
 
 def parse_args(argv):
@@ -27,12 +27,12 @@ def parse_args(argv):
 
 
 def main():
-    argsdict = parse_args(sys.argv[1:])
-
-    with open(argsdict["in"], 'r') as f:
-        input_string = f.read()
-    # print lphy script
-    print(input_string)
+    # argsdict = parse_args(sys.argv[1:])
+    #
+    # with open(argsdict["in"], 'r') as f:
+    #     input_string = f.read()
+    # # print lphy script
+    # print(input_string)
 
     # empty data block or model block
     # if not str(sentence).endswith(";") and str(sentence).strip() != "":
