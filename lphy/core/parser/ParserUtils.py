@@ -17,20 +17,20 @@ def get_matching_functions(name, arg_values):
     return matches
 
 
-def get_matching_generative_distributions(gene_name, arguments) -> [Generator]:
+def get_matching_generative_distributions(gene_name, params) -> [Generator]:
     matches = []
 
     from lphy.base.__loader__ import list_classes_in_package, MODULE_NAME
     found_classes = list_classes_in_package(MODULE_NAME)
 
-    #TODO list_classes_in_package returns NoneType
-
-    filtered_classes = [obj for obj in found_classes if obj.name == gene_name]
-    generators = set(filtered_classes)
+    # found_classes return a list of classes
+    matching_classes = [obj for obj in found_classes if obj.__name__ == gene_name]
+    generators = set(matching_classes)
 
     if generators is not None:
         for gen_class in generators:
-            matches.extend(_get_generator_by_arguments(gene_name, arguments, gen_class))
+            generator = _get_generator_by_arguments(gene_name, params, gen_class)
+            matches.extend(generator)
     else:
         raise RuntimeError(f"No generator with name {gene_name} available.")
     return matches

@@ -1,4 +1,4 @@
-import importlib.util
+import importlib
 import inspect
 import logging
 import pkgutil
@@ -30,30 +30,37 @@ def main():
         print(f"Parameter: {param_name}, Default Value: {param.default}")
 
 
-def list_classes_in_package(package_name):
-    if package_name not in sys.modules:
-        package = import_module(package_name)
-    else:
-        package = sys.modules[package_name]
-    class_list = get_classes_from_module(package)
+def list_classes_in_package(module_name):
+    # if module_name not in sys.modules:
+    #     module = importlib.import_module(module_name)
+    # else:
+    #     module = sys.modules[module_name]
 
-    for loader, module_name, ispkg in pkgutil.walk_packages(package.__path__):
+    module = importlib.import_module(module_name)
+#    class_list = get_classes_from_module(module)
+    class_list = []
+
+    for _, submodule_name, _ in pkgutil.walk_packages(module.__path__, module_name + '.'):
         # module = loader.find_module(module_name).load_module(module_name)
-        full_module_name = f"{package_name}.{module_name}"
-        module = import_module(full_module_name)
-        class_list.extend(get_classes_from_module(module))
+        #full_module_name = f"{module_name}.{module_name}"
+        submodule = importlib.import_module(submodule_name)
+        #submodule_classes = get_classes_from_module(submodule)
+        # TODO better way to exclude parent class?
+        submodule_classes = [obj for obj in vars(submodule).values()
+                             if isinstance(obj, type) and obj.__name__ != 'GenerativeDistribution']
+        class_list.extend(submodule_classes)
 
     return class_list
 
 
-def get_classes_from_module(module):
-    classes = []
-    for cls_name, obj in inspect.getmembers(module):
-        # TODO better way to exclude parent class?
-        if inspect.isclass(obj) and cls_name != 'GenerativeDistribution':
-            classes.append(obj)
-            logging.debug(f"class {cls_name!r} has been imported")
-    return classes
+# def get_classes_from_module(module):
+#     classes = []
+#     for cls_name, obj in vars(module):
+#         # TODO better way to exclude parent class?
+#         if inspect.isclass(obj) and cls_name != 'GenerativeDistribution':
+#             classes.append(obj)
+#             logging.debug(f"class {cls_name!r} has been imported")
+#     return classes
 
 
 def import_module(module_name):
