@@ -1,7 +1,6 @@
 import inspect
 import pprint
 
-from lphy.core.error.Errors import UnsupportedOperationException
 from lphy.core.parser.argument import ArgumentUtils
 from lphy.core.model.Generator import Generator
 
@@ -115,8 +114,17 @@ def _get_function_by_arguments(name, arg_values, generator_class):
 
 # return an instance of Generator matching the arguments, also including IID and VectorMatch
 def _construct_generator(name, params, constructor, args_map, arg_values):
-    if ArgumentUtils.matching_parameter_types(args_map, arg_values, params):
-        return constructor(*arg_values)
+    # cannot use core.model.Value
+    from lphy.core.model.Value import Value
+    arg_value_values = [arg.value for arg in arg_values if arg is not None and isinstance(arg, Value)]
+    from lphy.base.distribution.ContinuousDistribution import LogNormal
+    # instance = LogNormal(3.0, 1.0)
+    # instance = LogNormal(*arg_value_values)
+    instance = constructor(*arg_value_values)
+    return instance
+    # if ArgumentUtils.matching_parameter_types(args_map, arg_values, params):
+    #     return constructor(*arg_values)
+    # TODO
     # elif IID.match(constructor, args_map, arg_values, params):
     #     iid = IID(constructor, arg_values, params)
     #     if iid.size() == 1:
@@ -124,6 +132,7 @@ def _construct_generator(name, params, constructor, args_map, arg_values):
     #     return iid
     # elif VectorMatchUtils.vector_match(args_map, arg_values) > 0:
     #     return VectorMatchUtils.vector_generator(constructor, args_map, arg_values)
-    else:
-        raise UnsupportedOperationException(f"Cannot find a match in '{name}' constructor arguments : " + params)
+    # else:
+    #   from lphy.core.error.Errors import UnsupportedOperationException
+    #     raise UnsupportedOperationException(f"Cannot find a match in '{name}' constructor arguments : " + params)
         #raise RuntimeError(f"ERROR! No match in '{name}' constructor arguments, including vector match! ")

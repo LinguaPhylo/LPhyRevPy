@@ -15,7 +15,7 @@ def get_arguments_by_index(cls, constructor_index: int):
 
 
 # return items of param_name, param, which are the argument name of constructor and its object
-def get_arguments(constructor, excl_self= True):
+def get_arguments(constructor, excl_self=True):
     init_signature = inspect.signature(constructor)
     # Get the parameters of the constructor
     parameters = init_signature.parameters
@@ -33,15 +33,15 @@ def get_arguments(constructor, excl_self= True):
     return parameters.items()
 
 
-def matching_parameter_types(args_map, init_args, params):
-    #TODO
+# TODO deprecated since python does not need Type?
+def matching_parameter_types(args_map, init_args, params) -> bool:
     count = 0
-    for i, argument_info in enumerate(args_map):
+    for i, argument in enumerate(args_map):
         arg = init_args[i]
 
         if arg is not None:
-            parameter_type = argument_info.type
-            value_type = arg.__class__ if lightweight else arg.value().__class__
+            parameter_type = argument.type
+            value_type = arg.value().__class__
 
             if not issubclass(value_type, parameter_type):
                 return False
@@ -51,5 +51,3 @@ def matching_parameter_types(args_map, init_args, params):
                 return False
 
     return params is None or count == len(params)
-
-
