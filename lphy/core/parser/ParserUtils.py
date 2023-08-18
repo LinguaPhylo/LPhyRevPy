@@ -49,7 +49,7 @@ def _get_generator_by_arguments(name, params: dict, generator_class: str):
 
         if _match(params, args_map):
 
-            for param_name, param in args_map.items():
+            for param_name, param in args_map:
                 try:
                     # Value arg
                     arg = params[param_name]
@@ -66,28 +66,34 @@ def _get_generator_by_arguments(name, params: dict, generator_class: str):
                               f"arguments : ")
                         pp.pprint(params)
 
-            matches.append(_construct_generator(name, params, constructor, args_map, arg_values))
+            generator = _construct_generator(name, params, constructor, args_map, arg_values)
+            matches.append(generator)
+
     return matches
 
 
+# return if the parsed arguments match the arguments pulled from the constructor
 # Map<String, Value> arguments, args_map -> ItemsView[_KT, _VT_co]
 def _match(arguments, args_map):
     required_arguments = set()
     optional_arguments = set()
     keys = set(arguments.keys())
 
-    for param_name, param in args_map.items():
+    for param_name, param in args_map:
         if param.default == inspect.Parameter.empty:
             required_arguments.add(param)
         else:
             optional_arguments.add(param)
 
+    # Extract the parameter names from the Parameter objects
+    required_argument_names = {param.name for param in required_arguments}
     # return false if not all required arguments are present
-    if not keys.issuperset(required_arguments):
+    if not required_argument_names.issubset(keys):
         return False
 
-    keys.difference_update(required_arguments)
-    keys.difference_update(optional_arguments)
+    keys.difference_update(required_argument_names)
+    optional_argument_names = {param.name for param in optional_arguments}
+    keys.difference_update(optional_argument_names)
     return len(keys) == 0 or (len(keys) == 1 and REPLICATES_PARAM_NAME in keys)
 
 
@@ -107,6 +113,7 @@ def _get_function_by_arguments(name, arg_values, generator_class):
     return matches
 
 
+# return an instance of Generator matching the arguments, also including IID and VectorMatch
 def _construct_generator(name, params, constructor, args_map, arg_values):
     if ArgumentUtils.matching_parameter_types(args_map, arg_values, params):
         return constructor(*arg_values)

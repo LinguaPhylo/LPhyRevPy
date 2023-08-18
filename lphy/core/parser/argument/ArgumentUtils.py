@@ -1,11 +1,12 @@
 import inspect
+import logging
 
 
 def get_constructors(cls):
     # Get all members of the class
     members = inspect.getmembers(cls)
     # Filter out the functions to get all constructors __init__
-    return [member for member in members if inspect.isfunction(member[1]) and member[0] == '__init__']
+    return [member for name, member in members if name == '__init__' and inspect.isfunction(member)]
 
 
 def get_arguments_by_index(cls, constructor_index: int):
@@ -13,15 +14,22 @@ def get_arguments_by_index(cls, constructor_index: int):
     return get_arguments(init_methods[constructor_index])
 
 
-# return items of param_name, param
-def get_arguments(constructor):
+# return items of param_name, param, which are the argument name of constructor and its object
+def get_arguments(constructor, excl_self= True):
+    init_signature = inspect.signature(constructor)
     # Get the parameters of the constructor
-    parameters = inspect.signature(constructor).parameters
+    parameters = init_signature.parameters
 
-    # Print the parameters and their default values
-    for param_name, param in parameters.items():
-        print(f"Parameter: {param_name}, Default Value: {param.default}")
+    if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+        # Print the parameters and their default values
+        for param_name, param in parameters.items():
+            print(f"Parameter: {param_name}, Default Value: {param.default}")
 
+    from collections import OrderedDict
+    # Exclude the "self" parameter
+    filtered_parameters = OrderedDict((name, param) for name, param in parameters.items() if name != 'self')
+    if excl_self:
+        return filtered_parameters.items()
     return parameters.items()
 
 
