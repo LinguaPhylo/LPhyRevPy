@@ -1,9 +1,11 @@
+from abc import ABC
+
 from lphy.core.model.Function import Function
 from lphy.core.model.GraphicalModelNode import GraphicalModelNode
 from lphy.core.model.Value import Value
 
 
-class RangeList(Function):
+class RangeList(Function, ABC):
     range_elements = []
 
     def __init__(self, *range_elements):

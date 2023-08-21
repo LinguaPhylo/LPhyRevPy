@@ -6,17 +6,10 @@ class Value(GraphicalModelNode):
     # must be Generator
     outputs = []
 
-    def __init__(self, value, id_: str = None, function: "Function" = None):
-        super().__init__(value)
-        # single trailing underscore avoids conflicts with keywords or built-in names
-        self.id = id_
+    def __init__(self, id_: str = None, value=None, function: "Function" = None):
+        super().__init__(id_)
+        self.value = value
         self.function = function
-
-    def set_id(self, id_: str):
-        self.id = id_
-
-    def get_id(self):
-        return self.id
 
     # overwrite the default to return the id for a non-anonymous value.
     def get_unique_id(self) -> str:
@@ -39,6 +32,28 @@ class Value(GraphicalModelNode):
     def get_generator(self):
         return self.function
 
+    def __str__(self):
+        if self.is_anonymous():
+            return self.value
+        return f"{self.id} = {self.value}"
+
+    def code_string(self):
+        str_list = []
+        generator = self.get_generator()
+
+        from .Generator import Generator
+        if generator is not None and isinstance(generator, Generator):
+            if not self.is_anonymous():
+                str_list.append(self.id)
+                str_list.append(" ")
+                str_list.append(generator.specification_operator())
+                str_list.append(" ")
+            str_list.append(generator.code_string())
+        else:
+            str_list.append(str(self))
+
+        return "".join(str_list)
+
     # an anonymous value, such as constants
     def is_anonymous(self):
         return self.id is None or self.id.strip() == ""
@@ -54,5 +69,3 @@ class Value(GraphicalModelNode):
     def is_random(self) -> bool:
         from .RandomVariable import RandomVariable
         return isinstance(self, RandomVariable) or (self.function is not None and self.function.has_random_parameters())
-
-

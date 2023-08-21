@@ -117,7 +117,8 @@ def _get_function_by_arguments(name, arg_values, generator_class):
 def _construct_generator(name, params, generator_class, args_map, arg_values):
     # cannot use core.model.Value
     from lphy.core.model.Value import Value
-    arg_value_values = [arg.value for arg in arg_values if arg is not None and isinstance(arg, Value)]
+    # arg must be Value obj
+    arg_value_values = [arg for arg in arg_values if arg is not None and isinstance(arg, Value)]
     from lphy.base.distribution.ContinuousDistribution import LogNormal
     # instance = LogNormal(3.0, 1.0)
     # instance = LogNormal(*arg_value_values)

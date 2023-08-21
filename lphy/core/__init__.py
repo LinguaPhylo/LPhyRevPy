@@ -1,6 +1,8 @@
 import logging
 import sys
 
+from lphy.core.parser.CanonicalCodeBuilder import CanonicalCodeBuilder
+
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
@@ -13,7 +15,10 @@ def main():
     meta_parser = LPhyMetaParser()
     meta_parser.parse(input_string, LPhyMetaParser.MODEL)
 
-    print(meta_parser)
+    code_builder = CanonicalCodeBuilder()
+    code = code_builder.get_code(meta_parser)
+
+    print(code)
 
 
 if __name__ == "__main__":
