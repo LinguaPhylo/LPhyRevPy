@@ -16,6 +16,7 @@ def get_matching_functions(name, arg_values):
     return matches
 
 
+# get the matched obj(s) of generative distribution given a name, which allows overloading
 def get_matching_generative_distributions(gene_name, params) -> [Generator]:
     matches = []
 
@@ -65,7 +66,7 @@ def _get_generator_by_arguments(name, params: dict, generator_class: str):
                               f"arguments : ")
                         pp.pprint(params)
 
-            generator = _construct_generator(name, params, constructor, args_map, arg_values)
+            generator = _construct_generator(name, params, generator_class, args_map, arg_values)
             matches.append(generator)
 
     return matches
@@ -112,15 +113,16 @@ def _get_function_by_arguments(name, arg_values, generator_class):
     return matches
 
 
-# return an instance of Generator matching the arguments, also including IID and VectorMatch
-def _construct_generator(name, params, constructor, args_map, arg_values):
+# return an object of Generator matching the arguments, also including IID and VectorMatch
+def _construct_generator(name, params, generator_class, args_map, arg_values):
     # cannot use core.model.Value
     from lphy.core.model.Value import Value
     arg_value_values = [arg.value for arg in arg_values if arg is not None and isinstance(arg, Value)]
     from lphy.base.distribution.ContinuousDistribution import LogNormal
     # instance = LogNormal(3.0, 1.0)
     # instance = LogNormal(*arg_value_values)
-    instance = constructor(*arg_value_values)
+    #constructor = LogNormal
+    instance = generator_class(*arg_value_values)
     return instance
     # if ArgumentUtils.matching_parameter_types(args_map, arg_values, params):
     #     return constructor(*arg_values)

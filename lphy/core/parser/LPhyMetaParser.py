@@ -16,7 +16,8 @@ class LPhyMetaParser:
     data_val_set = ValueSet()
     model_val_set = ValueSet()
 
-    _lines = [str]
+    def __init__(self):
+        self._lines = [] #TODO where to add lines?
 
     def parse(self, input_string: str, block: str):
         from lphy.core.parser.LPhyASTVisitor import LPhyASTVisitor
@@ -84,3 +85,6 @@ class LPhyMetaParser:
         non_arguments.sort(key=lambda val: val.get_id())
 
         return non_arguments
+
+    def __str__(self):
+        return '\n'.join(self._lines)

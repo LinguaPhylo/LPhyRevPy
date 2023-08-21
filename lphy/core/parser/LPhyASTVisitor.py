@@ -2,6 +2,8 @@ import logging
 import numpy as np
 from typing import List
 
+from lphy.core.model.Generator import Generator
+from lphy.core.model.RangedVar import Var
 from lphy.core.parser.antlr.LPhyParser import LPhyParser
 from lphy.core.parser.antlr.LPhyVisitor import LPhyVisitor
 from lphy.core.error.Errors import ParsingException
@@ -63,8 +65,18 @@ class LPhyASTVisitor(LPhyVisitor):
         return super().visitRelation(ctx)
 
     def visitVar(self, ctx: LPhyParser.VarContext):
-        # TODO
-        return super().visitVar(ctx)
+        # TODO may be not required
+        id_ = ctx.getChild(0).getText()
+
+        if ctx.getChildCount() > 1:
+            # variable of the form NAME '[' range ']'
+            o = self.visit(ctx.getChild(2))
+            if isinstance(o, RangeList):
+                return Var(id_, o, self._meta_parser)
+            else:
+                raise ParsingException("Expected variable id, or id and range list", ctx)
+
+        return Var(id_, self._meta_parser)
 
     # return a RangeList function.
     def visitRange_list(self, ctx: LPhyParser.Range_listContext):
@@ -187,20 +199,17 @@ class LPhyASTVisitor(LPhyVisitor):
             else:
                 raise ParsingException("Argument unexpectedly null", ctx)
 
-        # TODO
-        matches = ParserUtils.get_matching_generative_distributions(name, arguments)
+        # get the matched obj(s) of generative distribution given a name, which allows overloading
+        matches: List[Generator] = ParserUtils.get_matching_generative_distributions(name, arguments)
 
         if len(matches) == 0:
             raise ParsingException("No generative distribution named " + name +
                                    " found matching arguments " + str(arguments), ctx)
-        elif len(matches) == 1:
-            generator = matches[0]
-            for key, value in arguments.items():
-                generator.set_input(key, value)
-            return generator
         else:
-            logging.warning("Found " + str(len(matches)) + " matches for " + name + ". Picking first one!")
+            if len(matches) > 1:
+                logging.warning("Found " + str(len(matches)) + " matches for " + name + ". Picking first one!")
             generator = matches[0]
+            # must be done so that Values all know their outputs
             for key, value in arguments.items():
                 generator.set_input(key, value)
             return generator

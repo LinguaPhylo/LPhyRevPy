@@ -4,7 +4,7 @@ from .Generator import Generator
 
 
 # TODO can this merge with DeterministicFunction?
-class Function(Generator):
+class Function(Generator, ABC):
     from .ValueCollections import ValueDict
     param_map = ValueDict()
 

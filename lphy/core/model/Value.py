@@ -3,12 +3,10 @@ from .GraphicalModelNode import GraphicalModelNode
 
 # Value could be generated from Function
 class Value(GraphicalModelNode):
-    from .Function import Function
-    from .Generator import Generator
     # must be Generator
     outputs = []
 
-    def __init__(self, value, id_: str = None, function: Function = None):
+    def __init__(self, value, id_: str = None, function: "Function" = None):
         super().__init__(value)
         # single trailing underscore avoids conflicts with keywords or built-in names
         self.id = id_
@@ -26,7 +24,7 @@ class Value(GraphicalModelNode):
             return self.get_id()
         return str(hash(self))
 
-    def add_output(self, gen: Generator):
+    def add_output(self, gen: "Generator"):
         if gen not in self.outputs:
             self.outputs.append(gen)
 
@@ -52,5 +50,9 @@ class Value(GraphicalModelNode):
 
     def set_function(self, f):
         self.function = f
+
+    def is_random(self) -> bool:
+        from .RandomVariable import RandomVariable
+        return isinstance(self, RandomVariable) or (self.function is not None and self.function.has_random_parameters())
 
 
