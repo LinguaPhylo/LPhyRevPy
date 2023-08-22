@@ -10,7 +10,6 @@ from lphy.core.error.Errors import ParsingException
 from lphy.core.model.Function import DeterministicFunction
 from lphy.core.model.Value import Value
 from lphy.core.parser import ParserUtils
-
 from lphy.core.parser.argument.ArgumentValue import ArgumentValue
 from lphy.core.vectorization.RangeList import RangeList
 
@@ -141,10 +140,10 @@ class LPhyASTVisitor(LPhyVisitor):
         text = ctx.getText()
         if text.startswith('"'):
             if text.endswith('"'):
-                return Value(text[1:-1])
+                return Value(None, text[1:-1])
             else:
                 raise RuntimeError(f"Attempted to strip quotes, but the string {text} was not quoted.")
-        return Value(text)  # suppose to be constants
+        return Value(None, text)  # suppose to be constants
 
     def visitFloatingPointLiteral(self, ctx: LPhyParser.FloatingPointLiteralContext):
         return super().visitFloatingPointLiteral(ctx)

@@ -5,12 +5,15 @@ from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
 
 
 class CanonicalCodeBuilder:
+
+    visited = set()
+
     def __init__(self):
         self.data_lines = []
         self.model_lines = []
 
     def get_code(self, meta_parser: LPhyMetaParser):
-
+        self.visited.clear()
         self.data_lines.clear()
         self.model_lines.clear()
 
@@ -33,35 +36,43 @@ class CanonicalCodeBuilder:
         return '\n'.join(builder)
 
     def _traverse_graphical_model(self, node: GraphicalModelNode, meta_parser: LPhyMetaParser, post: bool):
+        if not post:
+            self._visit_node(node, meta_parser)
+
         if isinstance(node, Value):
-            if not post:
-                self._visit_node(node, meta_parser)
             if node.get_generator() is not None:
                 self._traverse_graphical_model(node.get_generator(), meta_parser, post)
-            if post:
-                self._visit_node(node, meta_parser)
-
         elif isinstance(node, Generator):
-            if not post:
-                self._visit_node(node, meta_parser)
-            # map value should be Value
-            map = node.get_params()
-            for key, value in map.items():
+             # map value should be Value
+            param_map = node.get_params()
+            for key, value in param_map.items():
                 self._traverse_graphical_model(value, meta_parser, post)
-            if post:
-                self._visit_node(node, meta_parser)
         else:
             raise RuntimeError("Cannot recognise the node : " + node.__str__())
 
+        if post:
+            self._visit_node(node, meta_parser)
+
     def _visit_node(self, node, meta_parser):
-        visited = set() # TODO seems not required
-        if node not in visited and isinstance(node, Value):
-            if not node.is_anonymous():
-                str_value = node.code_string()
-                if not str_value.endswith(";"):
-                    str_value += ";"
-                if meta_parser.is_named_data_value(node): #TODO
-                    self.data_lines.append(str_value)
-                else:
-                    self.model_lines.append(str_value)
-            visited.add(node)
+        # TODO and isinstance(node, Value)
+        if node not in self.visited:
+            if isinstance(node, Value):
+                if not node.is_anonymous():
+                    str_value = node.code_string()
+                    if not str_value.endswith(";"):
+                        str_value += ";"
+                    if meta_parser.is_named_data_value(node):
+                        self.data_lines.append(str_value)
+                    else:
+                        self.model_lines.append(str_value)
+                self.visited.add(node)
+
+            elif isinstance(node, Generator):
+                #TODO
+                # str_value = node.code_string()
+                # self.model_lines.append(str_value)
+
+                self.visited.add(node)
+
+            else:
+                raise RuntimeError("Cannot recognise the node : " + node.__str__())

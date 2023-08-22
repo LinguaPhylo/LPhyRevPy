@@ -15,7 +15,7 @@ class LogNormal(GenerativeDistribution):
 
     def sample(self, id_: str = None) -> "RandomVariable":
         # not need value
-        return RandomVariable(None, id_, self)
+        return RandomVariable(id_, None, self)
 
     def get_params(self):
         return OrderedDict([

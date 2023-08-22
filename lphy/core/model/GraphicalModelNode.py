@@ -13,6 +13,10 @@ class GraphicalModelNode(ABC):
     def get_id(self):
         return self.id
 
+    # an anonymous value/dist/func, such as constants
+    def is_anonymous(self):
+        return self.id is None or self.id.strip() == ""
+
     def lphy_to_rev(self):
         pass
 

@@ -1,5 +1,4 @@
-
-
+# TODO this seems unnecessary
 class ArgumentValue:
 
     def __init__(self, name, value, meta_parser: "LPhyMetaParser", block: str):

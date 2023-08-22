@@ -86,5 +86,11 @@ class LPhyMetaParser:
 
         return non_arguments
 
+    # return true if this is a named value in the data block.
+    def is_named_data_value(self, value):
+        from lphy.core.model.RandomVariable import RandomVariable
+        return (not value.is_anonymous() and not isinstance(value, RandomVariable)
+                and self.has_value(value.get_id(), self.DATA))
+
     def __str__(self):
-        return '\n'.join(self._lines)
+        return '\n'.join(self._lines) #TODO

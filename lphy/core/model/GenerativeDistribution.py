@@ -3,6 +3,19 @@ from abc import ABC, abstractmethod
 from .Generator import Generator
 
 
+def _get_argument_code_string(name, value):
+    prefix = ""
+    if not name.isdigit():  # Assuming ExpressionUtils.isInteger(name) is equivalent to name.isdigit()
+        prefix = name + "="
+
+    if value is None:
+        raise RuntimeError("Value of " + name + " is None!")
+
+    if value.is_anonymous():
+        return prefix + value.code_string()
+    return prefix + value.get_id()
+
+
 class GenerativeDistribution(Generator, ABC):
 
     def __init__(self, id_: str = None):
@@ -19,16 +32,16 @@ class GenerativeDistribution(Generator, ABC):
     def generate(self) -> "Value":
         return self.sample()  # TODO how to pass id_
 
-    def code_string(self):  # TODO
-        map = self.get_params()
-        iterator = iter(map.items())
+    def get_name(self) -> str:
+        if not self.is_anonymous() :
+            return self.get_id()
+        return type(self).__name__
 
-        entry = next(iterator)
+    def code_string(self):
+        params = []
+        for key, value in self.get_params().items():
+            params.append(f"{_get_argument_code_string(key, value)}")
 
-        builder = [f"{self.get_name()}({CodeStringUtils.getArgumentCodeString(entry)}"]
+        code = f"{self.get_name()}(" + ', '.join(params) + ");"
+        return code
 
-        for entry in iterator:
-            builder.append(f", {CodeStringUtils.getArgumentCodeString(entry)}")
-
-        builder.append(");")
-        return ''.join(builder)

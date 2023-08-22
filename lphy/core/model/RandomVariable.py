@@ -8,8 +8,8 @@ from .Value import Value  # Import the base class
 class RandomVariable(Value):
     from .GenerativeDistribution import GenerativeDistribution
 
-    def __init__(self, value, id_: str, gen_dist: GenerativeDistribution):
-        super().__init__(value, id_)
+    def __init__(self, id_: str, value, gen_dist: GenerativeDistribution):
+        super().__init__(id_, value)
         self.gen_dist = gen_dist
 
     def get_generator(self):

@@ -54,10 +54,6 @@ class Value(GraphicalModelNode):
 
         return "".join(str_list)
 
-    # an anonymous value, such as constants
-    def is_anonymous(self):
-        return self.id is None or self.id.strip() == ""
-
     # TODO is None value?
     def is_constant(self):
         from .RandomVariable import RandomVariable

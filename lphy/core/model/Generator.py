@@ -13,7 +13,7 @@ class Generator(GraphicalModelNode, ABC):
     def specification_operator(self) -> str:
         pass
 
-    # TODO should be replaced by get_id, including GenerativeDistribution, IID, MethodCall ...
+    # something diff to get_id
     def get_name(self) -> str:
         return self.get_id()
 
