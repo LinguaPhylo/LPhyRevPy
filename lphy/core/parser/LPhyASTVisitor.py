@@ -178,8 +178,8 @@ class LPhyASTVisitor(LPhyVisitor):
     def visitMapFunction(self, ctx: LPhyParser.MapFunctionContext):
         return super().visitMapFunction(ctx)
 
-    def visitFunction(self, ctx: LPhyParser.FunctionContext):
-        return super().visitFunction(ctx)
+    # def visitFunction(self, ctx: LPhyParser.FunctionContext):
+    #     return super().visitFunction(ctx)
 
     def visitMethodCall(self, ctx: LPhyParser.MethodCallContext):
         return super().visitMethodCall(ctx)
@@ -194,9 +194,9 @@ class LPhyASTVisitor(LPhyVisitor):
                 if isinstance(v, ArgumentValue):
                     arguments[v.get_name()] = v.get_value()
                 else:
-                    raise ParsingException("Expecting ArgumentValue for " + name + ": " + f, ctx)
+                    raise ParsingException(f"Expecting ArgumentValue for {name}: {ctx.getText()}", ctx)
             else:
-                raise ParsingException("Argument unexpectedly null", ctx)
+                raise ParsingException(f"Argument unexpectedly null for {name}: {ctx.getText()}", ctx)
 
         # get the matched obj(s) of generative distribution given a name, which allows overloading
         matches: List[Generator] = ParserUtils.get_matching_generative_distributions(name, arguments)
@@ -255,6 +255,18 @@ class LPhyASTVisitor(LPhyVisitor):
                 return self._visit_index_range(ctx)
 
             # TODO: handle built-in functions
+            # if getBivarOperators().contains(s):
+            #     f1 = ValueOrFunction(visit(ctx.getChild(0)), ctx).get_value()
+            #     f2 = ValueOrFunction(visit(ctx.getChild(ctx.getChildCount() - 1)), ctx).get_value()
+            #     if s == "+":
+            #         expression = ExpressionNode2Args(ctx.getText(), ExpressionNode2Args.plus(), f1, f2)
+            #     elif s == "-":
+            #         expression = ExpressionNode2Args(ctx.getText(), ExpressionNode2Args.minus(), f1, f2)
+            #
+            #     elif s == ":":
+            #         return Range(f1, f2)
+            #
+            #     return expression
 
             s = ctx.getChild(0).getText()
 

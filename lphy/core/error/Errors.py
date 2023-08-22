@@ -9,7 +9,7 @@ class UnsupportedOperationException(Exception):
 class ParsingException(Exception):
 #TODO add line number
     def __init__(self, msg: str, ctx: ParserRuleContext):
-        super().__init__(msg + "\n" + ctx.start)
+        super().__init__(msg) #+ "\n" + ctx.start
         #self.line_num = ctx.getToken()
         #self.character_num = ctx.
 
