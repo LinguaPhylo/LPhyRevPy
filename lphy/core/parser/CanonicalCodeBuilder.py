@@ -5,7 +5,6 @@ from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
 
 
 class CanonicalCodeBuilder:
-
     visited = set()
 
     def __init__(self):
@@ -43,7 +42,7 @@ class CanonicalCodeBuilder:
             if node.get_generator() is not None:
                 self._traverse_graphical_model(node.get_generator(), meta_parser, post)
         elif isinstance(node, Generator):
-             # map value should be Value
+            # map value should be Value
             param_map = node.get_params()
             for key, value in param_map.items():
                 self._traverse_graphical_model(value, meta_parser, post)
@@ -68,10 +67,9 @@ class CanonicalCodeBuilder:
                 self.visited.add(node)
 
             elif isinstance(node, Generator):
-                #TODO
+                # TODO do not need these
                 # str_value = node.code_string()
                 # self.model_lines.append(str_value)
-
                 self.visited.add(node)
 
             else:
