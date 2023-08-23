@@ -178,8 +178,64 @@ class LPhyASTVisitor(LPhyVisitor):
     def visitMapFunction(self, ctx: LPhyParser.MapFunctionContext):
         return super().visitMapFunction(ctx)
 
-    # def visitFunction(self, ctx: LPhyParser.FunctionContext):
-    #     return super().visitFunction(ctx)
+    # Parse lphy functions and return a Value or an Expression
+    def visitFunction(self, ctx: LPhyParser.FunctionContext):
+        function_name = ctx.children[0].getText()
+        ctx2 = ctx.getChild(2)
+
+        f1 = None
+        argument_object = None
+        argument_values = None
+        if ctx2.getText() == ")":
+            f1 = []
+        else:
+            argument_object = self.visit(ctx2)
+            if isinstance(argument_object, list):
+                f1 = argument_object
+            elif isinstance(argument_object, list):
+                argument_values = argument_object
+                f1 = [arg_value.get_value() for arg_value in argument_values if arg_value is not None]
+
+        if function_name in LoaderManager.get_univar_functions():
+            expression = None
+
+            # if function_name == "abs":
+            #     expression = ExpressionNode1Arg(ctx.getText(), ExpressionNode1Arg.abs(), f1)
+            # elif function_name == "acos":
+            #     expression = ExpressionNode1Arg(ctx.getText(), ExpressionNode1Arg.acos(), f1)
+            # #TODO ...
+            # elif function_name == "tanh":
+            #     expression = ExpressionNode1Arg(ctx.getText(), ExpressionNode1Arg.tanh(), f1)
+
+            return expression
+
+        function_classes = LoaderManager.get_function_classes(function_name)
+
+        if function_classes is None:
+            raise ParsingException(f"Found no implementation for function with name {function_name}", ctx)
+
+        arguments = {}
+        if argument_values:
+            for v in argument_values:
+                arguments[v.get_name()] = v.get_value()
+
+        generator = None
+        matches = []
+        if argument_values is None:
+            matches = ParserUtils.get_matching_functions(function_name, f1)
+        else:
+            matches = ParserUtils.get_matching_functions(function_name, arguments)
+
+        if len(matches) == 0:
+            raise RuntimeError(f"Found no function for {function_name} matching arguments {arguments if argument_values else f1}")
+            #TODO why return null in Java?
+        else:
+            if len(matches) > 1:
+                raise RuntimeError(f"Found {len(matches)} matches for {function_name}. Picking first one!")
+            generator = matches[0]
+            for entry in arguments.items():
+                generator.set_input(entry[0], entry[1])
+            return generator.generate()
 
     def visitMethodCall(self, ctx: LPhyParser.MethodCallContext):
         return super().visitMethodCall(ctx)
