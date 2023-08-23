@@ -46,8 +46,7 @@ def list_classes_in_package(module_name):
         submodule = importlib.import_module(submodule_name)
         #submodule_classes = get_classes_from_module(submodule)
         # TODO better way to exclude parent class?
-        submodule_classes = [obj for obj in vars(submodule).values()
-                             if isinstance(obj, type) and obj.__name__ != 'GenerativeDistribution']
+        submodule_classes = [obj for obj in vars(submodule).values() if isinstance(obj, type)]
         class_list.extend(submodule_classes)
 
     return class_list

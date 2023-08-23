@@ -1,30 +1,42 @@
 import inspect
 import pprint
+from typing import List
 
 from lphy.core.parser.argument import ArgumentUtils
+from lphy.core.model.Function import Function
 from lphy.core.model.Generator import Generator
 
 MAX_UNNAMED_ARGS = 3
 REPLICATES_PARAM_NAME = "replicates"  # Replace with the actual parameter name
 
-
-# TODO
-def get_matching_functions(name, arg_values):
-    matches = []
-    for function_class in LoaderManager.get_function_classes(name):
-        matches.extend(_get_function_by_arguments(name, arg_values, function_class))
-    return matches
+#TODO , "&", "|", "<<", ">>", ">>>"
+# Binary operators take two operands
+binary_operators = {
+    "+", "-", "*", "/", "**", "&&", "||", "<=", "<", ">=", ">", "%", ":", "^", "!=", "=="
+}
+#TODO
+# UnivariateStatistic functions
+univar_functions = {
+    "abs", "acos", "acosh", "asin", "asinh", "atan", "atanh", "cLogLog", "cbrt", "ceil",
+    "cos", "cosh", "exp", "expm1", "floor", "log", "log10", "log1p", "logFact", "logGamma",
+    "logit", "phi", "probit", "round", "signum", "sin", "sinh", "sqrt", "step", "tan", "tanh"
+}
 
 
 # get the matched obj(s) of generative distribution given a name, which allows overloading
-def get_matching_generative_distributions(gene_name, params) -> [Generator]:
+def get_matching_generators(gene_name, params) -> [Generator]:
     matches = []
 
     from lphy.base.__loader__ import list_classes_in_package, MODULE_NAME
     found_classes = list_classes_in_package(MODULE_NAME)
 
-    # found_classes return a list of classes
-    matching_classes = [obj for obj in found_classes if obj.__name__ == gene_name]
+    generator_classes = [obj for obj in found_classes if issubclass(obj, Generator)
+                         and obj.__name__ not in ('GenerativeDistribution', 'DeterministicFunction')]
+
+    #TODO need to rethink the get_name, could be NAME attr or static method ...
+
+    # found_classes return a list of classes, get_name() to match gene_name
+    matching_classes: List[Generator] = [gen for gen in generator_classes if gen.get_name() == gene_name]
     generators = set(matching_classes)
 
     if generators is not None:
