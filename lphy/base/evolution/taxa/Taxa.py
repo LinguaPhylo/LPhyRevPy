@@ -7,6 +7,9 @@ from lphy.core.model.Value import Value
 
 class CreateTaxa(DeterministicFunction, ABC):
 
+    generator_info = {"name": "taxa",
+                      "description": "A set of taxa with species and ages defined in parallel arrays."}
+
     def __init__(self, names: List[str], species=None, ages=None):
         super().__init__()
         if species is None:

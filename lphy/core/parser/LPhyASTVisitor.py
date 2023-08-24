@@ -14,6 +14,19 @@ from lphy.core.parser.argument.ArgumentValue import ArgumentValue
 from lphy.core.vectorization.RangeList import RangeList
 
 
+#TODO , "&", "|", "<<", ">>", ">>>"
+# Binary operators take two operands
+binary_operators = {
+    "+", "-", "*", "/", "**", "&&", "||", "<=", "<", ">=", ">", "%", ":", "^", "!=", "=="
+}
+#TODO
+# UnivariateStatistic functions
+univar_functions = {
+    "abs", "acos", "acosh", "asin", "asinh", "atan", "atanh", "cLogLog", "cbrt", "ceil",
+    "cos", "cosh", "exp", "expm1", "floor", "log", "log10", "log1p", "logFact", "logGamma",
+    "logit", "phi", "probit", "round", "signum", "sin", "sinh", "sqrt", "step", "tan", "tanh"
+}
+
 def _get_value_or_function(obj, ctx, meta_parser: "LPhyMetaParser", block: str):
     if isinstance(obj, Value):
         meta_parser.add_to_value_set(obj, block)
@@ -195,7 +208,7 @@ class LPhyASTVisitor(LPhyVisitor):
                 argument_values = argument_object
                 f1 = [arg_value.get_value() for arg_value in argument_values if arg_value is not None]
 
-        if function_name in ParserUtils.univar_functions:
+        if function_name in univar_functions:
             expression = None
 
             # if function_name == "abs":
@@ -213,7 +226,7 @@ class LPhyASTVisitor(LPhyVisitor):
         #
         # if function_classes is None:
         #     raise ParsingException(f"Found no implementation for function with name {function_name}", ctx)
-
+#TODO why f1 is None when taxa(names=1:10)
         if argument_values is None:
             matches = ParserUtils.get_matching_generators(function_name, f1)
         else:
@@ -305,24 +318,25 @@ class LPhyASTVisitor(LPhyVisitor):
                 return self._visit_index_range(ctx)
 
             # TODO: handle built-in functions
-            # if ParserUtils.binary_operators.contains(s):
-            #     f1 = ValueOrFunction(visit(ctx.getChild(0)), ctx).get_value()
-            #     f2 = ValueOrFunction(visit(ctx.getChild(ctx.getChildCount() - 1)), ctx).get_value()
-            #     if s == "+":
-            #         expression = ExpressionNode2Args(ctx.getText(), ExpressionNode2Args.plus(), f1, f2)
-            #     elif s == "-":
-            #         expression = ExpressionNode2Args(ctx.getText(), ExpressionNode2Args.minus(), f1, f2)
-            #
-            #     elif s == ":":
-            #         return Range(f1, f2)
-            #
-            #     return expression
+            if s in binary_operators:
+                #TODO pick the non-working operator, and use if else
+                if s == ":":
+                    start, end = map(int, ctx.getText().split(":"))
+                    return list(range(start, end + 1))
+                else:
+                    obj1 = self.visit(ctx.getChild(0))
+                    f1 = _get_value_or_function(obj1, ctx, self._meta_parser, self._block)
+                    obj2 = self.visit(ctx.getChild(ctx.getChildCount() - 1))
+                    f2 = _get_value_or_function(obj2, ctx, self._meta_parser, self._block)
+                    expression = f"{f1} {s} {f2}"
+                    return eval(expression)
 
             s = ctx.getChild(0).getText()
 
+            #TODO operator not
             if s == "!":
                 f1 = self.visit(ctx.getChild(2))
-                # TODO expression = ExpressionNode1Arg(ctx.getText(), ExpressionNode1Arg.not_op(), f1)
+                expression = f"{s} {f1}"
                 return expression
             # Parsing array moves to visit_array_expression
 
@@ -331,7 +345,7 @@ class LPhyASTVisitor(LPhyVisitor):
     def _visit_index_range(self, ctx):
         child = self.visit(ctx.getChild(0))
 
-        array = _get_value_or_function(child, ctx)
+        array = _get_value_or_function(child, ctx, self._meta_parser, self._block)
 
         if not isinstance(array.value(), (np.ndarray, list)):
             raise ParsingException(f"Expected value {array} to be an array.", ctx)

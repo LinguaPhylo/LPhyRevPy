@@ -9,19 +9,6 @@ from lphy.core.model.Generator import Generator
 MAX_UNNAMED_ARGS = 3
 REPLICATES_PARAM_NAME = "replicates"  # Replace with the actual parameter name
 
-#TODO , "&", "|", "<<", ">>", ">>>"
-# Binary operators take two operands
-binary_operators = {
-    "+", "-", "*", "/", "**", "&&", "||", "<=", "<", ">=", ">", "%", ":", "^", "!=", "=="
-}
-#TODO
-# UnivariateStatistic functions
-univar_functions = {
-    "abs", "acos", "acosh", "asin", "asinh", "atan", "atanh", "cLogLog", "cbrt", "ceil",
-    "cos", "cosh", "exp", "expm1", "floor", "log", "log10", "log1p", "logFact", "logGamma",
-    "logit", "phi", "probit", "round", "signum", "sin", "sinh", "sqrt", "step", "tan", "tanh"
-}
-
 
 # get the matched obj(s) of generative distribution given a name, which allows overloading
 def get_matching_generators(gene_name, params) -> [Generator]:
@@ -30,17 +17,20 @@ def get_matching_generators(gene_name, params) -> [Generator]:
     from lphy.base.__loader__ import list_classes_in_package, MODULE_NAME
     found_classes = list_classes_in_package(MODULE_NAME)
 
-    generator_classes = [obj for obj in found_classes if issubclass(obj, Generator)
-                         and obj.__name__ not in ('GenerativeDistribution', 'DeterministicFunction')]
+    # found_classes return a list of classes
+    generator_classes: List[Generator] = [obj for obj in found_classes if issubclass(obj, Generator)
+                                          and obj.__name__ not in ('GenerativeDistribution', 'DeterministicFunction')]
 
-    #TODO need to rethink the get_name, could be NAME attr or static method ...
+    # look for attr "generator_info" dict, if no exist, then use the class name
+    matching_classes = set()
+    for gen_class in generator_classes:
+        # _get_generator_name to match gene_name
+        name = _get_generator_name(gen_class)
+        if name == gene_name:
+            matching_classes.add(gen_class)
 
-    # found_classes return a list of classes, get_name() to match gene_name
-    matching_classes: List[Generator] = [gen for gen in generator_classes if gen.get_name() == gene_name]
-    generators = set(matching_classes)
-
-    if generators is not None:
-        for gen_class in generators:
+    if matching_classes:
+        for gen_class in matching_classes:
             generator = _get_generator_by_arguments(gene_name, params, gen_class)
             matches.extend(generator)
     else:
@@ -50,8 +40,15 @@ def get_matching_generators(gene_name, params) -> [Generator]:
 
 ### private
 
+def _get_generator_name(generator_class):
+    if hasattr(generator_class, 'generator_info'):
+        return generator_class.generator_info.get('name')
+    else:
+        return generator_class.__name__
+
+
 # Map<String, Value> arguments
-def _get_generator_by_arguments(name, params: dict, generator_class: str):
+def _get_generator_by_arguments(name, params: dict, generator_class):
     matches = []
 
     for constructor in ArgumentUtils.get_constructors(generator_class):
