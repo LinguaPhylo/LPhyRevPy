@@ -1,6 +1,6 @@
 import inspect
 import pprint
-from typing import List
+from typing import List, OrderedDict
 
 from lphy.core.parser.argument import ArgumentUtils
 from lphy.core.model.Function import Function
@@ -83,10 +83,10 @@ def _get_generator_by_arguments(name, params: dict, generator_class):
 
 # return if the parsed arguments match the arguments pulled from the constructor
 # Map<String, Value> arguments, args_map -> ItemsView[_KT, _VT_co]
-def _match(arguments, args_map):
+def _match(arguments: dict, args_map: dict):
     required_arguments = set()
     optional_arguments = set()
-    keys = set(arguments.keys())
+    keys = set(arguments.keys()) if arguments else set()
 
     for param_name, param in args_map:
         if param.default == inspect.Parameter.empty:
