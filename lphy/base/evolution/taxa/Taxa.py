@@ -10,15 +10,19 @@ class CreateTaxa(DeterministicFunction, ABC):
     generator_info = {"name": "taxa",
                       "description": "A set of taxa with species and ages defined in parallel arrays."}
 
-    def __init__(self, names: List[str], species=None, ages=None):
+    # TODO get rid of Value, so use names: List[str]
+    def __init__(self, names: Value, species=None, ages=None):
         super().__init__()
+        # have to take Value.value
+        self.names = names.value
         if species is None:
-            species = []
+            self.species = []
+        else:
+            self.species = species.value
         if ages is None:
-            ages = []
-        self.names = names
-        self.species = species
-        self.ages = ages
+            self.ages = []
+        else:
+            self.ages = ages.value
 
     def get_name(self) -> str:
         return "taxa"

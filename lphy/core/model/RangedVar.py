@@ -1,4 +1,4 @@
-from lphy.core.model.GraphicalModelNode import GraphicalModelNode
+
 
 
 def get_indexed_value(array, range_list):
@@ -12,9 +12,9 @@ def get_indexed_value(array, range_list):
 
 
 class Var:
-    def __init__(self, id, graphical_model: GraphicalModelNode, range_list=None):
-        self.id = id
-        self.graphical_model = graphical_model
+    def __init__(self, id_: str, meta_parser: "LPhyMetaParser", range_list=None):
+        self.id = id_
+        self.meta_parser = meta_parser
         self.range_list = range_list
 
     def get_id(self):
@@ -26,20 +26,24 @@ class Var:
     def is_ranged_var(self):
         return self.range_list is not None
 
-    def get_value(self, context):
-        val = self.graphical_model.value
-
-        if not self.is_ranged_var():
-            return val
+    def get_value(self, block: str):
+        # self.meta_parser is LPhyMetaParser
+        from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
+        if isinstance(self.meta_parser, LPhyMetaParser):
+            val = self.meta_parser.get_value(self.id, block)
+            if not self.is_ranged_var():
+                return val
+            else:
+                return get_indexed_value(val, self.range_list).apply()
         else:
-            return get_indexed_value(val, self.range_list).apply()
+            raise RuntimeError("meta_parser is not an instance of LPhyMetaParser !")
 
     def assign(self, value, function, context):
         if not self.is_ranged_var():
             if function is not None:
                 value.setFunction(function)
             value.setId(self.id)
-            self.graphical_model.put(self.id, value, context)
+            self.meta_parser.put(self.id, value, context)
             return value
         else:
             from lphy.core.error.Errors import UnsupportedOperationException

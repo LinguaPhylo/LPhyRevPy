@@ -13,19 +13,19 @@ from lphy.core.parser import ParserUtils
 from lphy.core.parser.argument.ArgumentValue import ArgumentValue
 from lphy.core.vectorization.RangeList import RangeList
 
-
-#TODO , "&", "|", "<<", ">>", ">>>"
+# TODO , "&", "|", "<<", ">>", ">>>"
 # Binary operators take two operands
 binary_operators = {
     "+", "-", "*", "/", "**", "&&", "||", "<=", "<", ">=", ">", "%", ":", "^", "!=", "=="
 }
-#TODO
+# TODO
 # UnivariateStatistic functions
 univar_functions = {
     "abs", "acos", "acosh", "asin", "asinh", "atan", "atanh", "cLogLog", "cbrt", "ceil",
     "cos", "cosh", "exp", "expm1", "floor", "log", "log10", "log1p", "logFact", "logGamma",
     "logit", "phi", "probit", "round", "signum", "sin", "sinh", "sqrt", "step", "tan", "tanh"
 }
+
 
 def _get_value_or_function(obj, ctx, meta_parser: "LPhyMetaParser", block: str):
     if isinstance(obj, Value):
@@ -202,11 +202,12 @@ class LPhyASTVisitor(LPhyVisitor):
             f1 = []
         else:
             argument_object = self.visit(ctx2)
-            if isinstance(argument_object, list) and all(isinstance(item, Value) for item in argument_object):
-                f1 = argument_object
-            elif isinstance(argument_object, list) and all(isinstance(item, ArgumentValue) for item in argument_object):
-                argument_values = argument_object
-                f1 = [arg_value.get_value() for arg_value in argument_values if arg_value is not None]
+            if isinstance(argument_object, list):
+                if all(isinstance(item, Value) for item in argument_object):
+                    f1 = argument_object
+                elif all(isinstance(item, ArgumentValue) for item in argument_object):
+                    argument_values = argument_object
+                    f1 = [arg_value.get_value() for arg_value in argument_values if arg_value is not None]
 
         if function_name in univar_functions:
             expression = None
@@ -226,7 +227,7 @@ class LPhyASTVisitor(LPhyVisitor):
         #
         # if function_classes is None:
         #     raise ParsingException(f"Found no implementation for function with name {function_name}", ctx)
-#TODO why f1 is None when taxa(names=1:10)
+        # TODO why f1 is None when taxa(names=1:10)
         if argument_values is None:
             matches = ParserUtils.get_matching_generators(function_name, f1)
         else:
@@ -234,8 +235,9 @@ class LPhyASTVisitor(LPhyVisitor):
             matches = ParserUtils.get_matching_generators(function_name, arguments)
 
         if len(matches) == 0:
-            raise RuntimeError(f"Found no function for '{function_name}' matching arguments {str(arguments) if argument_values else str(f1)}")
-            #TODO why return null in Java?
+            raise RuntimeError(
+                f"Found no function for '{function_name}' matching arguments {str(arguments) if argument_values else str(f1)}")
+            # TODO why return null in Java?
         else:
             if len(matches) > 1:
                 raise RuntimeError(f"Found {len(matches)} matches for '{function_name}'. Picking first one!")
@@ -280,6 +282,8 @@ class LPhyASTVisitor(LPhyVisitor):
         name = ctx.getChild(0).getText()
         obj = self.visit(ctx.getChild(2))
 
+        # TODO how to improve?
+        # python built-in has to convert to DeterministicFunction, in order to parse args
         if isinstance(obj, DeterministicFunction):
             value = obj.apply()
             value.set_function(obj)
@@ -290,6 +294,13 @@ class LPhyASTVisitor(LPhyVisitor):
             value = obj
             v = ArgumentValue(name, value, self._meta_parser, self._block)
             return v
+
+        # for 1:10
+        # if isinstance(obj, list):
+        #     all_integers = all(isinstance(item, int) for item in obj)
+        #     if all_integers:
+        #         v = ArgumentValue(name, obj, self._meta_parser, self._block)
+        #         return v
 
         return obj
 
@@ -319,10 +330,10 @@ class LPhyASTVisitor(LPhyVisitor):
 
             # TODO: handle built-in functions
             if s in binary_operators:
-                #TODO pick the non-working operator, and use if else
+                # TODO pick the non-working operator, and use if else
                 if s == ":":
                     start, end = map(int, ctx.getText().split(":"))
-                    return list(range(start, end + 1))
+                    return Value(None, list(range(start, end + 1)))
                 else:
                     obj1 = self.visit(ctx.getChild(0))
                     f1 = _get_value_or_function(obj1, ctx, self._meta_parser, self._block)
@@ -333,7 +344,7 @@ class LPhyASTVisitor(LPhyVisitor):
 
             s = ctx.getChild(0).getText()
 
-            #TODO operator not
+            # TODO operator not
             if s == "!":
                 f1 = self.visit(ctx.getChild(2))
                 expression = f"{s} {f1}"
