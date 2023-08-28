@@ -1,19 +1,6 @@
 from abc import ABC, abstractmethod
 
-from .Generator import Generator
-
-
-def _get_argument_code_string(name, value):
-    prefix = ""
-    if not name.isdigit():  # Assuming ExpressionUtils.isInteger(name) is equivalent to name.isdigit()
-        prefix = name + "="
-
-    if value is None:
-        raise RuntimeError("Value of " + name + " is None!")
-
-    if value.is_anonymous():
-        return prefix + value.code_string()
-    return prefix + value.get_id()
+from .Generator import Generator, get_generator_name, get_argument_code_string
 
 
 class GenerativeDistribution(Generator, ABC):
@@ -40,8 +27,8 @@ class GenerativeDistribution(Generator, ABC):
     def code_string(self):
         params = []
         for key, value in self.get_params().items():
-            params.append(f"{_get_argument_code_string(key, value)}")
+            params.append(f"{get_argument_code_string(key, value)}")
 
-        code = f"{self.get_name()}(" + ', '.join(params) + ");"
+        code = f"{get_generator_name(self)}(" + ', '.join(params) + ");"
         return code
 

@@ -1,10 +1,9 @@
 import inspect
 import pprint
-from typing import List, OrderedDict
+from typing import List
 
 from lphy.core.parser.argument import ArgumentUtils
-from lphy.core.model.Function import Function
-from lphy.core.model.Generator import Generator
+from lphy.core.model.Generator import Generator, get_generator_name
 
 MAX_UNNAMED_ARGS = 3
 REPLICATES_PARAM_NAME = "replicates"  # Replace with the actual parameter name
@@ -25,7 +24,7 @@ def get_matching_generators(gene_name, params) -> [Generator]:
     matching_classes = set()
     for gen_class in generator_classes:
         # _get_generator_name to match gene_name
-        name = _get_generator_name(gen_class)
+        name = get_generator_name(gen_class)
         if name == gene_name:
             matching_classes.add(gen_class)
 
@@ -39,13 +38,6 @@ def get_matching_generators(gene_name, params) -> [Generator]:
 
 
 ### private
-
-def _get_generator_name(generator_class):
-    if hasattr(generator_class, 'generator_info'):
-        return generator_class.generator_info.get('name')
-    else:
-        return generator_class.__name__
-
 
 # Map<String, Value> arguments
 def _get_generator_by_arguments(name, params: dict, generator_class):

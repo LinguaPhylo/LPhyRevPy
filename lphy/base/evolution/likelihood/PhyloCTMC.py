@@ -11,13 +11,13 @@ class PhyloCTMC(GenerativeDistribution, ABC):
     def __init__(self, tree: Value, Q: Value, L=None, mu=None, site_rates=None, branch_rates=None, data_type=None):
         super().__init__()
         # have to take Value.value
-        self.tree = tree.value
-        self.Q = Q.value
-        self.L = L.value if L is not None else None
-        self.mu = mu.value if mu is not None else 1.0
-        self.site_rates = site_rates.value if site_rates is not None else []
-        self.branch_rates = branch_rates.value if branch_rates is not None else []
-        self.data_type = data_type.value if data_type is not None else None
+        self.tree = tree
+        self.Q = Q
+        self.L = L if L is not None else None
+        self.mu = mu if mu is not None else 1.0
+        self.site_rates = site_rates
+        self.branch_rates = branch_rates
+        self.data_type = data_type
 
     def sample(self, id_: str = None) -> "RandomVariable":
         # not need value

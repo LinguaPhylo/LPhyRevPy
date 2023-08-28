@@ -4,9 +4,32 @@ from lphy.core.model.Value import Value
 from lphy.core.model.GraphicalModelNode import GraphicalModelNode
 
 
+# this replaces getName()
+def get_generator_name(generator_class):
+    if hasattr(generator_class, 'generator_info'):
+        return generator_class.generator_info.get('name')
+    elif isinstance(generator_class, type):
+        return generator_class.__name__
+    else:
+        return generator_class.__class__.__name__
+
+
+def get_argument_code_string(name, value):
+    prefix = ""
+    if not name.isdigit():  # Assuming ExpressionUtils.isInteger(name) is equivalent to name.isdigit()
+        prefix = name + "="
+
+    if value is None:
+        raise RuntimeError("Value of " + name + " is None!")
+
+    if value.is_anonymous():
+        return prefix + value.code_string()
+    return prefix + value.get_id()
+
+
 class Generator(GraphicalModelNode, ABC):
 
-    #TODO TypeError: Can't instantiate abstract class LogNormal with abstract methods code_string, get_name
+    # TODO TypeError: Can't instantiate abstract class LogNormal with abstract methods code_string, get_name
 
     # return the specification operator, for function '=' and for generative distribution '~'
     @abstractmethod
@@ -53,8 +76,8 @@ class Generator(GraphicalModelNode, ABC):
             pass
 
     def set_input(self, param_name: str, value: Value) -> None:
-        #TODO
-        #self.set_param(param_name, value)
+        # TODO
+        # self.set_param(param_name, value)
         value.add_output(self)
 
     def set_inputs(self, params: Dict[str, Value]) -> None:
