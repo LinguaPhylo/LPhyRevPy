@@ -24,9 +24,6 @@ class CreateTaxa(DeterministicFunction, ABC):
         else:
             self.ages = ages.value
 
-    def get_name(self) -> str:
-        return "taxa"
-
     def apply(self) -> "Value":
         taxon_list = []
 

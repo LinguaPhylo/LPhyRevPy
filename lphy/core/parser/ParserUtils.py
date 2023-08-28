@@ -60,8 +60,13 @@ def _get_generator_by_arguments(name, params: dict, generator_class):
 
             for param_name, param in args_map:
                 try:
-                    # Value arg
-                    arg = params[param_name]
+                    #TODO why params is changed to list when empty?
+                    # Value arg, if params is empty, return None
+                    if params:
+                        arg = params[param_name]
+                    else:
+                        arg = None
+                    # if None, all params are optional
                     arg_values.append(arg)
                 except KeyError:
                     if param.default == inspect.Parameter.empty:
@@ -82,7 +87,7 @@ def _get_generator_by_arguments(name, params: dict, generator_class):
 
 
 # return if the parsed arguments match the arguments pulled from the constructor
-# Map<String, Value> arguments, args_map -> ItemsView[_KT, _VT_co]
+# dict[String, Value] arguments are parsed from lphy script, args_map is from the __init__
 def _match(arguments: dict, args_map: dict):
     required_arguments = set()
     optional_arguments = set()

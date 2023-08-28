@@ -32,9 +32,10 @@ class GenerativeDistribution(Generator, ABC):
     def generate(self) -> "Value":
         return self.sample()  # TODO how to pass id_
 
+#TODO use attr now
     # This must be overwritten if the func/dist name not same as the class name, case-sensitive.
-    def get_name(self) -> str:
-        return type(self).__name__
+    # def get_name(self) -> str:
+    #     return type(self).__name__
 
     def code_string(self):
         params = []

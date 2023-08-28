@@ -228,6 +228,7 @@ class LPhyASTVisitor(LPhyVisitor):
         # if function_classes is None:
         #     raise ParsingException(f"Found no implementation for function with name {function_name}", ctx)
         # TODO why f1 is None when taxa(names=1:10)
+        arguments = {}
         if argument_values is None:
             matches = ParserUtils.get_matching_generators(function_name, f1)
         else:
