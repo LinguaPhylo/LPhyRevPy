@@ -8,6 +8,7 @@ from lphy.core.model.Value import Value
 
 class PhyloCTMC(GenerativeDistribution, ABC):
 
+    # The parameter name must be matching with its definition in lphy script, case-sensitive.
     def __init__(self, tree: Value, Q: Value, L=None, mu=None, site_rates=None, branch_rates=None, data_type=None):
         super().__init__()
         # have to take Value.value
@@ -23,13 +24,3 @@ class PhyloCTMC(GenerativeDistribution, ABC):
         # not need value
         return RandomVariable(id_, None, self)
 
-    # def get_params(self):
-    #     return OrderedDict([
-    #         ("tree", self.tree),
-    #         ("Q", self.Q),
-    #         ("L", self.L),
-    #         ("mu", self.mu),
-    #         ("siteRates", self.site_rates),
-    #         ("branchRates", self.branch_rates),
-    #         ("dataType", self.data_type)
-    #     ])

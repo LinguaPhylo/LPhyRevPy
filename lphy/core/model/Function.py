@@ -17,10 +17,6 @@ class Function(Generator, ABC):
     def specification_operator(self):
         return '='
 
-    # def set_param(self, param_name: str, value: "Value"):
-    #     self.param_map[param_name] = value
-
-
     ### Please note that in Python, defining multiple __init__ methods
     # with different sets of parameters is not recommended,
     # as only the last-defined __init__ method will be effective.
@@ -62,8 +58,3 @@ class DeterministicFunction(Function, ABC):
     def generate(self) -> "Value":
         return self.apply()
 
-    # TODO deprecated
-    def value(self) -> "Value":
-        return self.apply().value()
-
-    # TODO

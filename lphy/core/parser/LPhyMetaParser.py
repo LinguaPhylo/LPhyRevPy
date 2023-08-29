@@ -4,6 +4,7 @@ from lphy.core.parser.antlr.LPhyLexer import LPhyLexer
 from lphy.core.parser.antlr.LPhyParser import LPhyParser
 
 
+# store the parsed Values and Generators
 class LPhyMetaParser:
     # ordered and unchangeable
     DATA = "data"
@@ -17,7 +18,7 @@ class LPhyMetaParser:
     model_val_set = ValueSet()
 
     def __init__(self):
-        self._lines = [] #TODO where to add lines?
+        self._lines = []  # TODO where to add lines?
 
     def parse(self, input_string: str, block: str):
         from lphy.core.parser.LPhyASTVisitor import LPhyASTVisitor
@@ -93,4 +94,4 @@ class LPhyMetaParser:
                 and self.has_value(value.get_id(), self.DATA))
 
     def __str__(self):
-        return '\n'.join(self._lines) #TODO
+        return '\n'.join(self._lines)  # TODO

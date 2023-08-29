@@ -4,6 +4,8 @@ from lphy.core.model.Value import Value
 from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
 
 
+# Given a LPhyMetaParser, traverse the graphical model
+# to create the lphy script from Values and Generators.
 class CanonicalCodeBuilder:
     visited = set()
 

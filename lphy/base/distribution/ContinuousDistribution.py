@@ -17,9 +17,3 @@ class LogNormal(GenerativeDistribution):
         # not need value
         return RandomVariable(id_, None, self)
 
-    # def get_params(self):
-    #     return OrderedDict([
-    #         ("meanlog", self.meanlog),
-    #         ("sdlog", self.sdlog)
-    #     ])
-

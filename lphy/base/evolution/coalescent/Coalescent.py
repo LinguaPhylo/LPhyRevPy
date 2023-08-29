@@ -20,10 +20,3 @@ class Coalescent(GenerativeDistribution):
         # not need value
         return RandomVariable(id_, None, self)
 
-    # def get_params(self):
-    #     return OrderedDict([
-    #         ("theta", self.theta),
-    #         ("n", self.n),
-    #         ("taxa", self.n)
-    #     ])
-
