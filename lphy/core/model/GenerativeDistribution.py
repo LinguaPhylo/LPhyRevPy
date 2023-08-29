@@ -19,7 +19,7 @@ class GenerativeDistribution(Generator, ABC):
     def generate(self) -> "Value":
         return self.sample()  # TODO how to pass id_
 
-    def code_string(self):
+    def lphy_string(self):
         params = []
         for param_name, param in self.get_params():
             value = self.get_param(param_name)

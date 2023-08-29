@@ -44,16 +44,16 @@ class RangeList(Function, ABC):
     def size(self) -> int:
         return len(self.range_elements)
 
-    def code_string(self) -> str:
+    def lphy_string(self) -> str:
         builder = []
         for node in self.range_elements:
             if builder:
                 builder.append(",")
             if isinstance(node, Value):
                 if node.is_anonymous():
-                    builder.append(node.code_string())
+                    builder.append(node.lphy_string())
                 else:
                     builder.append(node.get_id())
             elif isinstance(node, Function):
-                builder.append(node.code_string())
+                builder.append(node.lphy_string())
         return ",".join(builder)

@@ -17,6 +17,10 @@ class GraphicalModelNode(ABC):
     def is_anonymous(self):
         return self.id is None or self.id.strip() == ""
 
+    # implement this to print the corresponding lphy script given Value or Generator
+    def lphy_string(self) -> str:
+        pass
+
     def lphy_to_rev(self):
         pass
 

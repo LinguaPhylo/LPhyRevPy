@@ -23,7 +23,7 @@ class Function(Generator, ABC):
     # If you need to create different constructors with varying parameters,
     # you should consider using class methods or factory functions instead.
 
-    def code_string(self):
+    def lphy_string(self):
         builder = [get_generator_name(self), "("]
         arg_str = []
 

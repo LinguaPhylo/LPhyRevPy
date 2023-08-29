@@ -37,18 +37,21 @@ class Value(GraphicalModelNode):
             return self.value
         return f"{self.id} = {self.value}"
 
-    def code_string(self):
+    def lphy_string(self):
         str_list = []
         generator = self.get_generator()
 
         from .Generator import Generator
         if generator is not None and isinstance(generator, Generator):
             if not self.is_anonymous():
+                # variable id
                 str_list.append(self.id)
                 str_list.append(" ")
+                # = or ~
                 str_list.append(generator.specification_operator())
                 str_list.append(" ")
-            str_list.append(generator.code_string())
+            # Function or GenerativeDistribution
+            str_list.append(generator.lphy_string())
         else:
             str_list.append(str(self.value))
 

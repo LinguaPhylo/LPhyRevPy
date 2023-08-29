@@ -61,8 +61,8 @@ class CanonicalCodeBuilder:
         if node not in self.visited:
             if isinstance(node, Value):
                 if not node.is_anonymous():
-                    # named Value
-                    str_value = node.code_string()
+                    # start from named Value, and print the rest
+                    str_value = node.lphy_string()
                     if not str_value.endswith(";"):
                         str_value += ";"
                     if meta_parser.is_named_data_value(node):
