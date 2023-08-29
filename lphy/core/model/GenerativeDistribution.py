@@ -26,8 +26,11 @@ class GenerativeDistribution(Generator, ABC):
 
     def code_string(self):
         params = []
-        for key, value in self.get_params().items():
-            params.append(f"{get_argument_code_string(key, value)}")
+        for param_name, param in self.get_params():
+            value = self.get_param(param_name)
+            # if optional arg not used, it will be None
+            if value is not None:
+                params.append(f"{get_argument_code_string(param_name, value)}")
 
         code = f"{get_generator_name(self)}(" + ', '.join(params) + ");"
         return code

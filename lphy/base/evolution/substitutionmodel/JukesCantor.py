@@ -16,15 +16,18 @@ class JukesCantor(DeterministicFunction, ABC):
 
     def __init__(self, rate: Value = None):
         super().__init__()
-        self.rate = rate
+        if rate is not None:
+            self.rate = rate
+            self.set_param("meanRate", rate);
+
 
     def apply(self) -> "Value":
         # not need value
         num_states = 4
         return Value(None, np.zeros((num_states, num_states)), self)
 
-    def get_params(self):
-        return OrderedDict([
-            ("meanRate", self.rate)
-        ])
+    # def get_params(self):
+    #     return OrderedDict([
+    #         ("meanRate", self.rate)
+    #     ])
 

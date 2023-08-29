@@ -44,8 +44,11 @@ class CanonicalCodeBuilder:
         elif isinstance(node, Generator):
             # map value should be Value
             param_map = node.get_params()
-            for key, value in param_map.items():
-                self._traverse_graphical_model(value, meta_parser, post)
+            for param_name, param in param_map:
+                value = node.get_param(param_name)
+                # if optional arg not used, it will be None
+                if value is not None:
+                    self._traverse_graphical_model(value, meta_parser, post)
         else:
             raise RuntimeError("Cannot recognise the node : " + node.__str__())
 

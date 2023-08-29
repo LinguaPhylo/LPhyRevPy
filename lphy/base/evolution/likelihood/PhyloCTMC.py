@@ -14,7 +14,7 @@ class PhyloCTMC(GenerativeDistribution, ABC):
         self.tree = tree
         self.Q = Q
         self.L = L if L is not None else None
-        self.mu = mu if mu is not None else 1.0
+        self.mu = mu if mu is not None else Value(None, 1.0)
         self.site_rates = site_rates
         self.branch_rates = branch_rates
         self.data_type = data_type
@@ -23,13 +23,13 @@ class PhyloCTMC(GenerativeDistribution, ABC):
         # not need value
         return RandomVariable(id_, None, self)
 
-    def get_params(self):
-        return OrderedDict([
-            ("tree", self.tree),
-            ("Q", self.Q),
-            ("L", self.L),
-            ("mu", self.mu),
-            ("siteRates", self.site_rates),
-            ("branchRates", self.branch_rates),
-            ("dataType", self.data_type)
-        ])
+    # def get_params(self):
+    #     return OrderedDict([
+    #         ("tree", self.tree),
+    #         ("Q", self.Q),
+    #         ("L", self.L),
+    #         ("mu", self.mu),
+    #         ("siteRates", self.site_rates),
+    #         ("branchRates", self.branch_rates),
+    #         ("dataType", self.data_type)
+    #     ])

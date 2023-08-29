@@ -7,19 +7,19 @@ from lphy.core.model.Value import Value
 
 class LogNormal(GenerativeDistribution):
 
-    def __init__(self, meanlog: Value, sdlog: Value, offset=0):
+    def __init__(self, meanlog: Value, sdlog: Value, offset=None):
         super().__init__()
         self.meanlog = meanlog
         self.sdlog = sdlog
-        self.offset = offset
+        self.offset = offset if offset is not None else Value(None, 0.0)
 
     def sample(self, id_: str = None) -> "RandomVariable":
         # not need value
         return RandomVariable(id_, None, self)
 
-    def get_params(self):
-        return OrderedDict([
-            ("meanlog", self.meanlog),
-            ("sdlog", self.sdlog)
-        ])
-        #TODO how about offset?
+    # def get_params(self):
+    #     return OrderedDict([
+    #         ("meanlog", self.meanlog),
+    #         ("sdlog", self.sdlog)
+    #     ])
+

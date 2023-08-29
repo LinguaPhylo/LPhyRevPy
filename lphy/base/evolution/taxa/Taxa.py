@@ -14,27 +14,31 @@ class CreateTaxa(DeterministicFunction, ABC):
     def __init__(self, names: Value, species=None, ages=None):
         super().__init__()
         # have to take Value.value
-        self.names = names.value
+        self.names = names
         if species is None:
-            self.species = []
+            self.species = Value(None, [])
         else:
-            self.species = species.value
+            self.species = species
         if ages is None:
-            self.ages = []
+            self.ages = Value(None, [])
         else:
-            self.ages = ages.value
+            self.ages = ages
 
     def apply(self) -> "Value":
         taxon_list = []
+        names_list = self.names.value
+        #TODO same len?
+        species_list = self.species.value
+        ages_list = self.ages.value
 
-        for i in range(len(self.names)):
-            name = str(self.names[i])
+        for i in range(len(names_list)):
+            name = str(names_list[i])
             spec = None
-            if self.species:
-                spec = str(self.species[i])
+            if species_list:
+                spec = str(species_list[i])
             age = 0.0
-            if self.ages:
-                age = self.ages[i]
+            if ages_list:
+                age = ages_list[i]
 
             taxon_list.append(Taxon(name, spec, age))
 

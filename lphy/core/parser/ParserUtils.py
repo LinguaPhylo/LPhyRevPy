@@ -86,6 +86,8 @@ def _match(arguments: dict, args_map: dict):
     keys = set(arguments.keys()) if arguments else set()
 
     for param_name, param in args_map:
+        # required argument has no default value, e.g., __init__(param)
+        # optional argument has a default value, e.g., __init__(param = None)
         if param.default == inspect.Parameter.empty:
             required_arguments.add(param)
         else:
@@ -105,6 +107,7 @@ def _match(arguments: dict, args_map: dict):
 
 def _get_function_by_arguments(name, arg_values, generator_class):
     matches = []
+    # TODO should only 1 __init__ allowed
     for constructor in generator_class.__init__:
         args_map = ArgumentUtils.get_arguments(constructor)
 

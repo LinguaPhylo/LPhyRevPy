@@ -1,10 +1,15 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict
+
+from lphy.core.error.Errors import UnsupportedOperationException
 from lphy.core.model.Value import Value
 from lphy.core.model.GraphicalModelNode import GraphicalModelNode
+from lphy.core.parser.argument import ArgumentUtils
 
 
 # this replaces getName()
+# get generator name defined for the lphy script,
+# if no attr generator_info to define it, then use the class name
 def get_generator_name(generator_class):
     if hasattr(generator_class, 'generator_info'):
         return generator_class.generator_info.get('name')
@@ -14,9 +19,10 @@ def get_generator_name(generator_class):
         return generator_class.__class__.__name__
 
 
+# produce the str for named or unnamed args in the lphy script
 def get_argument_code_string(name, value):
     prefix = ""
-    if not name.isdigit():  # Assuming ExpressionUtils.isInteger(name) is equivalent to name.isdigit()
+    if not name.isdigit():  # named arg
         prefix = name + "="
 
     if value is None:
@@ -49,9 +55,20 @@ class Generator(GraphicalModelNode, ABC):
     def code_string(self) -> str:
         pass
 
-    @abstractmethod
-    def get_params(self) -> Dict[str, Value]:
-        pass
+    # get params from __init__
+    # return items of param_name, param
+    def get_params(self):
+        constructors = ArgumentUtils.get_constructors(self.__class__)
+        if len(constructors) == 1:
+            return ArgumentUtils.get_arguments(constructors[0])
+        else:
+            raise RuntimeError(f"{self.__class__.__name__} {self.get_id()} must have 1 and only 1 __init__ !")
+
+    def get_param(self, name_):
+        try:
+            return self.__getattribute__(name_)
+        except AttributeError:
+            return None
 
     def get_type_name(self) -> str:
         return self.__class__.__name__

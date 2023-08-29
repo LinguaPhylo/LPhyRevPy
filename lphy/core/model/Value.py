@@ -50,7 +50,7 @@ class Value(GraphicalModelNode):
                 str_list.append(" ")
             str_list.append(generator.code_string())
         else:
-            str_list.append(str(self))
+            str_list.append(str(self.value))
 
         return "".join(str_list)
 
