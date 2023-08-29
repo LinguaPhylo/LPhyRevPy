@@ -58,10 +58,10 @@ class CanonicalCodeBuilder:
             self._visit_node(node, meta_parser)
 
     def _visit_node(self, node, meta_parser):
-        # TODO and isinstance(node, Value)
         if node not in self.visited:
             if isinstance(node, Value):
                 if not node.is_anonymous():
+                    # named Value
                     str_value = node.code_string()
                     if not str_value.endswith(";"):
                         str_value += ";"
@@ -72,9 +72,7 @@ class CanonicalCodeBuilder:
                 self.visited.add(node)
 
             elif isinstance(node, Generator):
-                # TODO do not need these
-                # str_value = node.code_string()
-                # self.model_lines.append(str_value)
+                # do nothing
                 self.visited.add(node)
 
             else:

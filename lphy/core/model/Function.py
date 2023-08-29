@@ -27,22 +27,15 @@ class Function(Generator, ABC):
         builder = [get_generator_name(self), "("]
         arg_str = []
 
-        constructors = ArgumentUtils.get_constructors(self.__class__)
-        if len(constructors) == 1:
-
-            args_map = ArgumentUtils.get_arguments(constructors[0])
-
-            if args_map:
-                for param_name, param in args_map:
-                    value = self.get_param(param_name)
-                    # optional argument has a default value, e.g., __init__(param = None)
-                    if param.default != inspect.Parameter.empty: # and value is None:
-                        pass  # DO NOTHING - this is an optional parameter with no value
-                    else:
-                        arg_str.append(get_argument_code_string(param_name, value))
-        else:
-            raise UnsupportedOperationException(f"{self.__class__.__name__} {self.get_id()} must have 1 "
-                                                f"and only 1 __init__ !")
+        args_map = self.get_params()
+        if args_map:
+            for param_name, param in args_map:
+                value = self.get_param(param_name)
+                # optional argument has a default value, e.g., __init__(param = None)
+                if param.default != inspect.Parameter.empty: # and value is None:
+                    pass  # DO NOTHING - this is an optional parameter with no value
+                else:
+                    arg_str.append(get_argument_code_string(param_name, value))
 
         builder.append(", ".join(arg_str))
         builder.append(")")
