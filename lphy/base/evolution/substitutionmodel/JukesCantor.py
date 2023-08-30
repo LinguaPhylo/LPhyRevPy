@@ -26,3 +26,6 @@ class JukesCantor(DeterministicFunction, ABC):
         num_states = 4
         return Value(None, np.zeros((num_states, num_states)), self)
 
+    def lphy_to_rev(self):
+        pass
+

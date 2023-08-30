@@ -127,13 +127,17 @@ def _construct_generator(name, params, generator_class, args_map, arg_values):
     # cannot use core.model.Value
     from lphy.core.model.Value import Value
     # arg must be Value obj
-    arg_value_values = [arg for arg in arg_values if arg is not None and isinstance(arg, Value)]
+    # this causes a bug of matching args, after rm None
+    #arg_value_values = [arg for arg in arg_values if arg is not None and isinstance(arg, Value)]
     from lphy.base.distribution.ContinuousDistribution import LogNormal
     # instance = LogNormal(3.0, 1.0)
     # instance = LogNormal(*arg_value_values)
     #constructor = LogNormal
-    instance = generator_class(*arg_value_values)
+
+    # must use arg_values directly, which supposes to match the constructor parameters in a correct order.
+    instance = generator_class(*arg_values)
     return instance
+
     # if ArgumentUtils.matching_parameter_types(args_map, arg_values, params):
     #     return constructor(*arg_values)
     # TODO

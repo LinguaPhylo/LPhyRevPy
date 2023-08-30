@@ -1,6 +1,4 @@
 from abc import ABC
-from collections import OrderedDict
-
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
@@ -23,4 +21,8 @@ class PhyloCTMC(GenerativeDistribution, ABC):
     def sample(self, id_: str = None) -> "RandomVariable":
         # not need value
         return RandomVariable(id_, None, self)
+
+
+    def lphy_to_rev(self):
+        pass
 
