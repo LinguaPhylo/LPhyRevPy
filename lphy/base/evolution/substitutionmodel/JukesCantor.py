@@ -16,11 +16,10 @@ class JukesCantor(DeterministicFunction, ABC):
                                      "Takes a mean rate and produces a Jukes-Cantor Q matrix."}
 
     # The parameter name must be matching with its definition in lphy script, case-sensitive.
-    def __init__(self, rate: Value = None):
+    def __init__(self, meanRate: Value = None):
         super().__init__()
-        if rate is not None:
-            self.rate = rate
-            self.set_param("meanRate", rate);
+        if meanRate is not None:
+            self.meanRate = meanRate
 
     def apply(self) -> "Value":
         # not need value

@@ -57,6 +57,26 @@ class Value(GraphicalModelNode):
 
         return "".join(str_list)
 
+    def lphy_to_rev(self):
+        str_list = []
+        generator = self.get_generator()
+
+        from .Generator import Generator
+        if generator is not None and isinstance(generator, Generator):
+            if not self.is_anonymous():
+                # variable id
+                str_list.append(self.id)
+                str_list.append(" ")
+                # <- or ~
+                str_list.append(generator.rev_spec_op())
+                str_list.append(" ")
+            # Function or GenerativeDistribution
+            str_list.append(generator.lphy_to_rev())
+        else:
+            str_list.append(str(self.value))
+
+        return "".join(str_list)
+
     # TODO is None value?
     def is_constant(self):
         from .RandomVariable import RandomVariable

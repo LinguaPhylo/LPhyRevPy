@@ -2,6 +2,7 @@ import logging
 import sys
 
 from lphy.core.parser.CanonicalCodeBuilder import CanonicalCodeBuilder
+from lphy.core.parser.RevBuilder import RevBuilder
 
 
 def main():
@@ -21,6 +22,12 @@ def main():
     code = code_builder.get_code(meta_parser)
 
     print(code)
+
+    rev_builder = RevBuilder()
+    rev = rev_builder.get_code(meta_parser)
+
+    print(rev)
+
 
 
 if __name__ == "__main__":

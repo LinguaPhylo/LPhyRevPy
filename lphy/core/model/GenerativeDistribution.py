@@ -11,6 +11,9 @@ class GenerativeDistribution(Generator, ABC):
     def specification_operator(self):
         return '~'
 
+    def rev_spec_op(self) -> str:
+        return '~'
+
     # TODO rename to create_var_by_id
     @abstractmethod
     def sample(self, id_: str = None) -> "RandomVariable":
