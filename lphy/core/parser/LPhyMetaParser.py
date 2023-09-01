@@ -12,9 +12,11 @@ class LPhyMetaParser:
 
     from lphy.core.model.ValueCollections import ValueSet, ValueDict
     data_dict = ValueDict()
+    # the key is the var id, and value is the RandomVar obj
     model_dict = ValueDict()
 
     data_val_set = ValueSet()
+    # all Values and RandomVars
     model_val_set = ValueSet()
 
     def __init__(self):
