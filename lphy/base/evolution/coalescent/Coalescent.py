@@ -1,5 +1,5 @@
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
-from lphy.core.model.Generator import get_argument_code_string
+from lphy.core.model.Generator import get_argument_rev_string
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 
@@ -22,14 +22,14 @@ class Coalescent(GenerativeDistribution):
     def lphy_to_rev(self):
         # TODO hard code for Coalescent(theta=Θ, taxa=taxa);
         # TODO how to decompose taxa = taxa(names=1:10)
+
+        # lphy names are same to rev
         theta_name = "theta"
         taxa_name = "taxa"
-        # theta = self.theta.value
-        # if theta is None:
         theta = self.get_param(theta_name)
         if self.taxa is not None:
-            #taxa = self.taxa.value
-            return f"dnCoalescent({get_argument_code_string(theta_name, theta)}, {get_argument_code_string(taxa_name, self.taxa)});"
+            taxa = self.get_param(taxa_name)
+            return f"dnCoalescent({get_argument_rev_string(theta_name, theta)}, {get_argument_rev_string(taxa_name, taxa)})"
         elif self.n is not None:
             n = self.n.value
             from lphy.core.error.Errors import UnsupportedOperationException

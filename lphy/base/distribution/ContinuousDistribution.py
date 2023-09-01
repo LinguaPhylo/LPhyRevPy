@@ -1,13 +1,14 @@
 from collections import OrderedDict
 
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
-from lphy.core.model.Generator import get_argument_code_string
+from lphy.core.model.Generator import get_argument_lphy_string
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 
 
 class LogNormal(GenerativeDistribution):
 
+    # parameter names must be exactly same to lphy definition in @ParameterInfo
     def __init__(self, meanlog: Value, sdlog: Value, offset=None):
         super().__init__()
         self.meanlog = meanlog
@@ -23,6 +24,6 @@ class LogNormal(GenerativeDistribution):
         #TODO no offset ?
         mean = self.meanlog.value
         sd = self.sdlog.value
-        return f"dnLognormal(mean={mean}, sd={sd});"
+        return f"dnLognormal(mean={mean}, sd={sd})"
 
 

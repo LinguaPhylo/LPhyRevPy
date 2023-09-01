@@ -1,10 +1,6 @@
 from abc import ABC
-from collections import OrderedDict
-
 import numpy as np
-
 from lphy.core.model.Function import DeterministicFunction
-from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 
 
@@ -18,14 +14,22 @@ class JukesCantor(DeterministicFunction, ABC):
     # The parameter name must be matching with its definition in lphy script, case-sensitive.
     def __init__(self, meanRate: Value = None):
         super().__init__()
-        if meanRate is not None:
-            self.meanRate = meanRate
+        self.meanRate = meanRate
 
     def apply(self) -> "Value":
-        # not need value
+        # not require value
         num_states = 4
         return Value(None, np.zeros((num_states, num_states)), self)
 
     def lphy_to_rev(self):
-        pass
+        # lphy mean rate is to normalise rate matrix. Default value is 1.0."
+        mean_rate_name = "meanRate"
+        if self.meanRate is not None:
+            mean_rate = self.get_param(mean_rate_name)
+
+        #TODO do not know states
+
+        num_states = 4  # nucleotide
+        return f"fnJC({num_states})"
+
 

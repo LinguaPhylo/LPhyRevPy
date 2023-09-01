@@ -20,7 +20,7 @@ def get_generator_name(generator_class):
 
 
 # produce the str for named or unnamed args in the lphy script
-def get_argument_code_string(name, value):
+def get_argument_lphy_string(name, value: Value):
     prefix = ""
     if not name.isdigit():  # named arg
         prefix = name + "="
@@ -31,6 +31,20 @@ def get_argument_code_string(name, value):
     if value.is_anonymous():
         return prefix + value.lphy_string()
     return prefix + value.get_id()
+
+
+def get_argument_rev_string(name, value: Value):
+    prefix = ""
+    if not name.isdigit():  # named arg
+        prefix = name + "="
+
+    if value is None:
+        raise RuntimeError("Value of " + name + " is None!")
+
+    if value.is_anonymous():
+        return prefix + value.lphy_to_rev()
+    return prefix + value.get_id()
+
 
 
 class Generator(GraphicalModelNode, ABC):

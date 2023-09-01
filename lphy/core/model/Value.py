@@ -75,6 +75,10 @@ class Value(GraphicalModelNode):
         else:
             str_list.append(str(self.value))
 
+        if None in str_list:
+            raise RuntimeError(f"The rev string contains None, check if {generator.__class__} implements lphy_to_rev()!\n"
+                               f"Rev string = {format(str_list)}")
+
         return "".join(str_list)
 
     # TODO is None value?

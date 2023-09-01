@@ -57,8 +57,6 @@ class RevBuilder:
                 if not node.is_anonymous():
                     # start from named Value, and print the rest
                     str_value = node.lphy_to_rev()
-                    if not str_value.endswith(";"):
-                        str_value += ";"
                     if meta_parser.is_named_data_value(node):
                         self.data_lines.append(str_value)
                     else:

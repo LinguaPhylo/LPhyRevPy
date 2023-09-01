@@ -1,7 +1,7 @@
 import inspect
 from abc import ABC, abstractmethod
 
-from .Generator import Generator, get_argument_code_string, get_generator_name
+from .Generator import Generator, get_argument_lphy_string, get_generator_name
 from ..error.Errors import UnsupportedOperationException
 from ..parser.argument import ArgumentUtils
 
@@ -38,7 +38,7 @@ class Function(Generator, ABC):
                 if param.default != inspect.Parameter.empty: # and value is None:
                     pass  # DO NOTHING - this is an optional parameter with no value
                 else:
-                    arg_str.append(get_argument_code_string(param_name, value))
+                    arg_str.append(get_argument_lphy_string(param_name, value))
 
         builder.append(", ".join(arg_str))
         builder.append(")")

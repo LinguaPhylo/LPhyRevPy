@@ -46,6 +46,10 @@ class CreateTaxa(DeterministicFunction, ABC):
 
         return Value(None, taxa, self)
 
+    def lphy_to_rev(self):
+        #TODO
+        return f"taxa({self.names.value})"
+
 
 class Taxon:
     def __init__(self, name, species=None, age=0.0):

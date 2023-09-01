@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from .Generator import Generator, get_generator_name, get_argument_code_string
+from .Generator import Generator, get_generator_name, get_argument_lphy_string
 
 
 class GenerativeDistribution(Generator, ABC):
@@ -28,8 +28,8 @@ class GenerativeDistribution(Generator, ABC):
             value = self.get_param(param_name)
             # if optional arg not used, it will be None
             if value is not None:
-                params.append(f"{get_argument_code_string(param_name, value)}")
+                params.append(f"{get_argument_lphy_string(param_name, value)}")
 
-        code = f"{get_generator_name(self)}(" + ', '.join(params) + ");"
+        code = f"{get_generator_name(self)}(" + ', '.join(params) + ")"
         return code
 
