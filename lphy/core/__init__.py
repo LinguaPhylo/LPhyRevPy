@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from lphy.core.parser.CanonicalCodeBuilder import CanonicalCodeBuilder
+from lphy.core.parser.LPhyCanonicalBuilder import LPhyCanonicalBuilder
 from lphy.core.parser.RevBuilder import RevBuilder
 
 
@@ -18,7 +18,7 @@ def main():
     meta_parser = LPhyMetaParser()
     meta_parser.parse(input_string, LPhyMetaParser.MODEL)
 
-    code_builder = CanonicalCodeBuilder()
+    code_builder = LPhyCanonicalBuilder()
     code = code_builder.get_code(meta_parser)
 
     print(code)

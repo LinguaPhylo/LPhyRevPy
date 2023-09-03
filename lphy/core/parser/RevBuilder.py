@@ -70,3 +70,16 @@ class RevBuilder:
 
             else:
                 raise RuntimeError("Cannot recognise the node : " + node.__str__())
+
+
+def get_argument_rev_string(name, value: Value):
+    prefix = ""
+    if not name.isdigit():  # named arg
+        prefix = name + "="
+
+    if value is None:
+        raise RuntimeError("Value of " + name + " is None!")
+
+    if value.is_anonymous():
+        return prefix + value.lphy_to_rev()
+    return prefix + value.get_id()

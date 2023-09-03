@@ -6,6 +6,7 @@ class Value(GraphicalModelNode):
     # must be Generator
     outputs = []
 
+    # only constants have value, variable's value is always None
     def __init__(self, id_: str = None, value=None, function: "Function" = None):
         super().__init__(id_)
         self.value = value

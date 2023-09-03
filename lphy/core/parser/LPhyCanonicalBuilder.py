@@ -6,7 +6,7 @@ from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
 
 # Given a LPhyMetaParser, traverse the graphical model
 # to create the lphy script from Values and Generators.
-class CanonicalCodeBuilder:
+class LPhyCanonicalBuilder:
     visited = set()
 
     def __init__(self):
@@ -77,3 +77,17 @@ class CanonicalCodeBuilder:
 
             else:
                 raise RuntimeError("Cannot recognise the node : " + node.__str__())
+
+
+# produce the str for named or unnamed args in the lphy script
+def get_argument_lphy_string(name, value: Value):
+    prefix = ""
+    if not name.isdigit():  # named arg
+        prefix = name + "="
+
+    if value is None:
+        raise RuntimeError("Value of " + name + " is None!")
+
+    if value.is_anonymous():
+        return prefix + value.lphy_string()
+    return prefix + value.get_id()

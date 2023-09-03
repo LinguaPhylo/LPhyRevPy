@@ -1,5 +1,5 @@
 from abc import ABC
-from lphy.core.model.Generator import get_argument_rev_string
+from core.parser.RevBuilder import get_argument_rev_string
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value

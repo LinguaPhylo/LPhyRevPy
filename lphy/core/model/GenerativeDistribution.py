@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
-from .Generator import Generator, get_generator_name, get_argument_lphy_string
+from .Generator import Generator, get_generator_name
+from ..parser.LPhyCanonicalBuilder import get_argument_lphy_string
 
 
 class GenerativeDistribution(Generator, ABC):

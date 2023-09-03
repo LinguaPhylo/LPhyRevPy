@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
-from lphy.core.model.Generator import get_argument_lphy_string
+from core.parser.LPhyCanonicalBuilder import get_argument_lphy_string
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 

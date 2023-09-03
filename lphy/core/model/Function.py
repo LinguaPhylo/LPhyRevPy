@@ -1,7 +1,8 @@
 import inspect
 from abc import ABC, abstractmethod
 
-from .Generator import Generator, get_argument_lphy_string, get_generator_name
+from .Generator import Generator, get_generator_name
+from ..parser.LPhyCanonicalBuilder import get_argument_lphy_string
 from ..error.Errors import UnsupportedOperationException
 from ..parser.argument import ArgumentUtils
 

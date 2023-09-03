@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict
+from typing import Dict
 
-from lphy.core.error.Errors import UnsupportedOperationException
 from lphy.core.model.Value import Value
 from lphy.core.model.GraphicalModelNode import GraphicalModelNode
 from lphy.core.parser.argument import ArgumentUtils
@@ -17,34 +16,6 @@ def get_generator_name(generator_class):
         return generator_class.__name__
     else:
         return generator_class.__class__.__name__
-
-
-# produce the str for named or unnamed args in the lphy script
-def get_argument_lphy_string(name, value: Value):
-    prefix = ""
-    if not name.isdigit():  # named arg
-        prefix = name + "="
-
-    if value is None:
-        raise RuntimeError("Value of " + name + " is None!")
-
-    if value.is_anonymous():
-        return prefix + value.lphy_string()
-    return prefix + value.get_id()
-
-
-def get_argument_rev_string(name, value: Value):
-    prefix = ""
-    if not name.isdigit():  # named arg
-        prefix = name + "="
-
-    if value is None:
-        raise RuntimeError("Value of " + name + " is None!")
-
-    if value.is_anonymous():
-        return prefix + value.lphy_to_rev()
-    return prefix + value.get_id()
-
 
 
 class Generator(GraphicalModelNode, ABC):
