@@ -34,6 +34,10 @@ class Generator(GraphicalModelNode, ABC):
     def generate(self) -> Value:
         pass
 
+    # do not print rev var name on left side, e.g., using for loop
+    def is_rev_assignment(self):
+        return True
+
     # get params from __init__
     # return items of param_name, param
     def get_params(self):

@@ -1,8 +1,8 @@
 import getopt
 import sys
 
-from core.parser.LPhyCanonicalBuilder import LPhyCanonicalBuilder
-from core.parser.RevBuilder import RevBuilder
+from lphy.core.parser.LPhyCanonicalBuilder import LPhyCanonicalBuilder
+from lphy.core.parser.RevBuilder import RevBuilder
 from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
 
 

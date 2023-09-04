@@ -13,23 +13,19 @@ class CreateTaxa(DeterministicFunction, ABC):
     # TODO get rid of Value, so use names: List[str]
     def __init__(self, names: Value, species=None, ages=None):
         super().__init__()
-        # have to take Value.value
+        # deal with None later
         self.names = names
-        if species is None:
-            self.species = Value(None, [])
-        else:
-            self.species = species
-        if ages is None:
-            self.ages = Value(None, [])
-        else:
-            self.ages = ages
+        self.species = species
+        self.ages = ages
+        if len(names.value) < 2:
+            raise RuntimeError("The taxa must contain at least 1 taxon given by name")
 
     def apply(self) -> "Value":
         taxon_list = []
         names_list = self.names.value
         #TODO same len?
-        species_list = self.species.value
-        ages_list = self.ages.value
+        species_list = [] if self.species is None else self.species.value
+        ages_list = [] if self.ages is None else self.ages.value
 
         for i in range(len(names_list)):
             name = str(names_list[i])
@@ -46,9 +42,15 @@ class CreateTaxa(DeterministicFunction, ABC):
 
         return Value(None, taxa, self)
 
+    # overwrite to F so only print the for loop, without taxa :=
+    def is_rev_assignment(self):
+        return False
+
     def lphy_to_rev(self):
-        #TODO
-        return f"taxa({self.names.value})"
+        names_list = self.names.value
+        var_nm = "i"
+        # for (i in 1:10) { taxa[i] = taxon("Taxon"+i) }
+        return f"""for ({var_nm} in 1:{len(names_list)}) {{ taxa[{var_nm}] = taxon({var_nm}) }} """
 
 
 class Taxon:

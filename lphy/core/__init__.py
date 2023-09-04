@@ -10,7 +10,7 @@ def main():
 
     from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
 
-    # Rev: theta ~ dnNormal(3.0, 1.0)
+    # TODO inline func
     input_string = ("Θ ~ LogNormal(meanlog=3.0, sdlog=1.0);\n"
                     "ψ ~ Coalescent(theta=Θ, taxa=taxa(names=1:10));\n"
                     "D ~ PhyloCTMC(tree=ψ, L=200, Q=jukesCantor());")

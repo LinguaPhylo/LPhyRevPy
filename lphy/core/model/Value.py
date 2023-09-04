@@ -69,7 +69,7 @@ class Value(GraphicalModelNode):
 
         from .Generator import Generator
         if generator is not None and isinstance(generator, Generator):
-            if not self.is_anonymous():
+            if not self.is_anonymous() and generator.is_rev_assignment():
                 # variable id
                 str_list.append(self.id)
                 str_list.append(" ")
