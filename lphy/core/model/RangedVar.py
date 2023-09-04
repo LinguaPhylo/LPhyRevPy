@@ -42,7 +42,7 @@ class Var:
         if not self.is_ranged_var():
             if function is not None:
                 value.setFunction(function)
-            value.setId(self.id)
+            value.set_id(self.id)
             self.meta_parser.put(self.id, value, context)
             return value
         else:

@@ -1,6 +1,8 @@
 import getopt
 import sys
 
+from core.parser.LPhyCanonicalBuilder import LPhyCanonicalBuilder
+from core.parser.RevBuilder import RevBuilder
 from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
 
 
@@ -38,12 +40,25 @@ def main():
     # if not str(sentence).endswith(";") and str(sentence).strip() != "":
     #   sentence = str(sentence) + ";"
 
-    # Rev: theta ~ dnNormal(3.0, 1.0)
-    input_string = "Θ ~ LogNormal(meanlog=3.0, sdlog=1.0);"
+    data_string = ("L = 200;\n"
+                   "taxa = taxa(names=1:10);\n")
+    model_string = ("Θ ~ LogNormal(meanlog=3.0, sdlog=1.0);\n"
+                    "ψ ~ Coalescent(theta=Θ, taxa=taxa);\n"
+                    "D ~ PhyloCTMC(tree=ψ, L=L, Q=jukesCantor());")
 
     meta_parser = LPhyMetaParser()
-    meta_parser.parse(input_string, LPhyMetaParser.MODEL)
+    meta_parser.parse(data_string, LPhyMetaParser.DATA)
+    meta_parser.parse(model_string, LPhyMetaParser.MODEL)
 
+    code_builder = LPhyCanonicalBuilder()
+    code = code_builder.get_code(meta_parser)
+
+    print(code)
+
+    rev_builder = RevBuilder()
+    rev = rev_builder.get_code(meta_parser)
+
+    print(rev)
 
 if __name__ == "__main__":
     print('Argument List:', str(sys.argv))

@@ -59,6 +59,7 @@ class LPhyASTVisitor(LPhyVisitor):
         return super().visitFree_lines(ctx)
 
     def visitDatablock(self, ctx: LPhyParser.DatablockContext):
+        # TODO
         return super().visitDatablock(ctx)
 
     def visitDeterm_relation_list(self, ctx: LPhyParser.Determ_relation_listContext):
@@ -68,6 +69,7 @@ class LPhyASTVisitor(LPhyVisitor):
         return super().visitDeterm_relation_line(ctx)
 
     def visitModelblock(self, ctx: LPhyParser.ModelblockContext):
+        # TODO
         return super().visitModelblock(ctx)
 
     def visitRelation_list(self, ctx: LPhyParser.Relation_listContext):
@@ -118,7 +120,24 @@ class LPhyASTVisitor(LPhyVisitor):
         return RangeList(nodes)
 
     def visitDeterm_relation(self, ctx: LPhyParser.Determ_relationContext):
-        return super().visitDeterm_relation(ctx)
+        logging.debug("visitDeterm_relation")
+
+        expr = self.visit(ctx.getChild(2))
+        var: Var = self.visit(ctx.children[0])
+
+        if isinstance(expr, DeterministicFunction):
+            f = expr
+            value = f.apply()
+            var.assign(value, f, self._block)
+            return value
+        elif isinstance(expr, Value):
+            value = expr
+            var.assign(value, None, self._block)
+            return value
+        else:
+            logging.fatal("in visitDeterm_relation() expecting a function or a value! " + str(expr))
+
+        return None
 
     def visitStoch_relation(self, ctx: LPhyParser.Stoch_relationContext):
         from .LPhyMetaParser import LPhyMetaParser
@@ -189,6 +208,7 @@ class LPhyASTVisitor(LPhyVisitor):
         return values
 
     def visitMapFunction(self, ctx: LPhyParser.MapFunctionContext):
+        # TODO
         return super().visitMapFunction(ctx)
 
     # Parse lphy functions and return a Value or an Expression
@@ -248,6 +268,7 @@ class LPhyASTVisitor(LPhyVisitor):
             return generator.generate()
 
     def visitMethodCall(self, ctx: LPhyParser.MethodCallContext):
+        # TODO
         return super().visitMethodCall(ctx)
 
     def visitDistribution(self, ctx: LPhyParser.DistributionContext):
@@ -306,6 +327,7 @@ class LPhyASTVisitor(LPhyVisitor):
         return obj
 
     def visitArray_construction(self, ctx: LPhyParser.Array_constructionContext):
+        # TODO
         return super().visitArray_construction(ctx)
 
     # return and array of ArgumentValue objects
@@ -313,6 +335,7 @@ class LPhyASTVisitor(LPhyVisitor):
         # Deals with single token expressions -- either an id or a map expression
         if ctx.getChildCount() == 1:
             child_context = ctx.getChild(0)
+
             # if this is a map just return the map Value
             if child_context.getText().startswith("{"):
                 obj = self.visit(child_context)
