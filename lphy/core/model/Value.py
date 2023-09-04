@@ -1,8 +1,13 @@
+import logging
+
 from .GraphicalModelNode import GraphicalModelNode
 
 
 # Value could be generated from Function
 class Value(GraphicalModelNode):
+
+    REV_CONST_OP = "<-"
+
     # must be Generator
     outputs = []
 
@@ -68,13 +73,22 @@ class Value(GraphicalModelNode):
                 # variable id
                 str_list.append(self.id)
                 str_list.append(" ")
-                # <- or ~
+                # := or ~
                 str_list.append(generator.rev_spec_op())
                 str_list.append(" ")
             # Function or GenerativeDistribution
             str_list.append(generator.lphy_to_rev())
+        elif not self.is_anonymous() and self.value is not None:
+            # not have generator but have id and value, then it is the constant
+            # variable id
+            str_list.append(self.id)
+            str_list.append(" ")
+            # <-
+            str_list.append(self.REV_CONST_OP)
+            str_list.append(" ")
+            str_list.append(self.value)
         else:
-            str_list.append(str(self.value))
+            logging.error(f"Cannot convert the lphy value {str(self.value)} into rev !")
 
         if None in str_list:
             raise RuntimeError(f"The rev string contains None, check if {generator.__class__} implements lphy_to_rev()!\n"

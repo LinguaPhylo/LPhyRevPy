@@ -40,6 +40,8 @@ def main():
     # if not str(sentence).endswith(";") and str(sentence).strip() != "":
     #   sentence = str(sentence) + ";"
 
+    # we can create a dummy vector of Taxon objects for simulation
+    # for (i in 1:10) { taxa[i] = taxon("Taxon"+i) }
     data_string = ("L = 200;\n"
                    "taxa = taxa(names=1:10);\n")
     model_string = ("Θ ~ LogNormal(meanlog=3.0, sdlog=1.0);\n"
@@ -58,7 +60,9 @@ def main():
     rev_builder = RevBuilder()
     rev = rev_builder.get_code(meta_parser)
 
+    print("\nConvert to the Rev script below:\n")
     print(rev)
+
 
 if __name__ == "__main__":
     print('Argument List:', str(sys.argv))

@@ -8,8 +8,11 @@ class RevBuilder:
     visited = set()
 
     def __init__(self):
+        #TODO merge data_lines with model_lines?
         self.data_lines = []
         self.model_lines = []
+        #TODO
+        self.mcmc_lines = []
 
     def get_code(self, meta_parser: LPhyMetaParser):
         self.visited.clear()
@@ -81,5 +84,6 @@ def get_argument_rev_string(name, value: Value):
         raise RuntimeError("Value of " + name + " is None!")
 
     if value.is_anonymous():
+        # TODO split lphy inline code into lines of Rev
         return prefix + value.lphy_to_rev()
     return prefix + value.get_id()
