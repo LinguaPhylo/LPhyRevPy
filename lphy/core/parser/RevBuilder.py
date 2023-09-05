@@ -2,6 +2,7 @@ from lphy.core.model.Generator import Generator
 from lphy.core.model.GraphicalModelNode import GraphicalModelNode
 from lphy.core.model.Value import Value
 from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
+from lphy.core.parser.UnicodeConverter import get_canonical
 
 
 class RevBuilder:
@@ -86,4 +87,4 @@ def get_argument_rev_string(name, value: Value):
     if value.is_anonymous():
         # TODO split lphy inline code into lines of Rev
         return prefix + value.lphy_to_rev()
-    return prefix + value.get_id()
+    return prefix + get_canonical(value.get_id())

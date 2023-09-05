@@ -1,6 +1,7 @@
 import logging
 
 from .GraphicalModelNode import GraphicalModelNode
+from ..parser.UnicodeConverter import get_canonical
 
 
 # Value could be generated from Function
@@ -71,7 +72,7 @@ class Value(GraphicalModelNode):
         if generator is not None and isinstance(generator, Generator):
             if not self.is_anonymous() and generator.is_rev_assignment():
                 # variable id
-                str_list.append(self.id)
+                str_list.append(get_canonical(self.id))
                 str_list.append(" ")
                 # := or ~
                 str_list.append(generator.rev_spec_op())
@@ -81,7 +82,7 @@ class Value(GraphicalModelNode):
         elif not self.is_anonymous() and self.value is not None:
             # not have generator but have id and value, then it is the constant
             # variable id
-            str_list.append(self.id)
+            str_list.append(get_canonical(self.id))
             str_list.append(" ")
             # <-
             str_list.append(self.REV_CONST_OP)

@@ -46,7 +46,8 @@ def main():
                    "taxa = taxa(names=1:10);\n")
     model_string = ("Θ ~ LogNormal(meanlog=3.0, sdlog=1.0);\n"
                     "ψ ~ Coalescent(theta=Θ, taxa=taxa);\n"
-                    "D ~ PhyloCTMC(tree=ψ, L=L, Q=jukesCantor());")
+                    "Q=jukesCantor();\n"
+                    "D ~ PhyloCTMC(tree=ψ, L=L, Q=Q);")
 
     meta_parser = LPhyMetaParser()
     meta_parser.parse(data_string, LPhyMetaParser.DATA)
