@@ -101,7 +101,7 @@ class LPhyASTVisitor(LPhyVisitor):
     # return a RangeList function.
     def visitRange_list(self, ctx: LPhyParser.Range_listContext):
         return self.visitChildren(ctx)
-        # TODO
+        # TODO re-write
         nodes = []
 
         for i in range(ctx.getChildCount()):
@@ -110,8 +110,8 @@ class LPhyASTVisitor(LPhyVisitor):
             if isinstance(o, (IntegerValue, IntegerArrayValue, Range)):
                 nodes.append(o)
             elif isinstance(o, DeterministicFunction):
-                f = o
-                if isinstance(f.value(), (int, list)):
+                #f = o
+                if isinstance(o.apply().value(), (int, list)):
                     nodes.append(o)
                 else:
                     error_message = "Expected function returning Integer or Integer[]: " + str(o)

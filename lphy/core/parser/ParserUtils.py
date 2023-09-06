@@ -33,7 +33,7 @@ def get_matching_generators(gene_name, params) -> [Generator]:
             generator = _get_generator_by_arguments(gene_name, params, gen_class)
             matches.extend(generator)
     else:
-        raise RuntimeError(f"No generator with name {gene_name} available.")
+        raise RuntimeError(f'No generator with name "{gene_name}" available.')
     return matches
 
 
