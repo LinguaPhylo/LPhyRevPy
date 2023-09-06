@@ -29,12 +29,12 @@ def parse_args(argv):
 
 
 def main():
-    # argsdict = parse_args(sys.argv[1:])
-    #
-    # with open(argsdict["in"], 'r') as f:
-    #     input_string = f.read()
-    # # print lphy script
-    # print(input_string)
+    argsdict = parse_args(sys.argv[1:])
+
+    with open(argsdict["in"], 'r') as f:
+        input_string = f.read()
+    # print lphy script
+    print(input_string)
 
     # empty data block or model block
     # if not str(sentence).endswith(";") and str(sentence).strip() != "":
@@ -42,20 +42,22 @@ def main():
 
     # we can create a dummy vector of Taxon objects for simulation
     # for (i in 1:10) { taxa[i] = taxon("Taxon"+i) }
-    data_string = ("L = 200;\n"
-                   "taxa = taxa(names=1:10);\n")
-    model_string = ("Θ ~ LogNormal(meanlog=3.0, sdlog=1.0);\n"
-                    "ψ ~ Coalescent(theta=Θ, taxa=taxa);\n"
-                    "Q=jukesCantor();\n"
-                    "D ~ PhyloCTMC(tree=ψ, L=L, Q=Q);")
+    # data_string = ("L = 200;\n"
+    #                "taxa = taxa(names=1:10);\n")
+    # model_string = ("Θ ~ LogNormal(meanlog=3.0, sdlog=1.0);\n"
+    #                 "ψ ~ Coalescent(theta=Θ, taxa=taxa);\n"
+    #                 "Q=jukesCantor();\n"
+    #                 "D ~ PhyloCTMC(tree=ψ, L=L, Q=Q);")
 
     meta_parser = LPhyMetaParser()
-    meta_parser.parse(data_string, LPhyMetaParser.DATA)
-    meta_parser.parse(model_string, LPhyMetaParser.MODEL)
+    #TODO why need LPhyMetaParser.DATA and MODEL, parser seems already handled
+    # meta_parser.parse(data_string, LPhyMetaParser.DATA)
+    meta_parser.parse(input_string)
 
     code_builder = LPhyCanonicalBuilder()
     code = code_builder.get_code(meta_parser)
 
+    print("\nReconstruct LPhy script below:\n")
     print(code)
 
     rev_builder = RevBuilder()

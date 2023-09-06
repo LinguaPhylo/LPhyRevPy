@@ -22,7 +22,7 @@ class LPhyMetaParser:
     def __init__(self):
         self._lines = []  # TODO where to add lines?
 
-    def parse(self, input_string: str, block: str):
+    def parse(self, input_string: str):
         from lphy.core.parser.LPhyASTVisitor import LPhyASTVisitor
         stream = InputStream(input_string)
         # lexer
@@ -37,7 +37,7 @@ class LPhyMetaParser:
         # tree = parser.structured_input()
 
         # AST-specific operations
-        visitor = LPhyASTVisitor(self, block)
+        visitor = LPhyASTVisitor(self)
         # Traverse parse tree, constructing tree along the way
         return visitor.visit(tree)
 

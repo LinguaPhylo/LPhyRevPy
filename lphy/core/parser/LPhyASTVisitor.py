@@ -43,8 +43,10 @@ def _get_value_or_function(obj, ctx, meta_parser: "LPhyMetaParser", block: str):
 class LPhyASTVisitor(LPhyVisitor):
 
     # type hint with forward declaration LPhyMetaParser, to avoid circular dependencies
-    def __init__(self, meta_parser: "LPhyMetaParser", block: str):
-        self._block = block
+    def __init__(self, meta_parser: "LPhyMetaParser"):
+        from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
+        # default to model block, e.g., free lines, update it during parsing
+        self._block = LPhyMetaParser.MODEL
         self._meta_parser = meta_parser
 
     # Override methods as needed for AST-specific operations
@@ -52,31 +54,35 @@ class LPhyASTVisitor(LPhyVisitor):
     #     # Your AST-specific visitInput implementation here
     #     return super().visitChildren(ctx)
 
-    def visitStructured_input(self, ctx: LPhyParser.Structured_inputContext):
-        return super().visitStructured_input(ctx)
+    # def visitStructured_input(self, ctx: LPhyParser.Structured_inputContext):
+    #     return super().visitStructured_input(ctx)
 
-    def visitFree_lines(self, ctx: LPhyParser.Free_linesContext):
-        return super().visitFree_lines(ctx)
+    # def visitFree_lines(self, ctx: LPhyParser.Free_linesContext):
+    #     return super().visitFree_lines(ctx)
 
     def visitDatablock(self, ctx: LPhyParser.DatablockContext):
-        # TODO
+        # change _block = DATA here
+        from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
+        self._block = LPhyMetaParser.DATA
         return super().visitDatablock(ctx)
 
-    def visitDeterm_relation_list(self, ctx: LPhyParser.Determ_relation_listContext):
-        return super().visitDeterm_relation_list(ctx)
-
-    def visitDeterm_relation_line(self, ctx: LPhyParser.Determ_relation_lineContext):
-        return super().visitDeterm_relation_line(ctx)
+    # def visitDeterm_relation_list(self, ctx: LPhyParser.Determ_relation_listContext):
+    #     return super().visitDeterm_relation_list(ctx)
+    #
+    # def visitDeterm_relation_line(self, ctx: LPhyParser.Determ_relation_lineContext):
+    #     return super().visitDeterm_relation_line(ctx)
 
     def visitModelblock(self, ctx: LPhyParser.ModelblockContext):
-        # TODO
+        # change _block = MODEL here
+        from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
+        self._block = LPhyMetaParser.MODEL
         return super().visitModelblock(ctx)
 
-    def visitRelation_list(self, ctx: LPhyParser.Relation_listContext):
-        return super().visitRelation_list(ctx)
-
-    def visitRelation(self, ctx: LPhyParser.RelationContext):
-        return super().visitRelation(ctx)
+    # def visitRelation_list(self, ctx: LPhyParser.Relation_listContext):
+    #     return super().visitRelation_list(ctx)
+    #
+    # def visitRelation(self, ctx: LPhyParser.RelationContext):
+    #     return super().visitRelation(ctx)
 
     def visitVar(self, ctx: LPhyParser.VarContext):
         # TODO may be not required

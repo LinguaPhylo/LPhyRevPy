@@ -16,7 +16,7 @@ def main():
                     "D ~ PhyloCTMC(tree=ψ, L=200, Q=jukesCantor());")
 
     meta_parser = LPhyMetaParser()
-    meta_parser.parse(input_string, LPhyMetaParser.MODEL)
+    meta_parser.parse(input_string)
 
     code_builder = LPhyCanonicalBuilder()
     code = code_builder.get_code(meta_parser)
