@@ -19,7 +19,7 @@ class LogNormal(GenerativeDistribution):
         return RandomVariable(id_, None, self)
 
     # x ~ dnLognormal(mean=mean, sd=sd)
-    def lphy_to_rev(self):
+    def lphy_to_rev(self, var_name):
         #TODO no offset ?
         mean = self.meanlog.value
         sd = self.sdlog.value

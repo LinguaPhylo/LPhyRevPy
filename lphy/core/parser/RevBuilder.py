@@ -61,7 +61,7 @@ class RevBuilder:
             if isinstance(node, Value):
                 if not node.is_anonymous():
                     # start from named Value, and print the rest
-                    str_value = node.lphy_to_rev()
+                    str_value = node.lphy_to_rev(None)
                     if meta_parser.is_named_data_value(node):
                         self.data_lines.append(str_value)
                     else:
@@ -86,5 +86,5 @@ def get_argument_rev_string(name, value: Value):
 
     if value.is_anonymous():
         # TODO split lphy inline code into lines of Rev
-        return prefix + value.lphy_to_rev()
+        return prefix + value.lphy_to_rev(None)
     return prefix + get_canonical(value.get_id())

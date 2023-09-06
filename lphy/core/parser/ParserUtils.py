@@ -134,7 +134,8 @@ def _construct_generator(name, params, generator_class, args_map, arg_values):
     # instance = LogNormal(*arg_value_values)
     #constructor = LogNormal
 
-    # must use arg_values directly, which supposes to match the constructor parameters in a correct order.
+    # tuple unpacking arg_values and use them directly,
+    # which supposes to match the constructor parameters in a correct order.
     instance = generator_class(*arg_values)
     return instance
 

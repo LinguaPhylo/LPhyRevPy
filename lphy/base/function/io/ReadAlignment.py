@@ -18,9 +18,9 @@ class ReadFasta(DeterministicFunction, ABC):
 
     def apply(self) -> "Value":
         #TODO Alignment?
-        return Value(None, None, self)
+        return Value(None, Alignment(), self)
 
-    def lphy_to_rev(self):
+    def lphy_to_rev(self, var_name):
         #TODO how to handle options?
         return f"readDiscreteCharacterData({self.file})"
 

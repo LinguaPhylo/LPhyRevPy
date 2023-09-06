@@ -21,7 +21,7 @@ class GraphicalModelNode(ABC):
     def lphy_string(self) -> str:
         pass
 
-    def lphy_to_rev(self):
+    def lphy_to_rev(self, var_name):
         pass
 
     # inputs are the arguments of a function or distribution or

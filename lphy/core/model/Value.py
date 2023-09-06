@@ -64,7 +64,7 @@ class Value(GraphicalModelNode):
 
         return "".join(str_list)
 
-    def lphy_to_rev(self):
+    def lphy_to_rev(self, var_name):
         str_list = []
         generator = self.get_generator()
 
@@ -78,7 +78,7 @@ class Value(GraphicalModelNode):
                 str_list.append(generator.rev_spec_op())
                 str_list.append(" ")
             # Function or GenerativeDistribution
-            str_list.append(generator.lphy_to_rev())
+            str_list.append(generator.lphy_to_rev(self.id))
         elif not self.is_anonymous() and self.value is not None:
             # not have generator but have id and value, then it is the constant
             # variable id

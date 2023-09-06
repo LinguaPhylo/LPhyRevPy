@@ -19,7 +19,7 @@ class Coalescent(GenerativeDistribution):
         # not need value
         return RandomVariable(id_, None, self)
 
-    def lphy_to_rev(self):
+    def lphy_to_rev(self, var_name):
         # TODO hard code for Coalescent(theta=Θ, taxa=taxa);
         # TODO how to decompose taxa = taxa(names=1:10)
 

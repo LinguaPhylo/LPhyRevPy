@@ -24,7 +24,7 @@ class PhyloCTMC(GenerativeDistribution, ABC):
         return RandomVariable(id_, None, self)
 
 
-    def lphy_to_rev(self):
+    def lphy_to_rev(self, var_name):
         # lphy names are same to rev
         tree_name = "tree"
         tree = self.get_param(tree_name)
