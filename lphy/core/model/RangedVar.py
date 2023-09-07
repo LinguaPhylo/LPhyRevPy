@@ -38,10 +38,13 @@ class Var:
         else:
             raise RuntimeError("meta_parser is not an instance of LPhyMetaParser !")
 
+    # Assign the given value to this var, and put the result in the graphical model context provided.
     def assign(self, value, function, context):
         if not self.is_ranged_var():
+            if value is None:
+                raise RuntimeError(f"Cannot assign None to the Var : {self.id}")
             if function is not None:
-                value.setFunction(function)
+                value.set_function(function)
             value.set_id(self.id)
             self.meta_parser.put(self.id, value, context)
             return value

@@ -3,7 +3,8 @@ import numpy as np
 from typing import List
 
 from lphy.core.model.Generator import Generator
-from lphy.core.model.RangedVar import Var
+from lphy.core.model.MethodCall import MethodCall
+from lphy.core.model.RangedVar import Var, get_indexed_value
 from lphy.core.parser.antlr.LPhyParser import LPhyParser
 from lphy.core.parser.antlr.LPhyVisitor import LPhyVisitor
 from lphy.core.error.Errors import ParsingException
@@ -277,28 +278,34 @@ class LPhyASTVisitor(LPhyVisitor):
         # TODO
         var = self.visit(ctx.children[0])
         method_name = ctx.children[2].getText()
-        value = None
         argument_values = []
 
-        if not var.is_ranged_var:
-            value = self.get(var.id)
+        if var.is_ranged_var():
+            value = get_indexed_value(var.id, var.range_list).apply()
         else:
-            value = self.get_indexed_value(var.id, var.range_list).apply()
+            value = self._meta_parser.get_value(var.id, self._block)
 
         if value is None:
             raise ParsingException(f"Value {ctx.children[0].getText()} not found for method call {method_name}", ctx)
 
         ctx2 = ctx.getChild(4)
-        if ctx2.getText() != ')':
+        if ctx2.getText() == ')':
+            # no args
+            argument_values = []
+        else:
+            # contain args
             argument_object = self.visit(ctx2)
-            if isinstance(argument_object, list):
-                argument_values = [arg.get_value() for arg in argument_object]
 
-        try:
-            return MethodCall(method_name, value, argument_values)
-        except NoSuchMethodException as e:
-            LoggerUtils.log.severe(f"Method call {method_name} failed on object {value.get_id()}")
-            raise ParsingException(str(e), ctx)
+            if isinstance(argument_object, list) and all(isinstance(item, Value) for item in argument_object):
+                argument_values = argument_object
+            elif isinstance(argument_object, list) and all(isinstance(item, ArgumentValue) for item in argument_object):
+                argument_values = [value.get_value() for value in argument_object]
+
+        # try:
+        return MethodCall(method_name, value, argument_values)
+        # except NoSuchMethodException as e:
+        #     LoggerUtils.log.severe(f"Method call {method_name} failed on object {value.get_id()}")
+        #     raise ParsingException(str(e), ctx)
 
     def visitDistribution(self, ctx: LPhyParser.DistributionContext):
         name = ctx.getChild(0).getText()

@@ -1,5 +1,6 @@
 from abc import ABC
 
+from lphy.base.evolution.alignment.Alignment import Alignment
 from lphy.core.model.Function import DeterministicFunction
 from lphy.core.model.Value import Value
 

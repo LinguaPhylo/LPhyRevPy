@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import List
 
-from lphy.core.model.Function import DeterministicFunction
+from lphy.core.model.Function import DeterministicFunction, method_info
 from lphy.core.model.Value import Value
 
 
@@ -91,8 +91,23 @@ class Taxon:
 
 
 class Taxa:
-    def __init__(self, taxon_list: List[Taxon]):
+
+    def __init__(self, taxon_list=None):
+        if taxon_list is None:
+            taxon_list = []
         self.taxon_list = taxon_list
+
+    @method_info("The names of the taxa.")
+    def taxaNames(self):
+        pass
+
+    @method_info("gets the ages of these taxa as an array of doubles.")
+    def ages(self):
+        pass
+
+    @method_info("gets the number of taxa.")
+    def length(self):
+        return self.n_taxa()
 
     def n_taxa(self):
         return len(self.taxon_list)
