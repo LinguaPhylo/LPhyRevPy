@@ -270,7 +270,7 @@ class LPhyASTVisitor(LPhyVisitor):
                 raise RuntimeError(f"Found {len(matches)} matches for '{function_name}'. Picking first one!")
             generator = matches[0]
             for entry in arguments.items():
-                generator.set_input(entry[0], entry[1])
+                generator.set_input(entry[1])
             return generator.generate()
 
     def visitMethodCall(self, ctx: LPhyParser.MethodCallContext):
@@ -326,7 +326,7 @@ class LPhyASTVisitor(LPhyVisitor):
             generator = matches[0]
             # must be done so that Values all know their outputs
             for key, value in arguments.items():
-                generator.set_input(key, value)
+                generator.set_input(value)
             return generator
 
     def visitNamed_expression(self, ctx: LPhyParser.Named_expressionContext):

@@ -56,14 +56,15 @@ class Generator(GraphicalModelNode, ABC):
     def get_type_name(self) -> str:
         return self.__class__.__name__
 
-    def set_input(self, param_name: str, value: Value) -> None:
-        # TODO
+    # used to make all Values know their outputs
+    def set_input(self, value: Value) -> None:
+        # no set_param, the params will be extracted from __init__ args
         # self.set_param(param_name, value)
         value.add_output(self)
 
     def set_inputs(self, params: Dict[str, Value]) -> None:
         for param_name, value in params.items():
-            self.set_input(param_name, value)
+            self.set_input(value)
 
     def get_inputs(self):
         return list(self.get_params().values())

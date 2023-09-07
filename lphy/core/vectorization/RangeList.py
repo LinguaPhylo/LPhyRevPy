@@ -15,9 +15,9 @@ class RangeList(Function, ABC):
             if isinstance(value, (int, list)):
                 self.range_elements.append(node)
                 if isinstance(node, Value):
-                    self.set_input(str(arg), node)
+                    self.set_input(node)
                 elif isinstance(node, Function):
-                    self.set_input(str(arg), node.apply())
+                    self.set_input(node.apply())
                 arg += 1
             else:
                 ValueError(f"Non integer in RangeList: {value}")

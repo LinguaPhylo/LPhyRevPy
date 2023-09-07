@@ -10,7 +10,7 @@ from ..parser.argument import ArgumentUtils
 # TODO can this merge with DeterministicFunction?
 class Function(Generator, ABC):
     from .ValueCollections import ValueDict
-    #param_map = ValueDict()
+    # param_map = ValueDict()
 
     def __init__(self, id_: str = None):
         super().__init__(id_)
@@ -36,7 +36,7 @@ class Function(Generator, ABC):
             for param_name, param in args_map:
                 value = self.get_param(param_name)
                 # optional argument has a default value, e.g., __init__(param = None)
-                if param.default != inspect.Parameter.empty: # and value is None:
+                if param.default != inspect.Parameter.empty:  # and value is None:
                     pass  # DO NOTHING - this is an optional parameter with no value
                 else:
                     arg_str.append(get_argument_lphy_string(param_name, value))
@@ -55,3 +55,10 @@ class DeterministicFunction(Function, ABC):
     def generate(self) -> "Value":
         return self.apply()
 
+
+# Custom decorator to mark functions with @MethodInfo
+def method_info(description):
+    def decorator(func):
+        setattr(func, 'description', description)
+        return func
+    return decorator
