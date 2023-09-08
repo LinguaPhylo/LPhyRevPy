@@ -26,3 +26,22 @@ class LogNormal(GenerativeDistribution):
         return f"dnLognormal(mean={mean}, sd={sd})"
 
 
+class Dirichlet(GenerativeDistribution):
+
+    # parameter names must be exactly same to lphy definition in @ParameterInfo
+    def __init__(self, conc: Value):
+        super().__init__()
+        self.conc = conc
+        if not isinstance(conc.value, list):
+            raise RuntimeError(f"Expect list of concentration parameters for a Dirichlet distribution ! {conc.value}")
+        if not all(isinstance(element, (int, float)) for element in conc.value):
+            raise RuntimeError(f"The concentration parameters for a Dirichlet distribution must be numbers ! {conc.value}")
+
+    def sample(self, id_: str = None) -> "RandomVariable":
+        # not need value
+        return RandomVariable(id_, None, self)
+
+    # x ~ dnLognormal(mean=mean, sd=sd)
+    def lphy_to_rev(self, var_name):
+        conc = self.conc.value
+        return f"dnDirichlet(alpha={conc})"

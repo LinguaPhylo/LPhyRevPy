@@ -1,3 +1,4 @@
+import ast
 import logging
 import numpy as np
 from typing import List
@@ -309,8 +310,8 @@ class LPhyASTVisitor(LPhyVisitor):
 
     def visitDistribution(self, ctx: LPhyParser.DistributionContext):
         name = ctx.getChild(0).getText()
-        f = self.visit(ctx.getChild(2))
-        arguments = {}
+        f = self.visit(ctx.getChild(2)) # ArgumentValue[]
+        arguments = {} # map, key is arg name, value is arg value
 
         for v in f:
             if v is not None:
@@ -340,7 +341,6 @@ class LPhyASTVisitor(LPhyVisitor):
         name = ctx.getChild(0).getText()
         obj = self.visit(ctx.getChild(2))
 
-        # TODO how to improve?
         # python built-in has to convert to DeterministicFunction, in order to parse args
         if isinstance(obj, DeterministicFunction):
             value = obj.apply()
@@ -348,22 +348,22 @@ class LPhyASTVisitor(LPhyVisitor):
             v = ArgumentValue(name, value, self._meta_parser, self._block)
             return v
 
+        # array construction will return a Value containing list to here
         if isinstance(obj, Value):
-            value = obj
-            v = ArgumentValue(name, value, self._meta_parser, self._block)
-            return v
-
-        # for 1:10
-        # if isinstance(obj, list):
-        #     all_integers = all(isinstance(item, int) for item in obj)
-        #     if all_integers:
-        #         v = ArgumentValue(name, obj, self._meta_parser, self._block)
-        #         return v
+            return ArgumentValue(name, obj, self._meta_parser, self._block)
 
         return obj
 
+    # wrap the array, e.g. [1,2,3], into Value
     def visitArray_construction(self, ctx: LPhyParser.Array_constructionContext):
         # TODO
+        if ctx.getChildCount() >= 2:
+            s = ctx.getChild(0).getText()
+            if s == "[":
+                # get unnamed expression list
+                return Value(None, ast.literal_eval(ctx.getText()))
+            raise ValueError(f"[ ] are required ! {ctx.getText()}")
+
         return super().visitArray_construction(ctx)
 
     # return and array of ArgumentValue objects
