@@ -54,11 +54,11 @@ def main():
     # meta_parser.parse(data_string, LPhyMetaParser.DATA)
     meta_parser.parse(input_string)
 
-    code_builder = LPhyCanonicalBuilder()
-    code = code_builder.get_code(meta_parser)
+    #code_builder = LPhyCanonicalBuilder()
+    #code = code_builder.get_code(meta_parser)
 
-    print("\nReconstruct LPhy script below:\n")
-    print(code)
+    #print("\nReconstruct LPhy script below:\n")
+    #print(code)
 
     rev_builder = RevBuilder()
     rev = rev_builder.get_code(meta_parser)

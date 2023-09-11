@@ -89,6 +89,30 @@ class MethodCall(DeterministicFunction):
         # Implement vectorized apply logic here
         pass
 
+    def lphy_to_rev(self, var_name):#TODO
+        builder = []
+        id = self.value.get_id()
+
+        if self.value.is_anonymous():
+            generator = self.value.get_generator()
+            if isinstance(generator, ElementsAt) or isinstance(generator, Slice):
+                id = generator.lphy_to_rev()
+
+        builder.append(f"{id}{self.get_name()}(")
+
+        if self.arguments:
+            builder.append(argument_string(self.arguments[0]))
+
+        for arg in self.arguments[1:]:
+            builder.append(", ")
+            builder.append(argument_string(arg))
+
+        builder.append(")")
+        return "".join(builder)
+
+    def lphy_string(self):
+        from lphy.core.error.Errors import UnsupportedOperationException
+        raise UnsupportedOperationException("")
 
     def _check_vectorized_matches(self):
         # Implement logic for vectorized matches
@@ -125,25 +149,7 @@ class MethodCall(DeterministicFunction):
         # Implement logic to get vector size
         pass
 
-    def code_string(self) -> str:
-        builder = []
-        id = self.value.get_id()
 
-        if self.value.is_anonymous():
-            if isinstance(self.value.generator, ElementsAt) or isinstance(self.value.generator, Slice):
-                id = self.value.generator.code_string()
-
-        builder.append(f"{id}{self.get_name()}(")
-
-        if self.arguments:
-            builder.append(argument_string(self.arguments[0]))
-
-        for arg in self.arguments[1:]:
-            builder.append(", ")
-            builder.append(argument_string(arg))
-
-        builder.append(")")
-        return "".join(builder)
 
 
 def argument_string(value: Any) -> str:

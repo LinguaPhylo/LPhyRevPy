@@ -34,7 +34,7 @@ class Value(GraphicalModelNode):
             return [self.function]
         return []
 
-    def get_generator(self):
+    def get_generator(self) -> "Generator":
         return self.function
 
     def __str__(self):

@@ -44,7 +44,7 @@ class RevBuilder:
         elif isinstance(node, Generator):
             # map value should be Value
             param_map = node.get_params()
-            for param_name, param in param_map:
+            for param_name, param in param_map: #TODO MethodCall not working here
                 value = node.get_param(param_name)
                 # if optional arg not used, it will be None
                 if value is not None:
