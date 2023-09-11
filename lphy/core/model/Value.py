@@ -1,5 +1,3 @@
-import logging
-
 from .GraphicalModelNode import GraphicalModelNode
 from ..parser.UnicodeConverter import get_canonical
 
@@ -59,6 +57,11 @@ class Value(GraphicalModelNode):
                 str_list.append(" ")
             # Function or GenerativeDistribution
             str_list.append(generator.lphy_string())
+        elif not self.is_anonymous() and self.value is not None:
+            # variable id
+            str_list.append(get_canonical(self.id))
+            str_list.append(" = ")
+            str_list.append(self.value)
         else:
             str_list.append(str(self.value))
 
@@ -89,7 +92,8 @@ class Value(GraphicalModelNode):
             str_list.append(" ")
             str_list.append(self.value)
         else:
-            logging.error(f"Cannot convert the lphy value {str(self.value)} into rev !")
+            str_list.append(str(self.value))
+            #raise RuntimeError(f"Cannot convert the lphy value {str(self.value)} into rev !")
 
         if None in str_list:
             raise RuntimeError(f"The rev string contains None, check if {generator.__class__} implements lphy_to_rev()!\n"

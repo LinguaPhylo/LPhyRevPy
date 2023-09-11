@@ -11,9 +11,10 @@ def main():
     from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
 
     # TODO inline func
-    input_string = ("Θ ~ LogNormal(meanlog=3.0, sdlog=1.0);\n"
-                    "ψ ~ Coalescent(theta=Θ, taxa=taxa(names=1:10));\n"
-                    "D ~ PhyloCTMC(tree=ψ, L=200, Q=jukesCantor());")
+    input_string = ("data {\n  L = 200;\n  taxa = taxa(names=1:10);\n}\n"
+                    "model {\n  Θ ~ LogNormal(meanlog=3.0, sdlog=1.0);\n"
+                    "  ψ ~ Coalescent(theta=Θ, taxa=taxa);\n"
+                    "  D ~ PhyloCTMC(tree=ψ, L=200, Q=jukesCantor());\n}\n")
 
     meta_parser = LPhyMetaParser()
     meta_parser.parse(input_string)
