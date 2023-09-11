@@ -34,15 +34,17 @@ class Generator(GraphicalModelNode, ABC):
     def generate(self) -> Value:
         pass
 
-    # do not print rev var name on left side, e.g., using for loop
-    def is_rev_assignment(self):
+    # do not print rev var name on left side in rev script, e.g., using for loop
+    def has_var_declaration_rev(self):
         return True
 
-    # get params from __init__
-    # return items of param_name, param
+    # Return pairwise items consisting of (param_name, param) extracted from __init__,
+    # This no longer requires to implement and fill in SortedMap<String, Value> map.
+    # But special case, such as MethodCall, needs to overwrite it.
     def get_params(self):
         constructors = ArgumentUtils.get_constructors(self.__class__)
         if len(constructors) == 1:
+            # pairwise items consisting of (param_name, param)
             return ArgumentUtils.get_arguments(constructors[0])
         else:
             raise RuntimeError(f"{self.__class__.__name__} {self.get_id()} must have 1 and only 1 __init__ !")

@@ -26,17 +26,18 @@ class GTR(DeterministicFunction, ABC):
 
     def apply(self) -> "Value":
         # not require value
-        num_states = 4
+        num_states = 4  # TODO
         return Value(None, np.zeros((num_states, num_states)), self)
 
     def lphy_to_rev(self, var_name):
-        # lphy mean rate is to normalise rate matrix. Default value is 1.0."
+        # lphy mean rate is to normalise rate matrix. Default value is 1.0
         mean_rate_name = "meanRate"
         if self.meanRate is not None:
             mean_rate = self.get_param(mean_rate_name)
 
-        # er ~ dnDirichlet(v(1, 1, 1, 1, 1, 1))
-        # pi ~ dnDirichlet(v(1, 1, 1, 1))
-        # Q := fnGTR(er, pi)
-
-        return f"fnGTR({num_states})"
+        rates_name = "exchangeRates"
+        freq_name = "baseFrequencies"
+        rates = self.rates
+        freq = self.freq
+        from lphy.core.parser.RevBuilder import get_argument_rev_string
+        return f"fnGTR({get_argument_rev_string(rates_name, rates)}, {get_argument_rev_string(freq_name, freq)})"

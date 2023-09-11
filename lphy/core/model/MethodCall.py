@@ -1,5 +1,5 @@
 import inspect
-from typing import Any, List, Callable
+from typing import Any, List
 from lphy.core.model.Function import DeterministicFunction
 from lphy.core.model.Value import Value
 
@@ -9,7 +9,7 @@ def get_method_calls(class_obj):
     import inspect
     method_calls = []
     for name, method in inspect.getmembers(class_obj, inspect.ismethod):
-        #TODO name == "method_info"
+        # TODO name == "method_info"
         if hasattr(method, 'description'):
             method_calls.append((name, method.flag_name))
     return method_calls
@@ -25,6 +25,12 @@ def find_method(class_obj, method_name, args):
             if len(sig.parameters) - 1 == len(args):
                 return method
     return None
+
+
+def lphy_to_rev_arg_str(value: Any) -> str:
+    if value.is_anonymous():
+        return value.lphy_to_rev()
+    return value.get_id()
 
 
 class MethodCall(DeterministicFunction):
@@ -49,9 +55,9 @@ class MethodCall(DeterministicFunction):
         self._initialize()
 
     def _initialize(self):
-        #TODO check if method_name and arguments match
+        # TODO check if method_name and arguments match
 
-        #TODO if (value instanceof Vector)
+        # TODO if (value instanceof Vector)
 
         # if self.method is None:
         #     self._check_vectorized_matches()
@@ -89,7 +95,7 @@ class MethodCall(DeterministicFunction):
         # Implement vectorized apply logic here
         pass
 
-    def lphy_to_rev(self, var_name):#TODO
+    def lphy_to_rev(self, var_name):  # TODO
         builder = []
         id = self.value.get_id()
 
@@ -101,11 +107,11 @@ class MethodCall(DeterministicFunction):
         builder.append(f"{id}{self.get_name()}(")
 
         if self.arguments:
-            builder.append(argument_string(self.arguments[0]))
+            builder.append(lphy_to_rev_arg_str(self.arguments[0]))
 
         for arg in self.arguments[1:]:
             builder.append(", ")
-            builder.append(argument_string(arg))
+            builder.append(lphy_to_rev_arg_str(arg))
 
         builder.append(")")
         return "".join(builder)
@@ -113,6 +119,22 @@ class MethodCall(DeterministicFunction):
     def lphy_string(self):
         from lphy.core.error.Errors import UnsupportedOperationException
         raise UnsupportedOperationException("")
+
+    def get_params(self):
+        params = {self.OBJECT_PARAM_NAME: self.value}
+        for i, arg in enumerate(self.arguments):
+            params[f"{self.ARG_PARAM_NAME}{i}"] = arg
+        return params.items()
+
+    #TODO is this still required?
+    def set_param(self, param_name: str, param: Any):
+        if param_name == self.OBJECT_PARAM_NAME:
+            self.value = param
+        elif param_name.startswith(self.ARG_PARAM_NAME):
+            index = int(param_name[len(self.ARG_PARAM_NAME):])
+            self.arguments[index] = param
+        else:
+            raise ValueError(f"Param name {param_name} not recognized!")
 
     def _check_vectorized_matches(self):
         # Implement logic for vectorized matches
@@ -129,30 +151,6 @@ class MethodCall(DeterministicFunction):
     def get_description(self) -> str:
         return self.method_info.description()
 
-    def get_params(self) -> dict:
-        params = {self.OBJECT_PARAM_NAME: self.value}
-        for i, arg in enumerate(self.arguments):
-            params[f"{self.ARG_PARAM_NAME}{i}"] = arg
-        return params
-
-    def set_param(self, param_name: str, param: Any):
-        if param_name == self.OBJECT_PARAM_NAME:
-            self.value = param
-        elif param_name.startswith(self.ARG_PARAM_NAME):
-            index = int(param_name[len(self.ARG_PARAM_NAME):])
-            self.arguments[index] = param
-        else:
-            raise ValueError(f"Param name {param_name} not recognized!")
-
-
     def get_vector_size(self, args: List[Any]) -> int:
         # Implement logic to get vector size
         pass
-
-
-
-
-def argument_string(value: Any) -> str:
-    if value.is_anonymous():
-        return value.code_string()
-    return value.get_id()

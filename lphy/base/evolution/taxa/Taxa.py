@@ -43,7 +43,7 @@ class CreateTaxa(DeterministicFunction, ABC):
         return Value(None, taxa, self)
 
     # overwrite to F so only print the for loop, without taxa :=
-    def is_rev_assignment(self):
+    def has_var_declaration_rev(self):
         return False
 
     def lphy_to_rev(self, var_name):

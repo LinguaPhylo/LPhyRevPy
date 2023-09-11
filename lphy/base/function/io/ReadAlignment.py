@@ -21,6 +21,10 @@ class ReadFasta(DeterministicFunction, ABC):
         #TODO Alignment?
         return Value(None, Alignment(), self)
 
+    # D <- readDiscreteCharacterData("data/horses_isochronous_sequences.fasta")
+    def rev_spec_op(self) -> str:
+        return '<-'
+
     def lphy_to_rev(self, var_name):
         #TODO how to handle options?
         return f"readDiscreteCharacterData({self.file})"

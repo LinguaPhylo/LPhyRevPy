@@ -18,8 +18,10 @@ class Function(Generator, ABC):
     def specification_operator(self):
         return '='
 
+    # overwrite to <- if the equivalent rev script create a constant var
     def rev_spec_op(self) -> str:
         return ':='
+
 
     ### Please note that in Python, defining multiple __init__ methods
     # with different sets of parameters is not recommended,
