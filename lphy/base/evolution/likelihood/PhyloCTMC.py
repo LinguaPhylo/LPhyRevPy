@@ -14,7 +14,7 @@ class PhyloCTMC(GenerativeDistribution, ABC):
         self.tree = tree
         self.Q = Q
         self.L = L
-        self.mu = mu if mu is not None else Value(None, 1.0)
+        self.mu = mu
         self.siteRates = siteRates
         self.branchRates = branchRates
         self.dataType = dataType
@@ -39,10 +39,21 @@ class PhyloCTMC(GenerativeDistribution, ABC):
         if self.L is not None:
             l = self.get_param("L")
             builder.append(get_argument_rev_string("nSites", l))
+        if self.mu is not None:
+            mu = self.get_param("mu")
+            # rev branchRates is just 1 number, equivalent to lphy mu
+            builder.append(get_argument_rev_string("branchRates", mu))
+        if self.siteRates is not None:
+            site_rates = self.get_param("siteRates")
+            builder.append(get_argument_rev_string("siteRates", site_rates))
         if self.dataType is not None:
             data_type = self.get_param("dataType")
             builder.append(get_argument_rev_string("type", data_type))
 
         args = ", ".join(builder)
         return f"dnPhyloCTMC({args})"
+
+#TODO: data clamp here or in builder?
+# seq ~ dnPhyloCTMC(tree=psi, Q=Q, siteRates=sr, pInv=p_inv, type="DNA", branchRates=clock)
+# seq.clamp(sequences)
 

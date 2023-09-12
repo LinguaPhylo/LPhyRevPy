@@ -15,5 +15,6 @@ model {
   γ ~ LogNormal(meanlog=0.0, sdlog=2.0);
   r ~ DiscretizeGamma(shape=γ, ncat=4, replicates=L);
 
-  D ~ PhyloCTMC(tree=ψ, siteRates=r, Q=Q);
+  clock ~ LogNormal(meanlog=-16.88, sdlog=5.0);
+  D ~ PhyloCTMC(tree=ψ, siteRates=r, Q=Q, mu=clock);
 }

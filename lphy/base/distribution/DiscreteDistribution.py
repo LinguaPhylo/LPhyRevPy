@@ -17,6 +17,10 @@ class DiscretizeGamma(GenerativeDistribution):
         # not need value
         return RandomVariable(id_, None, self)
 
+    # sr := fnDiscretizeGamma( alpha, alpha, 4 )
+    def rev_spec_op(self) -> str:
+        return ':='
+
     # Note: fnDiscretizeGamma is diff to DiscretizeGamma, the former returns the category rates, length == ncat,
     # but the latter returns the rate for one site, use IID to return site rates.
     def lphy_to_rev(self, var_name):
