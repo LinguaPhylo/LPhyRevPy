@@ -24,6 +24,8 @@ class PhyloCTMC(GenerativeDistribution, ABC):
         return RandomVariable(id_, None, self)
 
 
+    # TODO
+    # dnPhyCTMC siteRates are the rates of each category not each site, which has the same length of ncat
     def lphy_to_rev(self, var_name):
         # lphy names are same to rev
         tree_name = "tree"

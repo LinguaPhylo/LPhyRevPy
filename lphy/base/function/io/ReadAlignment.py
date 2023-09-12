@@ -27,7 +27,7 @@ class ReadFasta(DeterministicFunction, ABC):
 
     def lphy_to_rev(self, var_name):
         #TODO how to handle options?
-        return f"readDiscreteCharacterData({self.file})"
+        return f"""readDiscreteCharacterData("{self.file}")"""
 
 
 #TODO can rev load nex format?

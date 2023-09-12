@@ -76,6 +76,8 @@ class RevBuilder:
                 raise RuntimeError("Cannot recognise the node : " + node.__str__())
 
 
+# return the argument string in rev,
+# for named arg, for example, (mean=3.0, sd=1.0)
 def get_argument_rev_string(name, value: Value):
     prefix = ""
     if not name.isdigit():  # named arg

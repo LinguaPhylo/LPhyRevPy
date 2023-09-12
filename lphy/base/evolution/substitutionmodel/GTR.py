@@ -37,7 +37,7 @@ class GTR(DeterministicFunction, ABC):
 
         rates_name = "exchangeRates"
         freq_name = "baseFrequencies"
-        rates = self.rates
-        freq = self.freq
+        rates = self.get_param("rates")
+        freq = self.get_param("freq")
         from lphy.core.parser.RevBuilder import get_argument_rev_string
         return f"fnGTR({get_argument_rev_string(rates_name, rates)}, {get_argument_rev_string(freq_name, freq)})"
