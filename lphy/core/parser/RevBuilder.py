@@ -62,8 +62,16 @@ class RevBuilder:
                 if not node.is_anonymous():
                     # start from named Value, and print the rest
                     str_value = node.lphy_to_rev(None)
+
                     if meta_parser.is_named_data_value(node):
                         self.data_lines.append(str_value)
+                    elif meta_parser.is_clamped_variable(node):
+                        # data clamping
+                        old_id = node.get_id()
+                        new_id = old_id+"_clamp"
+                        str_clamp = str_value.replace(old_id, new_id)
+                        self.model_lines.append(str_clamp)
+                        self.model_lines.append(f"{new_id}.clamp({old_id})")
                     else:
                         self.model_lines.append(str_value)
                 self.visited.add(node)

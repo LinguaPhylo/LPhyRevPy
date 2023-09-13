@@ -1,4 +1,6 @@
 from abc import ABC
+
+from lphy.core.error.Errors import UnsupportedOperationException
 from lphy.core.parser.RevBuilder import get_argument_rev_string
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.model.RandomVariable import RandomVariable
@@ -8,16 +10,18 @@ from lphy.core.model.Value import Value
 class PhyloCTMC(GenerativeDistribution, ABC):
 
     # The parameter name must be matching with its definition in lphy script, case-sensitive.
-    def __init__(self, tree: Value, Q: Value, L=None, mu=None, siteRates=None, branchRates=None, dataType=None):
+    def __init__(self, tree: Value, Q: Value, L=None, mu=None, siteRates=None,
+                 branchRates=None, dataType=None, root=None):
         super().__init__()
         # have to take Value.value
         self.tree = tree
         self.Q = Q
         self.L = L
-        self.mu = mu
+        self.mu = mu  # branchRates in dnPhyloCTMC
         self.siteRates = siteRates
         self.branchRates = branchRates
         self.dataType = dataType
+        self.root = root  # dnPhyloCTMC not support
 
     def sample(self, id_: str = None) -> "RandomVariable":
         # not need value
@@ -49,6 +53,9 @@ class PhyloCTMC(GenerativeDistribution, ABC):
         if self.dataType is not None:
             data_type = self.get_param("dataType")
             builder.append(get_argument_rev_string("type", data_type))
+        if self.root is not None:
+            raise UnsupportedOperationException("dnPhyloCTMC does not support root sequence !\n"
+                                                "https://revbayes.github.io/documentation/dnPhyloCTMC.html")
 
         args = ", ".join(builder)
         return f"dnPhyloCTMC({args})"

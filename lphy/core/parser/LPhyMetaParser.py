@@ -1,5 +1,6 @@
 from antlr4 import InputStream, CommonTokenStream
 
+from lphy.core.model.Value import Value
 from lphy.core.parser.antlr.LPhyLexer import LPhyLexer
 from lphy.core.parser.antlr.LPhyParser import LPhyParser
 
@@ -90,10 +91,30 @@ class LPhyMetaParser:
         return non_arguments
 
     # return true if this is a named value in the data block.
-    def is_named_data_value(self, value):
+    def is_named_data_value(self, value: Value):
         from lphy.core.model.RandomVariable import RandomVariable
         return (not value.is_anonymous() and not isinstance(value, RandomVariable)
                 and self.has_value(value.get_id(), self.DATA))
+
+    def is_clamped(self, id_):
+        """
+        Check if the given ID is contained in both the data block and the model block,
+        and the model ID is a random variable.
+        :param id_: A value ID
+        :return: True if the ID is clamped, False otherwise
+        """
+        from lphy.core.model.RandomVariable import RandomVariable
+        return (id_ is not None and id_ in self.data_dict.keys() and id_ in self.model_dict.keys() and
+                isinstance(self.model_dict[id_], RandomVariable))
+
+    def is_clamped_variable(self, value: Value):
+        """
+        Check if the given value is a random variable and is clamped.
+        :param value: A value object
+        :return: True if the value is a clamped random variable, False otherwise
+        """
+        from lphy.core.model.RandomVariable import RandomVariable
+        return isinstance(value, RandomVariable) and self.is_clamped(value.get_id())
 
     def __str__(self):
         return '\n'.join(self._lines)  # TODO
