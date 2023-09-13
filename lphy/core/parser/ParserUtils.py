@@ -39,8 +39,9 @@ def get_matching_generators(gene_name, params) -> [Generator]:
 
 ### private
 
-# Map<String, Value> arguments
-def _get_generator_by_arguments(name, params: dict, generator_class):
+# find the args matched Generator
+# params can be dict or list
+def _get_generator_by_arguments(name, params, generator_class):
     matches = []
 
     for constructor in ArgumentUtils.get_constructors(generator_class):
@@ -48,11 +49,11 @@ def _get_generator_by_arguments(name, params: dict, generator_class):
         args_map = ArgumentUtils.get_arguments(constructor)
         arg_values = []
 
-        if _match(params, args_map):
-
+        #TODO check Generative Dist with unnamed args
+        if isinstance(params, dict) and _match(params, args_map):
+            # if params is dict, then it is Generative Dist or Func with named args
             for param_name, param in args_map:
                 try:
-                    #TODO why params is changed to list when empty?
                     # Value arg, if params is empty, return None
                     if params:
                         arg = params[param_name]
@@ -74,6 +75,20 @@ def _get_generator_by_arguments(name, params: dict, generator_class):
 
             generator = _construct_generator(name, params, generator_class, args_map, arg_values)
             matches.append(generator)
+
+        elif isinstance(params, list):
+            # if params is list, then it is Func with unnamed args
+            #TODO seems working, but need to check and refactor _construct_generator(...)
+            # Unnamed args, which use the list params to pass to arg_values
+            if len(params) == len(args_map) and 0 < len(params) <= MAX_UNNAMED_ARGS:
+                f = _construct_generator(name, None, generator_class, args_map, params)
+                if f is not None:
+                    matches.append(f)
+            # No args, all optional
+            elif len(params) == 0 and all(arg[2] for arg in args_map):
+                f = _construct_generator(name, None, generator_class, args_map, [])
+                if f is not None:
+                    matches.append(f)
 
     return matches
 
@@ -128,19 +143,19 @@ def _construct_generator(name, params, generator_class, args_map, arg_values):
     from lphy.core.model.Value import Value
     # arg must be Value obj
     # this causes a bug of matching args, after rm None
-    #arg_value_values = [arg for arg in arg_values if arg is not None and isinstance(arg, Value)]
+    # arg_value_values = [arg for arg in arg_values if arg is not None and isinstance(arg, Value)]
     from lphy.base.distribution.ContinuousDistribution import LogNormal
     # instance = LogNormal(3.0, 1.0)
     # instance = LogNormal(*arg_value_values)
-    #constructor = LogNormal
+    # constructor = LogNormal
 
-    # tuple unpacking arg_values and use them directly,
-    # which supposes to match the constructor parameters in a correct order.
-    instance = generator_class(*arg_values)
-    return instance
+    # TODO
+    if True:  #ArgumentUtils.matching_parameter_types(args_map, arg_values, params):
+        # tuple unpacking arg_values and use them directly,
+        # which supposes to match the constructor parameters in a correct order.
+        instance = generator_class(*arg_values)
+        return instance
 
-    # if ArgumentUtils.matching_parameter_types(args_map, arg_values, params):
-    #     return constructor(*arg_values)
     # TODO
     # elif IID.match(constructor, args_map, arg_values, params):
     #     iid = IID(constructor, arg_values, params)
@@ -152,4 +167,4 @@ def _construct_generator(name, params, generator_class, args_map, arg_values):
     # else:
     #   from lphy.core.error.Errors import UnsupportedOperationException
     #     raise UnsupportedOperationException(f"Cannot find a match in '{name}' constructor arguments : " + params)
-        #raise RuntimeError(f"ERROR! No match in '{name}' constructor arguments, including vector match! ")
+    # raise RuntimeError(f"ERROR! No match in '{name}' constructor arguments, including vector match! ")

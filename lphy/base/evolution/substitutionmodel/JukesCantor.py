@@ -27,7 +27,7 @@ class JukesCantor(DeterministicFunction, ABC):
         return Value(None, np.zeros((num_states, num_states)), self)
 
     def lphy_to_rev(self, var_name):
-        # lphy mean rate is to normalise rate matrix. Default value is 1.0."
+        # lphy mean rate is to normalise rate matrix. Default value is 1.0.
         mean_rate_name = "meanRate"
         if self.meanRate is not None:
             mean_rate = self.get_param(mean_rate_name)

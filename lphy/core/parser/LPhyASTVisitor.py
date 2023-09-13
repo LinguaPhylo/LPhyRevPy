@@ -194,10 +194,12 @@ class LPhyASTVisitor(LPhyVisitor):
     def visitBooleanLiteral(self, ctx: LPhyParser.BooleanLiteralContext):
         return super().visitBooleanLiteral(ctx)
 
+    # An expression_list consists of one or more named_expressions separated by commas.
     def visitExpression_list(self, ctx: LPhyParser.Expression_listContext) -> List[ArgumentValue]:
         list_values = [self.visit(ctx.getChild(i)) for i in range(0, ctx.getChildCount(), 2)]
         return list_values
 
+    # such as the args of a method call, or the unnamed args in a function
     def visitUnnamed_expression_list(self, ctx: LPhyParser.Unnamed_expression_listContext):
         values = []
         for i in range(0, ctx.getChildCount(), 2):
@@ -207,8 +209,7 @@ class LPhyASTVisitor(LPhyVisitor):
                 value.set_function(obj)
                 values.append(value)
             elif isinstance(obj, Value):
-                value = obj
-                values.append(value)
+                values.append(obj)
             elif obj is None:
                 values.append(None)
             else:
@@ -229,6 +230,7 @@ class LPhyASTVisitor(LPhyVisitor):
         if ctx2.getText() == ")":
             f1 = []
         else:
+            # this goes to visitUnnamed_expression_list or visitExpression_list
             argument_object = self.visit(ctx2)
             if isinstance(argument_object, list):
                 if all(isinstance(item, Value) for item in argument_object):
@@ -255,9 +257,10 @@ class LPhyASTVisitor(LPhyVisitor):
         #
         # if function_classes is None:
         #     raise ParsingException(f"Found no implementation for function with name {function_name}", ctx)
-        # TODO why f1 is None when taxa(names=1:10)
+
         arguments = {}
         if argument_values is None:
+            #TODO f1 params not correct for unnamed args in function, e.g. length(x)
             matches = ParserUtils.get_matching_generators(function_name, f1)
         else:
             arguments = {v.get_name(): v.get_value() for v in argument_values}
@@ -360,6 +363,7 @@ class LPhyASTVisitor(LPhyVisitor):
         if ctx.getChildCount() >= 2:
             s = ctx.getChild(0).getText()
             if s == "[":
+                #TODO map contains func, e.g. dim = [length(z), length(z[0])];
                 # get unnamed expression list
                 return Value(None, ast.literal_eval(ctx.getText()))
             raise ValueError(f"[ ] are required ! {ctx.getText()}")
