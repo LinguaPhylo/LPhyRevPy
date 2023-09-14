@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Dict
+from inspect import Parameter
+from typing import Dict, ItemsView
 
 from lphy.core.model.Value import Value
 from lphy.core.model.GraphicalModelNode import GraphicalModelNode
@@ -38,10 +39,13 @@ class Generator(GraphicalModelNode, ABC):
     def has_var_declaration_rev(self):
         return True
 
-    # Return pairwise items consisting of (param_name, param) extracted from __init__,
-    # This no longer requires to implement and fill in SortedMap<String, Value> map.
-    # But special case, such as MethodCall, needs to overwrite it.
-    def get_params(self):
+    def get_params(self) -> ItemsView:
+        """
+        This no longer requires to implement and fill in SortedMap<String, Value> map.
+        But special case, such as MethodCall, needs to overwrite it.
+        :return: pairwise items consisting of (param_name, param) extracted from __init__,
+                 so require to call  .items()
+        """
         constructors = ArgumentUtils.get_constructors(self.__class__)
         if len(constructors) == 1:
             # pairwise items consisting of (param_name, param)

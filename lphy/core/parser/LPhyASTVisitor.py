@@ -313,7 +313,8 @@ class LPhyASTVisitor(LPhyVisitor):
 
     def visitDistribution(self, ctx: LPhyParser.DistributionContext):
         name = ctx.getChild(0).getText()
-        f = self.visit(ctx.getChild(2)) # ArgumentValue[]
+        # go to visitNamed_expression for named args, and return ArgumentValue[]
+        f = self.visit(ctx.getChild(2))
         arguments = {} # map, key is arg name, value is arg value
 
         for v in f:
@@ -342,6 +343,7 @@ class LPhyASTVisitor(LPhyVisitor):
 
     def visitNamed_expression(self, ctx: LPhyParser.Named_expressionContext):
         name = ctx.getChild(0).getText()
+        # go to visitExpression
         obj = self.visit(ctx.getChild(2))
 
         # python built-in has to convert to DeterministicFunction, in order to parse args

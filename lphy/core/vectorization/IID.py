@@ -1,27 +1,30 @@
+import inspect
 import logging
 import numpy as np
-from typing import List, Dict
+from typing import List, Dict, ItemsView
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
+from lphy.core.model.Generator import get_generator_name, Generator
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 
-
-def iid_match(constructor, arguments: List[Value], init_args, params: Dict[str, Value]) -> bool:
-    if not issubclass(constructor.__self__, GenerativeDistribution):
+#TODO
+def iid_match(constructor, args_map, init_args, params: Dict[str, Value]) -> bool:
+    if not issubclass(constructor, GenerativeDistribution):
         return False
 
-    if not has_valid_replicates_param(constructor.__name__, params):
+    if not has_valid_replicates_param(constructor, params):
         return False
 
-    for i, argument in enumerate(arguments):
+    for i, (param_name, param) in enumerate(args_map):
         arg_value = init_args[i]
 
-        if argument.name == IID.REPLICATES_PARAM_NAME:
+        # if one of the arguments of the base distribution is replicates than you can't use IID on this base distribution
+        if param_name == IID.REPLICATES_PARAM_NAME:
             return False
 
-        if arg_value is None and not argument.optional:
+        if arg_value is None and param.default is not None:
             return False
-        elif arg_value is not None and not isinstance(arg_value.value, argument.type):
+        elif arg_value is not None and param_name not in params:
             return False
 
     return True
@@ -32,12 +35,12 @@ def has_valid_replicates_param(constructor_name, params: Dict[str, Value]) -> bo
     if value is None:
         return False
 
-    if not isinstance(value.value, int):
-        raise ValueError(f"The parameter '{IID.REPLICATES_PARAM_NAME}' must be an integer in {constructor_name}! "
-                         f"But it is {value if value else None} ({type(value)})")
-    elif value.value < 0:
-        raise ValueError(f"The parameter '{IID.REPLICATES_PARAM_NAME}' must >= 0 in {constructor_name}! "
-                         f"But it is {value.value}")
+    # if not isinstance(value.value, int):
+    #     raise ValueError(f"The parameter '{IID.REPLICATES_PARAM_NAME}' must be an integer in {constructor_name}! "
+    #                      f"But it is {value if value else None} ({type(value)})")
+    # elif value.value < 0:
+    #     raise ValueError(f"The parameter '{IID.REPLICATES_PARAM_NAME}' must >= 0 in {constructor_name}! "
+    #                      f"But it is {value.value}")
     return True
 
 
@@ -47,43 +50,76 @@ class IID(GenerativeDistribution):
 
     def __init__(self, base_distribution_constructor, init_args, params: Dict[str, Value]):
 
+        super().__init__()
         self.params = params
 
         try:
             element_params = {}
             for key, value in params.items():
-                if key != self.REPLICATES_PARAM_NAME:
+                if key != IID.REPLICATES_PARAM_NAME:
                     element_params[key] = value
 
-            self.base_distribution = base_distribution_constructor(*init_args)
+            self.base_distribution: GenerativeDistribution = base_distribution_constructor(*init_args)
         except Exception as e:
             logging.error("Cannot create instance of %s, check if parameters are valid: %s", base_distribution_constructor.__name__, init_args)
             logging.error(e)
 
 
-    def size(self) -> int:
+    def size(self) -> int: #TODO value is None
         return self.params[IID.REPLICATES_PARAM_NAME].value
 
-    def sample(self) -> RandomVariable:
+    def sample(self, id_: str = None) -> RandomVariable:
         size = self.size()
         component_variables = []
 
-        for _ in range(size):
+        if size:
+            try:
+                s = int(size)
+                for i in range(s):
+                    component_variables.append(self.base_distribution.sample())
+            except ValueError:
+                component_variables.append(self.base_distribution.sample())
+        else:
+            # the case of replicates = L, L is a var and value is None as designed
             component_variables.append(self.base_distribution.sample())
 
-        return VectorizedRandomVariable(None, component_variables, self)
+        # must pass id_ here, otherwise cannot put into model/data_dict
+        return RandomVariable(id_, component_variables, self)  #TODO still need VectorizedRandomVariable?
 
-    def get_params(self) -> Dict[str, Value]:
-        return self.params
+    # overwrite to F so only print the for loop, without ~
+    def has_var_declaration_rev(self):
+        # False, but exclude DiscretizeGamma
+        return self.get_name() == "DiscretizeGamma"
+
+    def lphy_to_rev(self, var_name):
+        dist_name = self.get_name()
+        #TODO how to deal with 0
+        replicates = self.get_replicates()
+
+        if dist_name == "DiscretizeGamma":
+            return self.base_distribution.lphy_to_rev(var_name)
+
+        var_nm = "i"
+        # for (i in 1:10) { taxa[i] = taxon("Taxon"+i) }
+        return f"""for ({var_nm} in 1:{replicates}) {{ {var_name}[{var_nm}] {self.base_distribution.rev_spec_op()} {self.base_distribution.lphy_to_rev(var_name)} }} """
+
+    def get_params(self) -> ItemsView:
+        return self.params.items()
 
     def set_param(self, param_name: str, value: Value):
         self.params[param_name] = value
 
-        if param_name != self.REPLICATES_PARAM_NAME:
+        if param_name != IID.REPLICATES_PARAM_NAME:
             self.base_distribution.set_param(param_name, value)
 
     def get_name(self) -> str:
-        return self.base_distribution.get_name()
+        return get_generator_name(self.base_distribution)
 
-    def get_replicates(self) -> Value:
-        return self.get_params()[self.REPLICATES_PARAM_NAME]
+    def get_replicates(self):
+        size = self.size()
+        if size:
+            return size
+        else:
+            return self.get_param(IID.REPLICATES_PARAM_NAME)
+
+

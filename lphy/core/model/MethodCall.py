@@ -1,5 +1,5 @@
 import inspect
-from typing import Any, List
+from typing import Any, List, ItemsView
 from lphy.core.model.Function import DeterministicFunction
 from lphy.core.model.Value import Value
 
@@ -120,7 +120,7 @@ class MethodCall(DeterministicFunction):
         from lphy.core.error.Errors import UnsupportedOperationException
         raise UnsupportedOperationException("")
 
-    def get_params(self):
+    def get_params(self) -> ItemsView:
         params = {self.OBJECT_PARAM_NAME: self.value}
         for i, arg in enumerate(self.arguments):
             params[f"{self.ARG_PARAM_NAME}{i}"] = arg
