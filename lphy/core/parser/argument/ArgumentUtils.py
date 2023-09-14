@@ -34,20 +34,26 @@ def get_arguments(constructor, excl_self=True):
 
 
 # TODO deprecated since python does not need Type?
+# TODO only changed names, then what bout unnamed args?
 def matching_parameter_types(args_map, init_args, params) -> bool:
     count = 0
-    for i, argument in enumerate(args_map):
-        arg = init_args[i]
+    # Parameter objects extracted from the parameters of python class __init__
+    for i, (param_name, param) in enumerate(args_map):
+        if init_args:
+            arg = init_args[i]
+            if arg is not None:
+                #param_type = param.__class__
+                #value_type = arg.value.__class__
 
-        if arg is not None:
-            parameter_type = argument.type
-            value_type = arg.value().__class__
-
-            if not issubclass(value_type, parameter_type):
-                return False
-            count += 1
-        else:
-            if not argument_info.optional:
-                return False
+                #TODO not sure if it is problematic to check arg_
+                if (not param_name.startswith("arg_")) and param_name not in params:
+                    return False
+                count += 1
+            else:
+                # param is inspect.Parameter, so it is optional if its value is None not a Value obj
+                if param.default is not None:
+                    return False
 
     return params is None or count == len(params)
+
+

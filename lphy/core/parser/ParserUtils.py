@@ -4,6 +4,8 @@ from typing import List
 
 from lphy.core.parser.argument import ArgumentUtils
 from lphy.core.model.Generator import Generator, get_generator_name
+from lphy.core.parser.argument.ArgumentUtils import matching_parameter_types
+from lphy.core.vectorization.IID import IID, iid_match
 
 MAX_UNNAMED_ARGS = 3
 REPLICATES_PARAM_NAME = "replicates"  # Replace with the actual parameter name
@@ -39,9 +41,14 @@ def get_matching_generators(gene_name, params) -> [Generator]:
 
 ### private
 
-# find the args matched Generator
-# params can be dict or list
 def _get_generator_by_arguments(name, params, generator_class):
+    """
+    find the args matched Generator
+    :param name:            the generator name parsed from lphy
+    :param params:          params can be dict or list, which is parsed from the context of lphy code
+    :param generator_class: the class name of the given Generator
+    :return:
+    """
     matches = []
 
     for constructor in ArgumentUtils.get_constructors(generator_class):
@@ -84,8 +91,8 @@ def _get_generator_by_arguments(name, params, generator_class):
                 f = _construct_generator(name, None, generator_class, args_map, params)
                 if f is not None:
                     matches.append(f)
-            # No args, all optional
-            elif len(params) == 0 and all(arg[2] for arg in args_map):
+            # No args, all optional, where "param.default is None" shows optional.
+            elif len(params) == 0 and all(param.default is None for param_name, param in args_map):
                 f = _construct_generator(name, None, generator_class, args_map, [])
                 if f is not None:
                     matches.append(f)
@@ -137,31 +144,27 @@ def _get_function_by_arguments(name, arg_values, generator_class):
     return matches
 
 
-# return an object of Generator matching the arguments, also including IID and VectorMatch
 def _construct_generator(name, params, generator_class, args_map, arg_values):
-    # cannot use core.model.Value
-    from lphy.core.model.Value import Value
-    # arg must be Value obj
-    # this causes a bug of matching args, after rm None
-    # arg_value_values = [arg for arg in arg_values if arg is not None and isinstance(arg, Value)]
-    from lphy.base.distribution.ContinuousDistribution import LogNormal
-    # instance = LogNormal(3.0, 1.0)
-    # instance = LogNormal(*arg_value_values)
-    # constructor = LogNormal
+    """
+
+    :param name:              the generator name parsed from lphy
+    :param params:            parameters are parsed from lphy script
+    :param generator_class:   generator_class name
+    :param args_map:          Parameter objects extracted from the parameters of python class __init__,
+                              using ArgumentUtils.get_arguments(constructor)
+    :param arg_values:        init values, which are Value objs pulled from "params"
+    :return: an object of Generator matching the arguments, also including IID and VectorMatch
+    """
 
     # TODO
-    if True:  #ArgumentUtils.matching_parameter_types(args_map, arg_values, params):
+    if matching_parameter_types(args_map, arg_values, params):
         # tuple unpacking arg_values and use them directly,
         # which supposes to match the constructor parameters in a correct order.
         instance = generator_class(*arg_values)
         return instance
-
-    # TODO
-    # elif IID.match(constructor, args_map, arg_values, params):
-    #     iid = IID(constructor, arg_values, params)
-    #     if iid.size() == 1:
-    #         return constructor(*arg_values)
-    #     return iid
+    elif iid_match(generator_class, args_map, arg_values, params):
+        iid = IID(generator_class, arg_values, params)
+        return iid
     # elif VectorMatchUtils.vector_match(args_map, arg_values) > 0:
     #     return VectorMatchUtils.vector_generator(constructor, args_map, arg_values)
     # else:

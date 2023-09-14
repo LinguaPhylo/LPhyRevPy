@@ -1,12 +1,12 @@
 import logging
 import numpy as np
-
+from typing import List, Dict
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 
 
-def match(constructor, arguments: List[Argument], init_args, params: Dict[str, Value]) -> bool:
+def iid_match(constructor, arguments: List[Value], init_args, params: Dict[str, Value]) -> bool:
     if not issubclass(constructor.__self__, GenerativeDistribution):
         return False
 
