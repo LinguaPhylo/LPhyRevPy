@@ -9,11 +9,11 @@ from lphy.core.model.RangedVar import Var, get_indexed_value
 from lphy.core.parser.antlr.LPhyParser import LPhyParser
 from lphy.core.parser.antlr.LPhyVisitor import LPhyVisitor
 from lphy.core.error.Errors import ParsingException
-from lphy.core.model.Function import DeterministicFunction, Function
+from lphy.core.model.Function import DeterministicFunction
 from lphy.core.model.Value import Value
 from lphy.core.parser import ParserUtils
 from lphy.core.parser.argument.ArgumentValue import ArgumentValue
-from lphy.core.vectorization.RangeList import RangeList
+from lphy.core.vectorization.function.RangeList import RangeList
 
 # TODO , "&", "|", "<<", ">>", ">>>"
 # Binary operators take two operands
@@ -102,18 +102,19 @@ class LPhyASTVisitor(LPhyVisitor):
 
     # return a RangeList function.
     def visitRange_list(self, ctx: LPhyParser.Range_listContext):
-        return self.visitChildren(ctx)
+        #return self.visitChildren(ctx)
         # TODO re-write
         nodes = []
 
         for i in range(ctx.getChildCount()):
+            # visitExpression
             o = self.visit(ctx.getChild(i))
 
-            if isinstance(o, (IntegerValue, IntegerArrayValue, Range)):
+            if isinstance(o, (Value, range)):
                 nodes.append(o)
             elif isinstance(o, DeterministicFunction):
                 #f = o
-                if isinstance(o.apply().value(), (int, list)):
+                if isinstance(o.apply().value(), (int, range)):
                     nodes.append(o)
                 else:
                     error_message = "Expected function returning Integer or Integer[]: " + str(o)
@@ -365,9 +366,16 @@ class LPhyASTVisitor(LPhyVisitor):
         if ctx.getChildCount() >= 2:
             s = ctx.getChild(0).getText()
             if s == "[":
-                #TODO map contains func, e.g. dim = [length(z), length(z[0])];
-                # get unnamed expression list
-                return Value(None, ast.literal_eval(ctx.getText()))
+                try:
+                    # only numbers, convert to python list
+                    arr = ast.literal_eval(ctx.getText())
+                except ValueError:
+                    # get unnamed expression list and return Value[],
+                    # e.g. vector contains func, e.g. dim = [length(z), length(z[0])];
+                    arr = self.visit(ctx.getChild(1))
+
+                return Value(None, arr)
+
             raise ValueError(f"[ ] are required ! {ctx.getText()}")
 
         return super().visitArray_construction(ctx)
@@ -399,7 +407,8 @@ class LPhyASTVisitor(LPhyVisitor):
                 # TODO pick the non-working operator, and use if else
                 if s == ":":
                     start, end = map(int, ctx.getText().split(":"))
-                    return Value(None, list(range(start, end + 1)))
+                    # replace Range obj with python range
+                    return Value(None, range(start, end + 1))
                 else:
                     obj1 = self.visit(ctx.getChild(0))
                     f1 = _get_value_or_function(obj1, ctx, self._meta_parser, self._block)
@@ -419,14 +428,21 @@ class LPhyASTVisitor(LPhyVisitor):
 
         return super().visitExpression(ctx)
 
+    ### private
+
     def _visit_index_range(self, ctx):
+        """
+        :param ctx:
+        :return:    a Slice or ElementsAt function, e.g. x[0]
+        """
         child = self.visit(ctx.getChild(0))
 
         array = _get_value_or_function(child, ctx, self._meta_parser, self._block)
 
-        if not isinstance(array.value(), (np.ndarray, list)):
+        if not isinstance(array.value, (np.ndarray, list)):
             raise ParsingException(f"Expected value {array} to be an array.", ctx)
 
+        # visitRange_list
         range_list = self.visit(ctx.getChild(2))
-        # TODO
-        return self.get_indexed_value(array, range_list)
+
+        return get_indexed_value(array, range_list)

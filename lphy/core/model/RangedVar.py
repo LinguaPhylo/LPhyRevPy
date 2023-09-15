@@ -1,14 +1,16 @@
+from lphy.core.vectorization.function.RangeList import RangeList
+from lphy.core.vectorization.function.Slice import Slice
 
-
-
-def get_indexed_value(array, range_list):
-    if isinstance(array.value(), list):
-        if range_list.isRange():
-            range_ = range_list.getRangeElement(0)
-            return SliceDoubleArray(range_.start(), range_.end(), array)
-        elif range_list.isSingle():
-            i = range_list.getRangeElement(0)
-            return SliceDoubleArray(i, i, array)
+#TODO
+def get_indexed_value(array, range_list: RangeList):
+    if isinstance(array.value, list) and len(range_list.range_elements) == 1:
+        elem = range_list.get_range_element(0)
+        val = elem.value
+        if isinstance(val, range):
+            from lphy.core.model.Value import Value
+            return Slice(Value(None, val.start), Value(None, val.stop), array)
+        elif isinstance(val, (int, str)):
+            return Slice(elem, elem, array)
 
 
 class Var:

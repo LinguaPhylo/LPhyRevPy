@@ -65,7 +65,7 @@ class Generator(GraphicalModelNode, ABC):
     # used to make all Values know their outputs
     def set_input(self, value: Value) -> None:
         # no set_param, the params will be extracted from __init__ args
-        # self.set_param(param_name, value)
+        #TODO self.set_param(param_name, value)
         value.add_output(self)
 
     def set_inputs(self, params: Dict[str, Value]) -> None:
@@ -73,14 +73,13 @@ class Generator(GraphicalModelNode, ABC):
             self.set_input(value)
 
     def get_inputs(self):
-        return list(self.get_params().values())
+        return list(self.get_params().values()) #TODO get_params(self) -> ItemsView
 
     def get_unique_id(self) -> str:
         return str(hash(self))
 
     def get_param_name(self, value: Value) -> str:
-        params = self.get_params()
-        for key, val in params.items():
+        for key, val in self.get_params():
             if val == value:
                 return key
         return ""

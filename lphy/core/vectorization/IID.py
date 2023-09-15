@@ -1,13 +1,12 @@
-import inspect
 import logging
-import numpy as np
-from typing import List, Dict, ItemsView
+from typing import Dict, ItemsView
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.model.Generator import get_generator_name, Generator
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 
-#TODO
+
+# TODO
 def iid_match(constructor, args_map, init_args, params: Dict[str, Value]) -> bool:
     if not issubclass(constructor, GenerativeDistribution):
         return False
@@ -45,7 +44,6 @@ def has_valid_replicates_param(constructor_name, params: Dict[str, Value]) -> bo
 
 
 class IID(GenerativeDistribution):
-
     REPLICATES_PARAM_NAME = "replicates"
 
     def __init__(self, base_distribution_constructor, init_args, params: Dict[str, Value]):
@@ -61,11 +59,12 @@ class IID(GenerativeDistribution):
 
             self.base_distribution: GenerativeDistribution = base_distribution_constructor(*init_args)
         except Exception as e:
-            logging.error("Cannot create instance of %s, check if parameters are valid: %s", base_distribution_constructor.__name__, init_args)
+            logging.error("Cannot create instance of %s, check if parameters are valid: %s",
+                          base_distribution_constructor.__name__, init_args)
             logging.error(e)
 
-
-    def size(self) -> int: #TODO value is None
+    def size(self) -> int:
+        # value is None when replicates = L, where L is a const var
         return self.params[IID.REPLICATES_PARAM_NAME].value
 
     def sample(self, id_: str = None) -> RandomVariable:
@@ -84,7 +83,7 @@ class IID(GenerativeDistribution):
             component_variables.append(self.base_distribution.sample())
 
         # must pass id_ here, otherwise cannot put into model/data_dict
-        return RandomVariable(id_, component_variables, self)  #TODO still need VectorizedRandomVariable?
+        return RandomVariable(id_, component_variables, self)  # TODO still need VectorizedRandomVariable?
 
     # overwrite to F so only print the for loop, without ~
     def has_var_declaration_rev(self):
@@ -93,9 +92,10 @@ class IID(GenerativeDistribution):
 
     def lphy_to_rev(self, var_name):
         dist_name = self.get_name()
-        #TODO how to deal with 0
+        # TODO how to deal with 0
         replicates = self.get_replicates()
 
+        # exclude DiscretizeGamma because of diff implementation of this model between lphy and rev
         if dist_name == "DiscretizeGamma":
             return self.base_distribution.lphy_to_rev(var_name)
 
@@ -106,12 +106,6 @@ class IID(GenerativeDistribution):
     def get_params(self) -> ItemsView:
         return self.params.items()
 
-    def set_param(self, param_name: str, value: Value):
-        self.params[param_name] = value
-
-        if param_name != IID.REPLICATES_PARAM_NAME:
-            self.base_distribution.set_param(param_name, value)
-
     def get_name(self) -> str:
         return get_generator_name(self.base_distribution)
 
@@ -121,5 +115,3 @@ class IID(GenerativeDistribution):
             return size
         else:
             return self.get_param(IID.REPLICATES_PARAM_NAME)
-
-
