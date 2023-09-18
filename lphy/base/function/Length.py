@@ -23,5 +23,9 @@ class Length(DeterministicFunction, ABC):
     def lphy_to_rev(self, var_name):
         if self.arg_0 is None:
             raise ValueError("Cannot pass None to the function length !")
+        gen = self.arg_0.get_generator()
+        from lphy.core.vectorization.function.Slice import Slice
+        if isinstance(gen, Slice):
+            return f"{gen.lphy_to_rev(gen.get_id())}.size()"
         return f"{self.arg_0.get_id()}.size()"
 

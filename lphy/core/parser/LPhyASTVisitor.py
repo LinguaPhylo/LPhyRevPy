@@ -3,6 +3,8 @@ import logging
 import numpy as np
 from typing import List
 
+from antlr4.tree.Tree import ParseTree
+
 from lphy.core.model.Generator import Generator
 from lphy.core.model.MethodCall import MethodCall
 from lphy.core.model.RangedVar import Var, get_indexed_value
@@ -219,7 +221,15 @@ class LPhyASTVisitor(LPhyVisitor):
 
     def visitMapFunction(self, ctx: LPhyParser.MapFunctionContext):
         # TODO
-        return super().visitMapFunction(ctx)
+        ctx1: ParseTree = ctx.getChild(1)
+        logging.debug("parsing a map expression: " + ctx1.getText())
+        #  ArgumentValue[]
+        argument_objects = self.visit(ctx1)
+
+        # Create MapFunction or Generator here
+        generator = MapFunction(argument_objects)
+        return generator
+
 
     # Parse lphy functions and return a Value or an Expression
     def visitFunction(self, ctx: LPhyParser.FunctionContext):

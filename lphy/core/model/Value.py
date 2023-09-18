@@ -90,7 +90,21 @@ class Value(GraphicalModelNode):
             # <-
             str_list.append(self.REV_CONST_OP)
             str_list.append(" ")
-            str_list.append(self.value)
+            #TODO how to implement properly for a list Value, e.g. [length(z), length(z[0])]
+            if isinstance(self.value, list):
+                str_list.append("[")
+                str_list2 = []
+                for elem in self.value:
+                    if isinstance(elem, Value):
+                        elem_str = elem.lphy_to_rev(elem.get_id())
+                        str_list2.append(elem_str)
+                    else:
+                        str_list.append(self.value)
+                str_list.append(", ".join(str_list2))
+                str_list.append("]")
+            else:
+                str_list.append(self.value)
+            #str_list.append(self.value)
         else:
             str_list.append(str(self.value))
             #raise RuntimeError(f"Cannot convert the lphy value {str(self.value)} into rev !")

@@ -8,7 +8,7 @@ l2 = length(y);
 // 2d
 z ~ Dirichlet(conc=[1,1,1,1], replicates=2);
 // [2, 4]
-//TODO dim = [length(z), length(z[0])];
+dim = [length(z), length(z[0])];
 // replicates=0
 empty ~ Dirichlet(conc=[1,1,1,1], replicates=0);
 // l3 = 0
