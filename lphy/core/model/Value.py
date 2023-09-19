@@ -80,8 +80,15 @@ class Value(GraphicalModelNode):
                 # := or ~
                 str_list.append(generator.rev_spec_op())
                 str_list.append(" ")
+
+            # check if the parameter Value of generator is Slice
+            # from lphy.core.vectorization.function.Slice import Slice
+            # if isinstance(generator, Slice):
+            #     str_list.append(generator.lphy_to_rev(generator.id))
+
             # Function or GenerativeDistribution
-            str_list.append(generator.lphy_to_rev(self.id))
+            gen_str = generator.lphy_to_rev(self.id)
+            str_list.append(gen_str)
         elif not self.is_anonymous() and self.value is not None:
             # not have generator but have id and value, then it is the constant
             # variable id
@@ -90,7 +97,8 @@ class Value(GraphicalModelNode):
             # <-
             str_list.append(self.REV_CONST_OP)
             str_list.append(" ")
-            #TODO how to implement properly for a list Value, e.g. [length(z), length(z[0])]
+
+            # check if a list Value, e.g. [length(z), length(z[0])]
             if isinstance(self.value, list):
                 str_list.append("[")
                 str_list2 = []
@@ -99,12 +107,12 @@ class Value(GraphicalModelNode):
                         elem_str = elem.lphy_to_rev(elem.get_id())
                         str_list2.append(elem_str)
                     else:
-                        str_list.append(self.value)
+                        str_list2.append(self.value)
                 str_list.append(", ".join(str_list2))
                 str_list.append("]")
             else:
                 str_list.append(self.value)
-            #str_list.append(self.value)
+
         else:
             str_list.append(str(self.value))
             #raise RuntimeError(f"Cannot convert the lphy value {str(self.value)} into rev !")

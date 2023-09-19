@@ -2,7 +2,7 @@ from abc import ABC
 from lphy.core.model.Function import DeterministicFunction
 from lphy.core.model.Value import Value
 
-
+# for arrays: x[0], x[1:10], ...
 class Slice(DeterministicFunction, ABC):
     generator_info = {"name": "slice",
                       "description": "A function to slice a subarray from an array."}
@@ -25,13 +25,13 @@ class Slice(DeterministicFunction, ABC):
         return Value(None, new_array, self)
 
     def lphy_to_rev(self, var_name):
-        #TODO why Java code needs: self.array.lphy_to_rev(var_name) if not self.array.is_anonymous() else self.array.get_id()
-        array_string = self.array.get_id()
+        #TODO it seems self.array is always anonymous? : self.array.lphy_to_rev(var_name) if not self.array.is_anonymous() else self.array.get_id()
+        array_string = self.array.get_id() # seems array.lphy_to_rev(var_name) returns the assignment
         start_string = self.start.lphy_to_rev(var_name)
         end_string = self.end.lphy_to_rev(var_name)
 
         if not self.start.is_anonymous() or not self.end.is_anonymous():
-            return super().lphy_to_rev(var_name)
+            return super().lphy_to_rev(var_name)  #TODO this is not checked
 
         if start_string == end_string:
             return f"{array_string}[{start_string}]"

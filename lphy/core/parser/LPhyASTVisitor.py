@@ -220,12 +220,11 @@ class LPhyASTVisitor(LPhyVisitor):
         return values
 
     def visitMapFunction(self, ctx: LPhyParser.MapFunctionContext):
-        # TODO
         ctx1: ParseTree = ctx.getChild(1)
         logging.debug("parsing a map expression: " + ctx1.getText())
         #  ArgumentValue[]
         argument_objects = self.visit(ctx1)
-
+        # TODO
         # Create MapFunction or Generator here
         generator = MapFunction(argument_objects)
         return generator
@@ -372,7 +371,6 @@ class LPhyASTVisitor(LPhyVisitor):
 
     # wrap the array, e.g. [1,2,3], into Value
     def visitArray_construction(self, ctx: LPhyParser.Array_constructionContext):
-        # TODO
         if ctx.getChildCount() >= 2:
             s = ctx.getChild(0).getText()
             if s == "[":

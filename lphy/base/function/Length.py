@@ -23,9 +23,14 @@ class Length(DeterministicFunction, ABC):
     def lphy_to_rev(self, var_name):
         if self.arg_0 is None:
             raise ValueError("Cannot pass None to the function length !")
-        gen = self.arg_0.get_generator()
-        from lphy.core.vectorization.function.Slice import Slice
-        if isinstance(gen, Slice):
-            return f"{gen.lphy_to_rev(gen.get_id())}.size()"
-        return f"{self.arg_0.get_id()}.size()"
+
+        # this is generalised to handle Slice, e.g. length(z[0])
+        sup_str = super().lphy_to_rev(var_name)
+        # then use regx to convert to rev
+        # [^)] means "match any character except the closing parenthesis )."
+        pattern = r'length\(([^)]+)\)'
+        replacement = r'\1.size()'
+        import re
+        output_string = re.sub(pattern, replacement, sup_str)
+        return output_string
 

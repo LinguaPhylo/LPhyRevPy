@@ -88,7 +88,9 @@ class RevBuilder:
 # for named arg, for example, (mean=3.0, sd=1.0)
 def get_argument_rev_string(name, value: Value):
     prefix = ""
-    if not name.isdigit():  # named arg
+    import re
+    pattern = r'^arg_\d+$'  # unnamed arg
+    if not re.match(pattern, name):  # named arg
         prefix = name + "="
 
     if value is None:
