@@ -6,16 +6,17 @@ from lphy.core.model.Function import DeterministicFunction
 from lphy.core.model.Value import Value
 
 
-class JukesCantor(DeterministicFunction, ABC):
+class K80(DeterministicFunction, ABC):
 
     # if attr generator_info defines the function name, then use it, otherwise use class name
-    generator_info = {"name": "jukesCantor",
-                      "description": "The Jukes-Cantor Q matrix construction function. "
-                                     "Takes a mean rate and produces a Jukes-Cantor Q matrix."}
+    generator_info = {"name": "k80",
+                      "description": "The K80 instantaneous rate matrix. "
+                                     "Takes a kappa and produces a K80 rate matrix."}
 
     # The parameter name must be matching with its definition in lphy script, case-sensitive.
-    def __init__(self, meanRate: Value = None):
+    def __init__(self, kappa: Value, meanRate: Value = None):
         super().__init__()
+        self.kappa = kappa
         self.meanRate = meanRate
         # TODO re-compute Q matrix
         if meanRate is not None:
@@ -32,8 +33,7 @@ class JukesCantor(DeterministicFunction, ABC):
         # if self.meanRate is not None:
         #     mean_rate = self.get_param(mean_rate_name)
 
-        # if num_states != 4 then use lewisMK
-        num_states = 4  # nucleotide
-        return f"fnJC({num_states})"
+        kappa = self.get_param("kappa")
+        return f"fnK80(kappa={kappa})"
 
 
