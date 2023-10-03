@@ -15,7 +15,7 @@ class Coalescent(GenerativeDistribution):
         self.n = n
         self.taxa = taxa
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 

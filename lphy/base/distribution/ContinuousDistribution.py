@@ -50,9 +50,9 @@ class Dirichlet(GenerativeDistribution):
         super().__init__()
         self.conc = conc
         if not isinstance(conc.value, list):
-            raise RuntimeError(f"Expect list of concentration parameters for a Dirichlet distribution ! {conc.value}")
+            raise ValueError(f"Expect list of concentration parameters for a Dirichlet distribution ! {conc.value}")
         if not all(isinstance(element, (int, float)) for element in conc.value):
-            raise RuntimeError(
+            raise ValueError(
                 f"The concentration parameters for a Dirichlet distribution must be numbers ! {conc.value}")
 
     def sample(self, id_: str = None) -> RandomVariable:

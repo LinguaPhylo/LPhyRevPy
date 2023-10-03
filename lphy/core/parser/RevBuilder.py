@@ -84,9 +84,13 @@ class RevBuilder:
                 raise RuntimeError("Cannot recognise the node : " + node.__str__())
 
 
-# return the argument string in rev,
-# for named arg, for example, (mean=3.0, sd=1.0)
 def get_argument_rev_string(name, value: Value):
+    """
+    for named arg, for example, (mean=3.0, sd=1.0)
+    :param name:   Rev arg name
+    :param value:  Value
+    :return: the argument string in rev
+    """
     prefix = ""
     import re
     pattern = r'^arg_\d+$'  # unnamed arg

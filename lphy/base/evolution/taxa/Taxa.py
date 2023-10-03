@@ -48,9 +48,9 @@ class CreateTaxa(DeterministicFunction, ABC):
 
     def lphy_to_rev(self, var_name):
         names_list = self.names.value
-        var_nm = "i"
+        loop_var = "i"
         # for (i in 1:10) { taxa[i] = taxon("Taxon"+i) }
-        return f"""for ({var_nm} in 1:{len(names_list)}) {{ {var_name}[{var_nm}] = taxon({var_nm}) }} """
+        return f"""for ({loop_var} in 1:{len(names_list)}) {{ {var_name}[{loop_var}] = taxon({loop_var}) }} """
 
     # def method_call_to_rev(self, method_name: str, args):
     #     if method_name == "taxaNames":

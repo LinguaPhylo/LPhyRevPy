@@ -62,7 +62,7 @@ class Categorical(GenerativeDistribution):
         super().__init__()
         self.p = p
         if not isinstance(p.value, list):
-            raise RuntimeError(f"Expect list of  probability for each category ! {p.value}")
+            raise ValueError(f"Expect list of  probability for each category ! {p.value}")
 
     def sample(self, id_: str = None) -> RandomVariable:
         # not need value

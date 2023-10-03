@@ -25,12 +25,12 @@ class RandomComposition(GenerativeDistribution):
     def lphy_to_rev(self, var_name):
         n = self.n.value
         k = self.k.value
-        var_nm = "i"
+        loop_var = "i"
         # see Java version of RandomComposition
         builder = [f"{var_name}_bars[1] <- 0",
-                   f"""for ({var_nm} in 2:{k}) {{ {var_name}_bars[{var_nm}] ~ dnUniformInteger(1,{n-1}) }} """,
+                   f"""for ({loop_var} in 2:{k}) {{ {var_name}_bars[{loop_var}] ~ dnUniformInteger(1,{n-1}) }} """,
                    f"{var_name}_bars[{k+1}] <- {n}",
                    f"sort({var_name}_bars)",
-                   f"""for ({var_nm} in 1:{k}) {{ {var_name}[{var_nm}] := {var_name}_bars[{var_nm} + 1] - {var_name}_bars[{var_nm}] }} """]
+                   f"""for ({loop_var} in 1:{k}) {{ {var_name}[{loop_var}] := {var_name}_bars[{loop_var} + 1] - {var_name}_bars[{loop_var}] }} """]
         # TODO check dnUniformInteger bound
         return '\n'.join(builder)

@@ -1,0 +1,5 @@
+taxa = taxa(names=1:10);
+Θ ~ LogNormal(meanlog=-3.0, sdlog=1.0, replicates=16);
+// TODO require taxa currently
+ψ ~ SkylineCoalescent(theta=Θ, taxa=taxa);
+D ~ PhyloCTMC(L=200, Q=jukesCantor(), tree=ψ);

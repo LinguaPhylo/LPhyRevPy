@@ -53,7 +53,11 @@ class Generator(GraphicalModelNode, ABC):
         else:
             raise RuntimeError(f"{self.__class__.__name__} {self.get_id()} must have 1 and only 1 __init__ !")
 
-    def get_param(self, name_):
+    def get_param(self, name_) -> Value:
+        """
+        :param name_:  lphy arg name, also the param name in __init__
+        :return:       the parameter value declared in __init__
+        """
         try:
             return self.__getattribute__(name_)
         except AttributeError:

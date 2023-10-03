@@ -4,6 +4,7 @@ from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.model.Generator import get_generator_name, Generator
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
+from lphy.core.parser.UnicodeConverter import get_canonical
 
 
 # TODO
@@ -92,16 +93,15 @@ class IID(GenerativeDistribution):
 
     def lphy_to_rev(self, var_name):
         dist_name = self.get_name()
-        # TODO how to deal with 0
         replicates = self.get_replicates()
 
         # exclude DiscretizeGamma because of diff implementation of this model between lphy and rev
         if dist_name == "DiscretizeGamma":
             return self.base_distribution.lphy_to_rev(var_name)
 
-        var_nm = "i"
+        loop_var = "i"
         # for (i in 1:10) { taxa[i] = taxon("Taxon"+i) }
-        return f"""for ({var_nm} in 1:{replicates}) {{ {var_name}[{var_nm}] {self.base_distribution.rev_spec_op()} {self.base_distribution.lphy_to_rev(var_name)} }} """
+        return f"""for ({loop_var} in 1:{replicates}) {{ {get_canonical(var_name)}[{loop_var}] {self.base_distribution.rev_spec_op()} {self.base_distribution.lphy_to_rev(var_name)} }} """
 
     def get_params(self) -> ItemsView:
         return self.params.items()
