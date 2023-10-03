@@ -1,4 +1,4 @@
-from core.error.Errors import UnsupportedOperationException
+from lphy.core.error.Errors import UnsupportedOperationException
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
@@ -14,7 +14,7 @@ class Beta(GenerativeDistribution):
         self.alpha = alpha
         self.beta = beta
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 
@@ -32,7 +32,7 @@ class Binomial(GenerativeDistribution):
         self.p = p
         self.n = n
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 
@@ -55,7 +55,7 @@ class Dirichlet(GenerativeDistribution):
             raise RuntimeError(
                 f"The concentration parameters for a Dirichlet distribution must be numbers ! {conc.value}")
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 
@@ -75,7 +75,7 @@ class Exp(GenerativeDistribution):
         super().__init__()
         self.mean = mean
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 
@@ -92,7 +92,7 @@ class Gamma(GenerativeDistribution):
         self.shape = shape
         self.scale = scale
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 
@@ -110,7 +110,7 @@ class InverseGamma(GenerativeDistribution):
         self.shape = shape
         self.scale = scale
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 
@@ -128,7 +128,7 @@ class Normal(GenerativeDistribution):
         self.mean = mean
         self.sd = sd
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 
@@ -147,7 +147,7 @@ class MVN(GenerativeDistribution):
         #TODO matrix here
         self.covariances = covariances
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 
@@ -168,7 +168,7 @@ class LogNormal(GenerativeDistribution):
         if offset is not None:
             raise UnsupportedOperationException("Rev language does not support offset in dnLognormal !")
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 
@@ -187,7 +187,7 @@ class Uniform(GenerativeDistribution):
         self.lower = lower
         self.upper = upper
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 

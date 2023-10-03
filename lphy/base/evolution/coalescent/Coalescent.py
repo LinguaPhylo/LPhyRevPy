@@ -26,6 +26,7 @@ class Coalescent(GenerativeDistribution):
         theta = self.get_param(theta_name)
         if self.taxa is not None:
             taxa = self.get_param(taxa_name)
+            #TODO https://revbayes.github.io/documentation/dnHeterochronousCoalescent.html
             return f"dnCoalescent({get_argument_rev_string(theta_name, theta)}, {get_argument_rev_string(taxa_name, taxa)})"
         elif self.n is not None:
             n = self.n.value

@@ -1,4 +1,4 @@
-from core.error.Errors import UnsupportedOperationException
+from lphy.core.error.Errors import UnsupportedOperationException
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
@@ -14,7 +14,7 @@ class DiscretizeGamma(GenerativeDistribution):
         self.shape = shape
         self.ncat = ncat
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 
@@ -46,7 +46,7 @@ class Bernoulli(GenerativeDistribution):
         super().__init__()
         self.p = p
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 
@@ -64,7 +64,7 @@ class Categorical(GenerativeDistribution):
         if not isinstance(p.value, list):
             raise RuntimeError(f"Expect list of  probability for each category ! {p.value}")
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 
@@ -80,7 +80,7 @@ class Geometric(GenerativeDistribution):
         super().__init__()
         self.p = p
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 
@@ -101,7 +101,7 @@ class Poisson(GenerativeDistribution):
         if offset is not None:
             raise UnsupportedOperationException("Rev language does not support offset in dnPoisson !")
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 
@@ -117,7 +117,7 @@ class UniformDiscrete(GenerativeDistribution):
         self.lower = lower
         self.upper = upper
 
-    def sample(self, id_: str = None) -> "RandomVariable":
+    def sample(self, id_: str = None) -> RandomVariable:
         # not need value
         return RandomVariable(id_, None, self)
 
