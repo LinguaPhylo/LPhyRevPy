@@ -60,7 +60,20 @@ def has_var_declaration_rev(self):
 
 Use the flag to create a `for` loop to create taxa vector in Rev.
 
-### 2. DiscretizeGamma and PhyloCTMC
+### 2. Nexus file
+
+Rev does not fully support Nexus format, such as codons, and Nucleotide data type. 
+Only "DNA" keyword is recognised in the data type. 
+
+LPhy provides `options` to define optional arguments for reading data. 
+For example, it can be an option to extract the sample times from the taxa labels using a regular expression, 
+or an option to treat those times as dates (forward) or ages (backward).
+In the alignment, the method `.charset()` can be used to split it into multiple partitions, 
+such as 3 alignments for codons.
+
+It seems Rev has to load the dates/ages from a separated file, and also splitting alignment is not available. 
+
+### 3. DiscretizeGamma and PhyloCTMC
 
 LPhy implements differently in `PhyloCTMC`, where the LPhy `siteRates` are the rate for each site in the alignment. 
 The `DiscretizeGamma` handles the approximation inside. 
@@ -72,7 +85,7 @@ However, the `siteRates` with the same name in Rev `dnPhyloCTMC` takes the rate 
 which is a vector returned by `fnDiscretizeGamma`, but its length equals to the number of categories,
 such as 4.
 
-### 3. Skyline model prior
+### 4. Skyline model prior
 
 Rev uses the `for` loop to implement the Skyline model prior.
 For example, for the Bayesian Skyline Plot (Drummond et al. 2005),
