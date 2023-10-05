@@ -34,7 +34,7 @@ class ReadFasta(DeterministicFunction, ABC):
 
 
 # https://revbayes.github.io/tutorials/ctmc/
-class ReadNexus:
+class ReadNexus(DeterministicFunction, ABC):
     """
     Rev does not fully support Nexus format, such as codons, and Nucleotide data type (must be DNA)
     """

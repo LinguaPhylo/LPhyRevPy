@@ -27,9 +27,18 @@ def get_arguments(constructor, excl_self=True):
 
     from collections import OrderedDict
     # Exclude the "self" parameter
-    filtered_parameters = OrderedDict((name, param) for name, param in parameters.items() if name != 'self')
+    #filtered_parameters = OrderedDict((name, param) for name, param in parameters.items() if name != 'self')
+    filtered_parameters = OrderedDict()
+    for param_name, param in parameters.items():
+        # Replace "lambda_" because "lambda" is reserved by python
+        if param_name == "lambda_":
+            filtered_parameters["lambda"] = param.replace(name='lambda')
+        elif param_name != 'self':
+            filtered_parameters[param_name] = param
+
     if excl_self:
         return filtered_parameters.items()
+    #TODO "lambda_" is not changed
     return parameters.items()
 
 

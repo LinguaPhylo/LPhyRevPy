@@ -28,7 +28,7 @@ See also [examples](./examples)
 ## TODO
 
 1. Vector match
-2. LPhy `MapFunction`
+2. LPhy method call in TimeTree
 3. Discrete phylogeography
 4. Structured coalescent
 5. Birth death models

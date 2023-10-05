@@ -92,7 +92,7 @@ class Geometric(GenerativeDistribution):
 class Poisson(GenerativeDistribution):
 
     # parameter names must be exactly same to lphy definition in @ParameterInfo
-    # TODO lambda is reserved by python
+    # lambda is reserved by python
     def __init__(self, lambda_: Value, min=None, max=None, offset=None):
         super().__init__()
         self.lambda_ = lambda_

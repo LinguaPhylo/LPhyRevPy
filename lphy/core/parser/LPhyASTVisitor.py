@@ -104,7 +104,7 @@ class LPhyASTVisitor(LPhyVisitor):
 
     # return a RangeList function.
     def visitRange_list(self, ctx: LPhyParser.Range_listContext):
-        #return self.visitChildren(ctx)
+        # return self.visitChildren(ctx)
         # TODO re-write
         nodes = []
 
@@ -115,7 +115,7 @@ class LPhyASTVisitor(LPhyVisitor):
             if isinstance(o, (Value, range)):
                 nodes.append(o)
             elif isinstance(o, DeterministicFunction):
-                #f = o
+                # f = o
                 if isinstance(o.apply().value(), (int, range)):
                     nodes.append(o)
                 else:
@@ -202,8 +202,10 @@ class LPhyASTVisitor(LPhyVisitor):
         list_values = [self.visit(ctx.getChild(i)) for i in range(0, ctx.getChildCount(), 2)]
         return list_values
 
-    # such as the args of a method call, or the unnamed args in a function
     def visitUnnamed_expression_list(self, ctx: LPhyParser.Unnamed_expression_listContext):
+        """
+        Parse the args of a method call, or the unnamed args in a function.
+        """
         values = []
         for i in range(0, ctx.getChildCount(), 2):
             obj = self.visit(ctx.getChild(i))
@@ -220,18 +222,24 @@ class LPhyASTVisitor(LPhyVisitor):
         return values
 
     def visitMapFunction(self, ctx: LPhyParser.MapFunctionContext):
+        """
+        :return: A map function of the name=value pairs contained in this map expression
+        """
         ctx1: ParseTree = ctx.getChild(1)
         logging.debug("parsing a map expression: " + ctx1.getText())
         #  ArgumentValue[]
         argument_objects = self.visit(ctx1)
-        # TODO
-        # Create MapFunction or Generator here
-        generator = MapFunction(argument_objects)
+        if isinstance(argument_objects, list):
+            # Create dict, key is argumentValue.name, value is argumentValue.value
+            generator = {argval.name: argval.value for argval in argument_objects}
+        else:
+            raise ParsingException(f"Expect a list of ArgumentValue objects, but get {argument_objects} !")
         return generator
 
-
-    # Parse lphy functions and return a Value or an Expression
     def visitFunction(self, ctx: LPhyParser.FunctionContext):
+        """
+        Parse lphy functions and return a Value or an Expression
+        """
         function_name = ctx.children[0].getText()
         ctx2 = ctx.getChild(2)
 
@@ -241,12 +249,13 @@ class LPhyASTVisitor(LPhyVisitor):
             f1 = []
         else:
             # this goes to visitUnnamed_expression_list or visitExpression_list
-            argument_object = self.visit(ctx2)
-            if isinstance(argument_object, list):
-                if all(isinstance(item, Value) for item in argument_object):
-                    f1 = argument_object
-                elif all(isinstance(item, ArgumentValue) for item in argument_object):
-                    argument_values = argument_object
+            argument_objects = self.visit(ctx2)
+            if isinstance(argument_objects, list):
+                # argument_objects can contain None for optional args
+                if all(item is None or isinstance(item, Value) for item in argument_objects):
+                    f1 = argument_objects
+                elif all(item is None or isinstance(item, ArgumentValue) for item in argument_objects):
+                    argument_values = argument_objects
                     f1 = [arg_value.get_value() for arg_value in argument_values if arg_value is not None]
 
         if function_name in univar_functions:
@@ -270,10 +279,12 @@ class LPhyASTVisitor(LPhyVisitor):
 
         arguments = {}
         if argument_values is None:
-            #TODO f1 params not correct for unnamed args in function, e.g. length(x)
+            # TODO f1 params not correct for unnamed args in function, e.g. length(x)
             matches = ParserUtils.get_matching_generators(function_name, f1)
         else:
-            arguments = {v.get_name(): v.get_value() for v in argument_values}
+            # rm optional arguments
+            arguments_no_optional = [v for v in argument_values if v is not None]
+            arguments = {v.get_name(): v.get_value() for v in arguments_no_optional}
             matches = ParserUtils.get_matching_generators(function_name, arguments)
 
         if len(matches) == 0:
@@ -325,7 +336,7 @@ class LPhyASTVisitor(LPhyVisitor):
         name = ctx.getChild(0).getText()
         # go to visitNamed_expression for named args, and return ArgumentValue[]
         f = self.visit(ctx.getChild(2))
-        arguments = {} # map, key is arg name, value is arg value
+        arguments = {}  # map, key is arg name, value is arg value
 
         for v in f:
             if v is not None:
