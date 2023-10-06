@@ -24,14 +24,10 @@ class RevBuilder:
         for value in meta_parser.get_model_sinks():
             self._traverse_graphical_model(value, meta_parser, True)
 
-        # TODO
         if self.data_lines:
-            for data_line in self.data_lines:
-                builder.append(data_line)
-
+            builder += self.data_lines
         if self.model_lines:
-            for model_line in self.model_lines:
-                builder.append(model_line)
+            builder += self.model_lines
         return '\n'.join(builder)
 
     def _traverse_graphical_model(self, node: GraphicalModelNode, meta_parser: LPhyMetaParser, post: bool):
