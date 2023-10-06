@@ -16,6 +16,19 @@ But for any class name cannot be matched with the LPhy language during the imple
 especially all function names, the attribute `generator_info` can be used to define the name.
 Please see `JukesCantor.py` under `lphy.base.evolution.substitutionmdoel` as an example.
 
+```python
+    generator_info = {"name": "jukesCantor",
+                      "description": "The Jukes-Cantor Q matrix construction function. "
+                                     "Takes a mean rate and produces a Jukes-Cantor Q matrix."}
+
+    def __init__(self, meanRate: Value = None):
+        super().__init__()
+        self.meanRate = meanRate
+
+        if meanRate is not None:
+            raise UnsupportedOperationException(f"meanRate is not implemented yet ! meanRate = {meanRate}")
+```
+
 Since the simulated value is not considered as the feature at this stage,
 all methods `sample` or `apply` can return a `RandomVariable` or `Value` containing `None` as its value,
 except that some special classes, such as `Taxa` under `lph.base.evolution.taxa`.
@@ -29,6 +42,40 @@ The optional arguments must have a default value of `None`.
 
 If arguments are unnamed, then it has to be `arg_` plus an integer index starting from 0,
 such as `arg_0` in the class `Length` under `lphy.base.function`.
+
+```python
+    def __init__(self, arg_0: Value):
+        super().__init__()
+        # deal with None later
+        self.arg_0 = arg_0
+```
+
+## Method call
+
+In the class (e.g. `TimeTree` below), the method call can be recognised by adding 
+annotation `@method_info` to an empty function. 
+Its name must be exactly same as the LPhy method call name.
+
+```python
+    @method_info("the total length of the tree")
+    def treeLength(self):
+        pass
+```
+
+Then, overwrite the function `method_call_to_rev` to implement the code conversion.
+In most cases, Rev methods have the same names with LPhy methods.
+
+```python
+    def method_call_to_rev(self, method_name: str, args):
+        if method_name == "treeLength":
+            return f"treeLength()"
+        elif method_name == "rootAge":
+            return f"rootAge()"
+        ...
+        else:
+            raise UnsupportedOperationException("")
+```
+
 
 ## LPhy data type
 
@@ -50,8 +97,8 @@ During the conversion, the assignment has to be inside the loop,
 so the corresponding class (e.g. Taxa) must overwrite the method `has_var_declaration_rev` to return _False_ as below:
 
 ```python
-def has_var_declaration_rev(self):
-   return False
+    def has_var_declaration_rev(self):
+        return False
 ```
 
 ## Different implementations between LPhy and Rev
@@ -59,6 +106,11 @@ def has_var_declaration_rev(self):
 ### 1. Taxa
 
 Use the flag to create a `for` loop to create taxa vector in Rev.
+
+For some LPhy tree priors having `n` as input of taxa, the tree prior Python class can overwrite 
+the function `rev_code_before`, in order to create a Rev `for` loop before the Rev code conversion 
+happens in this Python class.
+See examples, `CoalescentCoalescent`, `BirthDeathTree`, etc.
 
 ### 2. Nexus file
 
