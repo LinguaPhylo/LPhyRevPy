@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 
 from .Generator import Generator, get_generator_name
-from ..parser.LPhyCanonicalBuilder import get_argument_lphy_string
 
 
 class GenerativeDistribution(Generator, ABC):
@@ -24,6 +23,7 @@ class GenerativeDistribution(Generator, ABC):
         return self.sample()  # TODO how to pass id_
 
     def lphy_string(self):
+        from lphy.core.parser.LPhyCanonicalBuilder import get_argument_lphy_string
         params = []
         for param_name, param in self.get_params():
             value = self.get_param(param_name)
@@ -33,4 +33,3 @@ class GenerativeDistribution(Generator, ABC):
 
         code = f"{get_generator_name(self)}(" + ', '.join(params) + ")"
         return code
-

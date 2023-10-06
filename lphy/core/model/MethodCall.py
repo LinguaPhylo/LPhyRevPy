@@ -67,7 +67,7 @@ class MethodCall(DeterministicFunction):
         # value.add_output
         self.set_input(self.value)
         for i, arg in enumerate(self.arguments):
-            self.set_input(arg)
+            self.set_input(arg) #TODO need setParam ? Java: setInput(argParamName + i, arguments[i]);
 
     def apply(self) -> Value:
         # TODO  vectorized ...

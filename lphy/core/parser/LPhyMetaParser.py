@@ -1,5 +1,6 @@
 from antlr4 import InputStream, CommonTokenStream
 
+from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 from lphy.core.parser.antlr.LPhyLexer import LPhyLexer
 from lphy.core.parser.antlr.LPhyParser import LPhyParser
@@ -77,13 +78,13 @@ class LPhyMetaParser:
     def get_model_sinks(self):
         from lphy.core.model.Value import Value
         non_arguments = []
-
+#TODO no simulated values, so output always > 0. Need new way to get the sink.
         for val in self.data_dict.values():
-            if isinstance(val, Value) and not (val.is_anonymous() and len(val.outputs) == 0):
+            if not val.is_anonymous() and len(val.outputs) == 0:
                 non_arguments.append(val)
 
         for val in self.model_dict.values():
-            if isinstance(val, Value) and not (val.is_anonymous() and len(val.outputs) == 0):
+            if isinstance(val, RandomVariable) and (not val.is_anonymous()) and len(val.outputs) == 0:
                 non_arguments.append(val)
 
         non_arguments.sort(key=lambda val: val.get_id())
