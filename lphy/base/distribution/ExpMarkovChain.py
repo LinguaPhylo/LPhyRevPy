@@ -23,7 +23,7 @@ class ExpMarkovChain(GenerativeDistribution):
         # not need value
         return RandomVariable(id_, None, self)
 
-    # overwrite to F so only print the for loop, without taxa :=
+    # overwrite to F so only print the for loop, without var ~
     def has_var_declaration_rev(self):
         return False
 

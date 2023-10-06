@@ -1,6 +1,4 @@
-from typing import List
-
-from lphy.base.evolution.taxa.Taxa import Taxa, Taxon
+from lphy.base.evolution.taxa.Taxa import Taxa
 from lphy.core.error.Errors import UnsupportedOperationException
 from lphy.core.model.Function import method_info
 

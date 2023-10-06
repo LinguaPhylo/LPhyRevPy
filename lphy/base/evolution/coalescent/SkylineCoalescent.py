@@ -20,8 +20,9 @@ class SkylineCoalescent(GenerativeDistribution):
             raise ValueError("Only one of 'n' or 'taxa' or 'ages' should be provided to 'SkylineCoalescent' !")
 
     def sample(self, id_: str = None) -> RandomVariable:
-        # not need value
-        return RandomVariable(id_, None, self)
+        # must return a TimeTree obj, otherwise it cannot convert the method calls
+        from lphy.base.evolution.tree.TimeTree import TimeTree
+        return RandomVariable(id_, TimeTree(), self)
 
     def lphy_to_rev(self, var_name):
         # lphy names are same to rev
@@ -41,6 +42,7 @@ class SkylineCoalescent(GenerativeDistribution):
         else:
             raise UnsupportedOperationException("SkylineCoalescent conversion requires taxa currently !")
 
+        # https://revbayes.github.io/tutorials/coalescent/skyline
         # dnCoalescentSkyline(theta=pop_size, method="events", events_per_interval=final_number_events_pi, taxa=taxa)
         builder = [f"""{get_argument_rev_string(theta_name, theta)}""", 'method="events"']
         if self.groupSizes is not None:

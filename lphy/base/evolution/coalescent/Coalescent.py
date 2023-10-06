@@ -7,6 +7,7 @@ from lphy.core.model.Value import Value
 class Coalescent(GenerativeDistribution):
 
     def __init__(self, theta: Value, n: Value = None, taxa: Value = None):
+        # this is more restrict, to avoid requiring extra Rev code to create taxa
         if (n is not None and taxa is not None) or (n is None and taxa is None):
             raise ValueError("Either 'n' or 'taxa' should be provided to 'Coalescent', but not both or neither !")
 
@@ -16,8 +17,9 @@ class Coalescent(GenerativeDistribution):
         self.taxa = taxa
 
     def sample(self, id_: str = None) -> RandomVariable:
-        # not need value
-        return RandomVariable(id_, None, self)
+        # must return a TimeTree obj, otherwise it cannot convert the method calls
+        from lphy.base.evolution.tree.TimeTree import TimeTree
+        return RandomVariable(id_, TimeTree(), self)
 
     def lphy_to_rev(self, var_name):
         # lphy names are same to rev

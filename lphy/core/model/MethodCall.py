@@ -2,6 +2,7 @@ import inspect
 from typing import Any, List, ItemsView
 from lphy.core.model.Function import DeterministicFunction
 from lphy.core.model.Value import Value
+from lphy.core.parser.UnicodeConverter import get_canonical
 
 
 # Function to detect flagged functions in a class
@@ -29,7 +30,7 @@ def find_method(class_obj, method_name, args):
 
 def lphy_to_rev_arg_str(value: Any) -> str:
     if value.is_anonymous():
-        return value.lphy_to_rev()
+        return value.lphy_to_rev() # TODO var_name?
     return value.get_id()
 
 
@@ -49,7 +50,8 @@ class MethodCall(DeterministicFunction):
         self.vectorized_object = False
 
         if value.value is None:
-            raise RuntimeError(f"method_name = {method_name}, {value.id} = None !")
+            raise RuntimeError(f"Require the object (id = {value.id}) to locate method call '{method_name}', "
+                               f"but it is None !")
 
         self.method = find_method(value.value.__class__, self.method_name, self.arguments)
         self._initialize()
@@ -95,16 +97,16 @@ class MethodCall(DeterministicFunction):
         # Implement vectorized apply logic here
         pass
 
-    def lphy_to_rev(self, var_name):  # TODO
+    def lphy_to_rev(self, var_name):
         builder = []
-        id = self.value.get_id()
+        id_ = self.value.get_id()
 
-        if self.value.is_anonymous():
+        if self.value.is_anonymous(): # TODO
             generator = self.value.get_generator()
             if isinstance(generator, ElementsAt) or isinstance(generator, Slice):
-                id = generator.lphy_to_rev()
+                id_ = generator.lphy_to_rev()
 
-        builder.append(f"{id}{self.get_name()}(")
+        builder.append(f"{get_canonical(id_)}{self.get_name()}(")
 
         if self.arguments:
             builder.append(lphy_to_rev_arg_str(self.arguments[0]))

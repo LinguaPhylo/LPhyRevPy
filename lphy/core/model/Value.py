@@ -68,11 +68,17 @@ class Value(GraphicalModelNode):
         return "".join(str_list)
 
     def lphy_to_rev(self, var_name):
+        builder = []
         str_list = []
         generator = self.get_generator()
 
         from .Generator import Generator
         if generator is not None and isinstance(generator, Generator):
+
+            pre_code = generator.rev_code_before(get_canonical(self.id))
+            if pre_code is not None:
+                builder.append(pre_code)
+
             if not self.is_anonymous() and generator.has_var_declaration_rev():
                 # variable id
                 str_list.append(get_canonical(self.id))
@@ -87,7 +93,7 @@ class Value(GraphicalModelNode):
             #     str_list.append(generator.lphy_to_rev(generator.id))
 
             # Function or GenerativeDistribution
-            gen_str = generator.lphy_to_rev(self.id)
+            gen_str = generator.lphy_to_rev(get_canonical(self.id))
             str_list.append(gen_str)
         elif not self.is_anonymous() and self.value is not None:
             # not have generator but have id and value, then it is the constant
@@ -121,7 +127,10 @@ class Value(GraphicalModelNode):
             raise RuntimeError(f"The rev string contains None, check if {generator.__class__} implements lphy_to_rev()!\n"
                                f"Rev string = {format(str_list)}")
 
-        return "".join(str_list)
+        current_line = "".join(str_list)
+        builder.append(current_line)
+
+        return '\n'.join(builder)
 
     # TODO is None value?
     def is_constant(self):
