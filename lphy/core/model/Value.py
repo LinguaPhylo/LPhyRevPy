@@ -75,13 +75,14 @@ class Value(GraphicalModelNode):
         from .Generator import Generator
         if generator is not None and isinstance(generator, Generator):
 
-            pre_code = generator.rev_code_before(get_canonical(self.id))
+            id_ = get_canonical(self.id) if self.id is not None else None
+            pre_code = generator.rev_code_before(id_)
             if pre_code is not None:
                 builder.append(pre_code)
 
             if not self.is_anonymous() and generator.has_var_declaration_rev():
                 # variable id
-                str_list.append(get_canonical(self.id))
+                str_list.append(id_)
                 str_list.append(" ")
                 # := or ~
                 str_list.append(generator.rev_spec_op())
@@ -93,8 +94,9 @@ class Value(GraphicalModelNode):
             #     str_list.append(generator.lphy_to_rev(generator.id))
 
             # Function or GenerativeDistribution
-            gen_str = generator.lphy_to_rev(get_canonical(self.id))
+            gen_str = generator.lphy_to_rev(id_)
             str_list.append(gen_str)
+
         elif not self.is_anonymous() and self.value is not None:
             # not have generator but have id and value, then it is the constant
             # variable id

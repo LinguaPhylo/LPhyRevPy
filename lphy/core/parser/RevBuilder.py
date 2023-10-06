@@ -37,14 +37,14 @@ class RevBuilder:
     def _traverse_graphical_model(self, node: GraphicalModelNode, meta_parser: LPhyMetaParser, post: bool):
         if not post:
             self._visit_node(node, meta_parser)
-
+        # TODO Method call is added before the Random Var assigned
         if isinstance(node, Value):
             if node.get_generator() is not None:
                 self._traverse_graphical_model(node.get_generator(), meta_parser, post)
         elif isinstance(node, Generator):
             # map value should be Value
             param_map = node.get_params()
-            for param_name, param in param_map: #TODO IID is not working here
+            for param_name, param in param_map:
                 value = node.get_param(param_name)
                 # if optional arg not used, it will be None
                 if value is not None:
