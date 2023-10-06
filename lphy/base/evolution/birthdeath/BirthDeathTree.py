@@ -58,8 +58,9 @@ class BirthDeathTree(GenerativeDistribution):
         return f"dnBDP({args})"
 
     def rev_code_before(self, var_name):
-        n = self.n.value
-        taxa_var_name = var_name + "_taxa"
-        loop_var = "i"
-        # for (i in 1:10) { taxa[i] = taxon("Taxon"+i) }
-        return f"""for ({loop_var} in 1:{n}) {{ {taxa_var_name}[{loop_var}] = taxon({loop_var}) }} """
+        if self.n is not None:
+            n = self.n.value
+            from lphy.base.evolution.taxa.Taxa import create_n_taxa
+            return create_n_taxa(n, var_name)
+        else:
+            pass

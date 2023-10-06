@@ -5,6 +5,15 @@ from lphy.core.model.Function import DeterministicFunction, method_info
 from lphy.core.model.Value import Value
 
 
+def create_n_taxa(n: int, var_name: str, loop_var_name="i"):
+    """
+    :return: a Rev for loop to create n taxa with name from 1 to n
+    """
+    taxa_var_name = var_name + "_taxa"
+    # for (i in 1:10) { taxa[i] = taxon("Taxon"+i) }
+    return f"""for ({loop_var_name} in 1:{n}) {{ {taxa_var_name}[{loop_var_name}] = taxon({loop_var_name}) }} """
+
+
 class CreateTaxa(DeterministicFunction, ABC):
 
     generator_info = {"name": "taxa",

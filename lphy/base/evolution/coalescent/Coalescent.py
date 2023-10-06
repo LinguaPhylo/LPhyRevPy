@@ -21,18 +21,32 @@ class Coalescent(GenerativeDistribution):
         from lphy.base.evolution.tree.TimeTree import TimeTree
         return RandomVariable(id_, TimeTree(), self)
 
+    # TODO https://revbayes.github.io/documentation/dnHeterochronousCoalescent.html
     def lphy_to_rev(self, var_name):
         # lphy names are same to rev
         theta_name = "theta"
         taxa_name = "taxa"
         theta = self.get_param(theta_name)
+
+        builder = [get_argument_rev_string(theta_name, theta)]
+
         if self.taxa is not None:
             taxa = self.get_param(taxa_name)
-            #TODO https://revbayes.github.io/documentation/dnHeterochronousCoalescent.html
-            return f"dnCoalescent({get_argument_rev_string(theta_name, theta)}, {get_argument_rev_string(taxa_name, taxa)})"
+            builder.append(get_argument_rev_string(taxa_name, taxa))
         elif self.n is not None:
-            n = self.n.value
-            from lphy.core.error.Errors import UnsupportedOperationException
-            raise UnsupportedOperationException("TODO !")
+            # here must be same as def rev_code_before(self, var_name):
+            taxa_var_name = var_name + "_taxa"
+            builder.append(f"taxa={taxa_var_name}")
         else:
             raise ValueError("Either 'n' or 'taxa' should be provided to 'Coalescent', but not both or neither !")
+
+        args = ", ".join(builder)
+        return f"dnCoalescent({args})"
+
+    def rev_code_before(self, var_name):
+        if self.n is not None:
+            n = self.n.value
+            from lphy.base.evolution.taxa.Taxa import create_n_taxa
+            return create_n_taxa(n, var_name)
+        else:
+            pass

@@ -29,26 +29,15 @@ class SkylineCoalescent(GenerativeDistribution):
         theta_name = "theta"
         taxa_name = "taxa"
         theta = self.get_param(theta_name)
-        if self.taxa is not None:
-            taxa = self.get_param(taxa_name)
-        elif self.n is not None:
-            n = self.n.value
-            #TODO taxa =, cannot create Rev code to create taxa in this stage
-            raise UnsupportedOperationException("TODO !")
-        elif self.ages is not None:
-            ages = self.ages.value
-            # TODO taxa =
-            raise UnsupportedOperationException("TODO !")
-        else:
-            raise UnsupportedOperationException("SkylineCoalescent conversion requires taxa currently !")
 
         # https://revbayes.github.io/tutorials/coalescent/skyline
         # dnCoalescentSkyline(theta=pop_size, method="events", events_per_interval=final_number_events_pi, taxa=taxa)
-        builder = [f"""{get_argument_rev_string(theta_name, theta)}""", 'method="events"']
+        builder = [get_argument_rev_string(theta_name, theta), 'method="events"']
+
         if self.groupSizes is not None:
             group_sizes = self.get_param("groupSizes")
             # TODO what is "times" comparing to the old param "events_per_interval"
-            builder.append(f"""{get_argument_rev_string("times", group_sizes)}""")
+            builder.append(get_argument_rev_string("times", group_sizes))
         else:
             # By default, all group sizes are 1 which is equivalent to the classic skyline coalescent.
             theta_val = theta.value
@@ -58,6 +47,28 @@ class SkylineCoalescent(GenerativeDistribution):
             # TODO what is "times" comparing to the old param "events_per_interval"
             builder.append(f"""times={group_sizes}""")
 
-        builder.append(f"""{get_argument_rev_string(taxa_name, taxa)}""")
+        # taxa section
+        if self.taxa is not None:
+            taxa = self.get_param(taxa_name)
+            builder.append(get_argument_rev_string(taxa_name, taxa))
+        elif self.n is not None:
+            # here must be same as def rev_code_before(self, var_name):
+            taxa_var_name = var_name + "_taxa"
+            builder.append(f"taxa={taxa_var_name}")
+        elif self.ages is not None:
+            ages = self.ages.value
+            # TODO taxa =
+            raise UnsupportedOperationException("TODO !")
+        else:
+            raise UnsupportedOperationException("SkylineCoalescent conversion requires taxa currently !")
+
         args = ", ".join(builder)
         return f"dnCoalescentSkyline({args})"
+
+    def rev_code_before(self, var_name):
+        if self.n is not None:
+            n = self.n.value
+            from lphy.base.evolution.taxa.Taxa import create_n_taxa
+            return create_n_taxa(n, var_name)
+        else:
+            pass
