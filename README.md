@@ -61,6 +61,8 @@ D_clamp ~ dnPhyloCTMC(tree=psi, Q=Q, branchRates=clock, siteRates=r)
 D_clamp.clamp(D)
 ```
 
+More [examples](./examples)
+
 ## Available conversions
 
 1. Commonly used nucleotide substitution models
@@ -69,8 +71,6 @@ D_clamp.clamp(D)
 4. Read sequences
 5. Create taxa
 6. Basic PhyloCTMC
-
-See also [examples](./examples)
 
 ## TODO
 
