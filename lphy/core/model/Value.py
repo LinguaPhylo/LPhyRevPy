@@ -7,14 +7,12 @@ class Value(GraphicalModelNode):
 
     REV_CONST_OP = "<-"
 
-    # must be Generator
-    outputs = []
-
     # only constants have value, variable's value is always None
     def __init__(self, id_: str = None, value=None, function: "Function" = None):
         super().__init__(id_)
         self.value = value
         self.function = function
+        self.outputs = []
 
     # overwrite the default to return the id for a non-anonymous value.
     def get_unique_id(self) -> str:

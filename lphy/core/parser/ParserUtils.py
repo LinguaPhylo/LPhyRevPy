@@ -39,6 +39,16 @@ def get_matching_generators(gene_name, params) -> [Generator]:
     return matches
 
 
+def get_param_name(param_name: str):
+    """
+    lambda is reserved by python
+    """
+    if param_name == "lambda_":
+        return "lambda"
+    else:
+        return param_name
+
+
 ### private
 
 def _get_generator_by_arguments(name, params, generator_class):
@@ -116,7 +126,7 @@ def _match(arguments: dict, args_map: dict):
             optional_arguments.add(param)
 
     # Extract the parameter names from the Parameter objects
-    required_argument_names = {param.name for param in required_arguments}
+    required_argument_names = {get_param_name(param.name) for param in required_arguments}
     # return false if not all required arguments are present
     if not required_argument_names.issubset(keys):
         return False

@@ -64,8 +64,8 @@ class MethodCall(DeterministicFunction):
         # if self.method is None:
         #     self._check_vectorized_matches()
 
-        # value.add_output
-        self.set_input(self.value)
+        # cannot set input, it will call value.add_output, so get_sink will wrong if method call on bottom
+        #self.set_input(self.value)
         for i, arg in enumerate(self.arguments):
             self.set_input(arg) #TODO need setParam ? Java: setInput(argParamName + i, arguments[i]);
 

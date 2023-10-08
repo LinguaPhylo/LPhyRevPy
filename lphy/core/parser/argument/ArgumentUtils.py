@@ -32,7 +32,9 @@ def get_arguments(constructor, excl_self=True):
     for param_name, param in parameters.items():
         # Replace "lambda_" because "lambda" is reserved by python
         if param_name == "lambda_":
-            filtered_parameters["lambda"] = param.replace(name='lambda')
+            # not working after python 3.11
+            #filtered_parameters["lambda"] = param.replace(name='lambda')
+            filtered_parameters["lambda"] = param
         elif param_name != 'self':
             filtered_parameters[param_name] = param
 

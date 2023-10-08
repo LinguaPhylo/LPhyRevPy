@@ -91,6 +91,12 @@ class IID(GenerativeDistribution):
         # False, but exclude DiscretizeGamma
         return self.get_name() == "DiscretizeGamma"
 
+    def specification_operator(self):
+        return self.base_distribution.specification_operator()
+
+    def rev_spec_op(self) -> str:
+        return self.base_distribution.rev_spec_op()
+
     def lphy_to_rev(self, var_name):
         dist_name = self.get_name()
         replicates = self.get_replicates()
