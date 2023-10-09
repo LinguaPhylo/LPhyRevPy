@@ -64,6 +64,8 @@ class Generator(GraphicalModelNode, ABC):
         :param name_:  lphy arg name, also the param name in __init__
         :return:       the parameter value declared in __init__
         """
+        if name_ == "lambda":
+            name_ = "lambda_" # lambda is reserved by python, so always use lambda_ in __init__
         try:
             return self.__getattribute__(name_)
         except AttributeError:

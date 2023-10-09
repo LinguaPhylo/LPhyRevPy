@@ -110,10 +110,7 @@ class IID(GenerativeDistribution):
         return f"""for ({loop_var} in 1:{replicates}) {{ {get_canonical(var_name)}[{loop_var}] {self.base_distribution.rev_spec_op()} {self.base_distribution.lphy_to_rev(var_name)} }} """
 
     def get_param(self, name_) -> Value:
-        try:
-            return self.base_distribution.__getattribute__(name_)
-        except AttributeError:
-            return None
+        self.base_distribution.get_param(name_)
 
     def get_params(self) -> ItemsView:
         return self.params.items()
