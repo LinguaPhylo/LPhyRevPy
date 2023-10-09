@@ -45,6 +45,12 @@ class RevBuilder:
                 # if optional arg not used, it will be None
                 if value is not None:
                     self._traverse_graphical_model(value, meta_parser, post)
+
+            from lphy.core.model.MethodCall import MethodCall
+            # traverse the node value of a method call,
+            # e.g. TL = ψ.treeLength(); where ψ is value of the graphical model node treeLength()
+            if isinstance(node, MethodCall):
+                self._traverse_graphical_model(node.value, meta_parser, post)
         else:
             raise RuntimeError("Cannot recognise the node : " + node.__str__())
 

@@ -3,14 +3,11 @@ from abc import ABC, abstractmethod
 
 from .Generator import Generator, get_generator_name
 from ..parser.LPhyCanonicalBuilder import get_argument_lphy_string
-from ..error.Errors import UnsupportedOperationException
 from ..parser.RevBuilder import get_argument_rev_string
-from ..parser.argument import ArgumentUtils
 
 
 # TODO can this merge with DeterministicFunction?
 class Function(Generator, ABC):
-    from .ValueCollections import ValueDict
     # param_map = ValueDict()
 
     def __init__(self, id_: str = None):
