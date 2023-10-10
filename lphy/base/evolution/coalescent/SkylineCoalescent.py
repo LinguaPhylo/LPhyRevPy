@@ -25,6 +25,8 @@ class SkylineCoalescent(GenerativeDistribution):
         return RandomVariable(id_, TimeTree(), self)
 
     def lphy_to_rev(self, var_name):
+        raise UnsupportedOperationException("Waiting for new release of using 'events_per_interval' !")
+
         # lphy names are same to rev
         theta_name = "theta"
         taxa_name = "taxa"
