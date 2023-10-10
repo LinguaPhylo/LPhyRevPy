@@ -34,6 +34,8 @@ class BirthDeathSerialSampling(GenerativeDistribution):
 
     def lphy_to_rev(self, var_name):
         #TODO
+        from lphy.core.error.Errors import UnsupportedOperationException
+        raise UnsupportedOperationException("in dev !")
         # lphy names are same to rev
         theta_name = "theta"
         taxa_name = "taxa"
@@ -44,7 +46,7 @@ class BirthDeathSerialSampling(GenerativeDistribution):
             return f"dnBDSTP({get_argument_rev_string(theta_name, theta)}, {get_argument_rev_string(taxa_name, taxa)})"
         elif self.n is not None:
             n = self.n.value
-            from lphy.core.error.Errors import UnsupportedOperationException
+
             raise UnsupportedOperationException("TODO !")
         else:
             raise ValueError("Either 'n' or 'taxa' should be provided to 'BirthDeathSerialSampling', but not both or neither !")

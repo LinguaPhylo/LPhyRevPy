@@ -60,12 +60,14 @@ More [examples](./examples)
 
 ## Available conversions
 
-1. Commonly used nucleotide substitution models
-2. Constant sized coalescent model
-3. IID
-4. Read sequences
-5. Create taxa
-6. Basic PhyloCTMC
+1. Read sequences, and create taxa
+2. Commonly used nucleotide substitution models
+3. Constant sized coalescent model
+4. Basic birth-death model
+5. Basic PhyloCTMC
+6. Commonly used prior distributions
+7. IID
+8. Method calls
 
 ## TODO
 
@@ -73,8 +75,8 @@ More [examples](./examples)
 2. Vector match
 3. Discrete phylogeography
 4. Structured coalescent
-5. Birth death models
+5. More birth-death models
 6. https://revbayes.github.io/tutorials/coalescent/
-7. https://revbayes.github.io/tutorials/coalescent/skyline
+7. New parameter of https://revbayes.github.io/tutorials/coalescent/skyline
 8. Individual TODOs inside some Python classes
 
