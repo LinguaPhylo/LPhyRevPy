@@ -37,7 +37,7 @@ class Yule(GenerativeDistribution):
         lambda_ = self.get_param("lambda_")
 
         # Rev mu Default : 0
-        builder = [get_argument_rev_string("lambda", lambda_)]
+        builder = [get_argument_rev_string("lambda", lambda_), "mu=0.0"]
 
         if self.rootAge is not None:
             root_age_name = "rootAge"
