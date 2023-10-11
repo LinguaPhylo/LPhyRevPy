@@ -105,4 +105,5 @@ def get_argument_rev_string(name, value: Value):
     if value.is_anonymous():
         # TODO split lphy inline code into lines of Rev
         return prefix + value.lphy_to_rev(None)
+    # else value is from a var, then value.get_id() is var name
     return prefix + get_canonical(value.get_id())
