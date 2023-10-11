@@ -17,6 +17,11 @@ class TimeTree:
     def nodeCount(self):
         pass
 
+    @method_info("the total number of leaf nodes in the tree (leaf nodes with any age, "
+                 "but excluding zero-branch-length leaf nodes, which are logically direct ancestors).")
+    def leafCount(self):
+        pass
+
     #TODO more methods
 
     def method_call_to_rev(self, method_name: str, args):
@@ -26,5 +31,7 @@ class TimeTree:
             return f"rootAge()"
         elif method_name == "nodeCount":
             return f"nnodes()"
+        elif method_name == "leafCount":
+            return f"ntips()"
         else:
             raise UnsupportedOperationException("")

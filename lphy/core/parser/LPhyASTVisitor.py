@@ -41,7 +41,7 @@ def _get_value_or_function(obj, ctx, meta_parser: "LPhyMetaParser", block: str):
         val.set_function(func)
         meta_parser.add_to_value_set(val, block)
         return val
-    raise ParsingException(f"Expecting value or function but got {obj} !", ctx)
+    raise ParsingException(f"Expecting value or function but got {obj} !", ctx.getText())
 
 
 class LPhyASTVisitor(LPhyVisitor):

@@ -31,7 +31,7 @@ class BirthDeathSamplingTreeDT(GenerativeDistribution):
 
     # https://revbayes.github.io/documentation/dnBirthDeath.html
     def lphy_to_rev(self, var_name):
-        # TODO taxa ?
+        # TODO Rev requires taxa ?
         from lphy.core.error.Errors import UnsupportedOperationException
         raise UnsupportedOperationException("in dev !")
 

@@ -43,6 +43,8 @@ class BirthDeathTree(GenerativeDistribution):
         mu = self.get_param(mu_name)
         root_age = self.get_param(root_age_name)
 
+        #TODO Rev dnBDP : The condition of the process. Default : time
+
         builder = [get_argument_rev_string("lambda", lambda_), get_argument_rev_string(mu_name, mu),
                    get_argument_rev_string(root_age_name, root_age)]
 
