@@ -11,7 +11,9 @@ class BirthDeathTree(GenerativeDistribution):
     """
     # if attr generator_info defines the function name, then use it, otherwise use class name
     generator_info = {"name": "BirthDeath",
-                      "description": "Calibrated Birth–Death Phylogenetic Time-Tree Priors for Bayesian Inference."}
+                      "description": "A tree of only extant species, which is conceptually embedded"
+                                     "in a full species tree produced by a speciation-extinction (birth-death) "
+                                     "branching process. Conditioned on root age and on number of taxa."}
 
     def __init__(self, lambda_: Value, mu: Value, rootAge: Value, n: Value = None, taxa: Value = None):
         # this is more restrict, to avoid requiring extra Rev code to create taxa

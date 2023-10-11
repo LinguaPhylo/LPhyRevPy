@@ -81,7 +81,7 @@ class Exp(GenerativeDistribution):
 
     def lphy_to_rev(self, var_name):
         mean = self.mean.value
-        rate = 1 / mean
+        rate = 1 / float(mean)
         return f"dnExp(lambda={rate})"
 
 
@@ -99,7 +99,7 @@ class Gamma(GenerativeDistribution):
     def lphy_to_rev(self, var_name):
         shape = self.shape.value
         scale = self.scale.value
-        rate = 1 / scale
+        rate = 1 / float(scale)
         return f"dnGamma(shape={shape}, rate={rate})"
 
 
@@ -117,7 +117,7 @@ class InverseGamma(GenerativeDistribution):
     def lphy_to_rev(self, var_name):
         shape = self.shape.value
         scale = self.scale.value
-        rate = 1 / scale
+        rate = 1 / float(scale)
         return f"dnInverseGamma(shape={shape}, rate={rate})"
 
 
