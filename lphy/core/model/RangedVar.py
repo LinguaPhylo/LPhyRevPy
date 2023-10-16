@@ -30,8 +30,8 @@ class Var:
 
     def get_value(self, block: str):
         # self.meta_parser is LPhyMetaParser
-        from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
-        if isinstance(self.meta_parser, LPhyMetaParser):
+        from lphy.core.parser.LPhyMetaData import LPhyMetaData
+        if isinstance(self.meta_parser, LPhyMetaData):
             val = self.meta_parser.get_value(self.id, block)
             if not self.is_ranged_var():
                 return val

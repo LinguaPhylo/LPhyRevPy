@@ -8,7 +8,7 @@ from lphy.core.parser.RevBuilder import RevBuilder
 def main():
     logging.basicConfig(level=logging.DEBUG)
 
-    from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
+    from lphy.core.parser.LPhyMetaData import LPhyMetaData
 
     # TODO inline func
     input_string = ("data {\n  L = 200;\n  taxa = taxa(names=1:10);\n}\n"
@@ -16,7 +16,7 @@ def main():
                     "  ψ ~ Coalescent(theta=Θ, taxa=taxa);\n"
                     "  D ~ PhyloCTMC(tree=ψ, L=200, Q=jukesCantor());\n}\n")
 
-    meta_parser = LPhyMetaParser()
+    meta_parser = LPhyMetaData()
     meta_parser.parse(input_string)
 
     code_builder = LPhyCanonicalBuilder()

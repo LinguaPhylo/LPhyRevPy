@@ -48,9 +48,9 @@ class LPhyASTVisitor(LPhyVisitor):
 
     # type hint with forward declaration LPhyMetaParser, to avoid circular dependencies
     def __init__(self, meta_parser: "LPhyMetaParser"):
-        from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
+        from lphy.core.parser.LPhyMetaData import LPhyMetaData
         # default to model block, e.g., free lines, update it during parsing
-        self._block = LPhyMetaParser.MODEL
+        self._block = LPhyMetaData.MODEL
         self._meta_parser = meta_parser
 
     # Override methods as needed for AST-specific operations
@@ -66,8 +66,8 @@ class LPhyASTVisitor(LPhyVisitor):
 
     def visitDatablock(self, ctx: LPhyParser.DatablockContext):
         # change _block = DATA here
-        from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
-        self._block = LPhyMetaParser.DATA
+        from lphy.core.parser.LPhyMetaData import LPhyMetaData
+        self._block = LPhyMetaData.DATA
         return super().visitDatablock(ctx)
 
     # def visitDeterm_relation_list(self, ctx: LPhyParser.Determ_relation_listContext):
@@ -78,8 +78,8 @@ class LPhyASTVisitor(LPhyVisitor):
 
     def visitModelblock(self, ctx: LPhyParser.ModelblockContext):
         # change _block = MODEL here
-        from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
-        self._block = LPhyMetaParser.MODEL
+        from lphy.core.parser.LPhyMetaData import LPhyMetaData
+        self._block = LPhyMetaData.MODEL
         return super().visitModelblock(ctx)
 
     # def visitRelation_list(self, ctx: LPhyParser.Relation_listContext):
@@ -151,8 +151,8 @@ class LPhyASTVisitor(LPhyVisitor):
         return None
 
     def visitStoch_relation(self, ctx: LPhyParser.Stoch_relationContext):
-        from .LPhyMetaParser import LPhyMetaParser
-        if self._block == LPhyMetaParser.DATA:
+        from .LPhyMetaData import LPhyMetaData
+        if self._block == LPhyMetaData.DATA:
             raise ParsingException("Generative distributions are not allowed in the data block! "
                                    "Use model block for Generative distributions.", ctx)
 

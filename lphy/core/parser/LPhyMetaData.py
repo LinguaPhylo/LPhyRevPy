@@ -7,7 +7,7 @@ from lphy.core.parser.antlr.LPhyParser import LPhyParser
 
 
 # store the parsed Values and Generators
-class LPhyMetaParser:
+class LPhyMetaData:
     # ordered and unchangeable
     DATA = "data"
     MODEL = "model"

@@ -3,7 +3,7 @@ import sys
 
 from lphy.core.parser.LPhyCanonicalBuilder import LPhyCanonicalBuilder
 from lphy.core.parser.RevBuilder import RevBuilder
-from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
+from lphy.core.parser.LPhyMetaData import LPhyMetaData
 
 
 def parse_args(argv):
@@ -49,7 +49,7 @@ def main():
     #                 "Q=jukesCantor();\n"
     #                 "D ~ PhyloCTMC(tree=ψ, L=L, Q=Q);")
 
-    meta_parser = LPhyMetaParser()
+    meta_parser = LPhyMetaData()
     #TODO why need LPhyMetaParser.DATA and MODEL, parser seems already handled
     # meta_parser.parse(data_string, LPhyMetaParser.DATA)
     meta_parser.parse(input_string)

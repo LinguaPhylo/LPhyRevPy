@@ -1,7 +1,7 @@
 from lphy.core.model.Generator import Generator
 from lphy.core.model.GraphicalModelNode import GraphicalModelNode
 from lphy.core.model.Value import Value
-from lphy.core.parser.LPhyMetaParser import LPhyMetaParser
+from lphy.core.parser.LPhyMetaData import LPhyMetaData
 
 
 # Given a LPhyMetaParser, traverse the graphical model
@@ -13,7 +13,7 @@ class LPhyCanonicalBuilder:
         self.data_lines = []
         self.model_lines = []
 
-    def get_code(self, meta_parser: LPhyMetaParser):
+    def get_code(self, meta_parser: LPhyMetaData):
         self.visited.clear()
         self.data_lines.clear()
         self.model_lines.clear()
@@ -36,7 +36,7 @@ class LPhyCanonicalBuilder:
 
         return '\n'.join(builder)
 
-    def _traverse_graphical_model(self, node: GraphicalModelNode, meta_parser: LPhyMetaParser, post: bool):
+    def _traverse_graphical_model(self, node: GraphicalModelNode, meta_parser: LPhyMetaData, post: bool):
         if not post:
             self._visit_node(node, meta_parser)
 
