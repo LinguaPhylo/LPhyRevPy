@@ -1,12 +1,11 @@
 from abc import ABC
 import numpy as np
 
-from lphy.core.error.Errors import UnsupportedOperationException
-from lphy.core.model.Function import DeterministicFunction
+from lphy.base.evolution.substitutionmodel.RateMatrix import RateMatrix
 from lphy.core.model.Value import Value
 
 
-class F81(DeterministicFunction, ABC):
+class F81(RateMatrix):
 
     # if attr generator_info defines the function name, then use it, otherwise use class name
     generator_info = {"name": "f81",
@@ -15,17 +14,13 @@ class F81(DeterministicFunction, ABC):
 
     # The parameter name must be matching with its definition in lphy script, case-sensitive.
     def __init__(self, freq: Value, meanRate: Value = None):
-        super().__init__()
+        super().__init__(meanRate)
         self.freq = freq
-        self.meanRate = meanRate
-        # TODO re-compute Q matrix
-        if meanRate is not None:
-            raise UnsupportedOperationException(f"meanRate is not implemented yet ! meanRate = {meanRate}")
 
     def apply(self) -> "Value":
-        # not require value
-        num_states = 4
-        return Value(None, np.zeros((num_states, num_states)), self)
+        freq = self.freq.value
+        Q = self.f81(freq)
+        return Value(None, Q, self)
 
     def lphy_to_rev(self, var_name):
         # lphy mean rate is to normalise rate matrix. Default value is 1.0.
@@ -36,4 +31,22 @@ class F81(DeterministicFunction, ABC):
         freq = self.get_param("freq")
         return f"fnF81(baseFrequencies={freq})"
 
+    def f81(self, freqs):
+        numStates = 4
+        Q = np.zeros((numStates, numStates), dtype=float)
+        totalRates = np.zeros(numStates, dtype=float)
+
+        for i in range(numStates):
+            for j in range(numStates):
+                if i != j:
+                    Q[i][j] = freqs[j]
+                else:
+                    Q[i][i] = 0.0
+                totalRates[i] += Q[i][j]
+            Q[i][i] = -totalRates[i]
+
+        # Normalizing the rate matrix
+        self.normalize(freqs, Q)
+
+        return Q
 
