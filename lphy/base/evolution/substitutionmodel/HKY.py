@@ -1,12 +1,9 @@
-from abc import ABC
 import numpy as np
-
-from lphy.core.error.Errors import UnsupportedOperationException
-from lphy.core.model.Function import DeterministicFunction
+from lphy.base.evolution.substitutionmodel.RateMatrix import RateMatrix
 from lphy.core.model.Value import Value
 
 
-class HKY(DeterministicFunction, ABC):
+class HKY(RateMatrix):
 
     # if attr generator_info defines the function name, then use it, otherwise use class name
     generator_info = {"name": "hky",
@@ -16,18 +13,15 @@ class HKY(DeterministicFunction, ABC):
 
     # The parameter name must be matching with its definition in lphy script, case-sensitive.
     def __init__(self, kappa: Value, freq: Value, meanRate: Value = None):
-        super().__init__()
+        super().__init__(meanRate)
         self.kappa = kappa
         self.freq = freq
-        self.meanRate = meanRate
-        # TODO re-compute Q matrix
-        if meanRate is not None:
-            raise UnsupportedOperationException(f"meanRate is not implemented yet ! meanRate = {meanRate}")
 
     def apply(self) -> "Value":
-        # not require value
-        num_states = 4
-        return Value(None, np.zeros((num_states, num_states)), self)
+        kappa = self.kappa.value
+        freq = self.freq.value
+        Q = self.hky(kappa, freq)
+        return Value(None, Q, self)
 
     def lphy_to_rev(self, var_name):
         # lphy mean rate is to normalise rate matrix. Default value is 1.0.
@@ -38,5 +32,26 @@ class HKY(DeterministicFunction, ABC):
         kappa = self.get_param("kappa")
         freq = self.get_param("freq")
         return f"fnHKY(kappa={kappa}, baseFrequencies={freq})"
+
+    def hky(self, kappa, freqs):
+        num_states = 4
+        Q = np.zeros((num_states, num_states), dtype=float)
+        total_rates = np.zeros(num_states, dtype=float)
+
+        for i in range(num_states):
+            for j in range(num_states):
+                if i != j:
+                    if abs(i - j) == 2:
+                        Q[i][j] = kappa * freqs[j]
+                    else:
+                        Q[i][j] = freqs[j]
+                else:
+                    Q[i][i] = 0.0
+                total_rates[i] += Q[i][j]
+            Q[i][i] = -total_rates[i]
+
+        self.normalize(freqs, Q)
+
+        return Q
 
 

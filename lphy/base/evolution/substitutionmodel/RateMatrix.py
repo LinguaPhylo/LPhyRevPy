@@ -34,7 +34,7 @@ def jc(mean_rate, num_states):
     return Q
 
 
-class RateMatrix(DeterministicFunction):
+class RateMatrix(DeterministicFunction, ABC):
 
     def __init__(self, meanRate: Value = None):
         super().__init__()

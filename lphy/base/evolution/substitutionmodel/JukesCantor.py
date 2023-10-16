@@ -1,5 +1,3 @@
-from abc import ABC
-
 from lphy.base.evolution.substitutionmodel.RateMatrix import RateMatrix, jc
 from lphy.core.model.Value import Value
 
