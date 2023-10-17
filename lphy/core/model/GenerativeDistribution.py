@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-
+import math
 from .Generator import Generator, get_generator_name
 
 
@@ -18,6 +18,13 @@ class GenerativeDistribution(Generator, ABC):
     @abstractmethod
     def sample(self, id_: str = None) -> "RandomVariable":
         pass
+
+    # must overwrite either this or log_density
+    def density(self, t):
+        return math.exp(t.log_density())
+
+    def log_density(self, t):
+        return math.log(t.density())
 
     def generate(self) -> "Value":
         return self.sample()  # TODO how to pass id_

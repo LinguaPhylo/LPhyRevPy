@@ -4,6 +4,7 @@ from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 from lphy.core.parser.RevBuilder import get_argument_rev_string
 
+import random
 
 # This is also for Site Model.
 class DiscretizeGamma(GenerativeDistribution):
@@ -47,8 +48,12 @@ class Bernoulli(GenerativeDistribution):
         self.p = p
 
     def sample(self, id_: str = None) -> RandomVariable:
-        # not need value
-        return RandomVariable(id_, None, self)
+        success = random.random() < self.p.value
+        return RandomVariable(id_, success, self)
+
+    def density(self, success):
+        p = self.p.value
+        return float(p) if success else 1.0 - float(p)
 
     def lphy_to_rev(self, var_name):
         p = self.p.value

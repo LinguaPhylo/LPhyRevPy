@@ -3,6 +3,9 @@ from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 
+from scipy.stats import beta, lognorm
+from numpy import exp, sqrt
+
 
 ### alphabetical order
 
@@ -15,8 +18,11 @@ class Beta(GenerativeDistribution):
         self.beta = beta
 
     def sample(self, id_: str = None) -> RandomVariable:
+        alpha = self.alpha.value
+        beta = self.beta.value
+        x = beta.rvs(alpha, beta, size=1)
         # not need value
-        return RandomVariable(id_, None, self)
+        return RandomVariable(id_, x, self)
 
     def lphy_to_rev(self, var_name):
         alpha = self.alpha
@@ -165,16 +171,35 @@ class LogNormal(GenerativeDistribution):
         super().__init__()
         self.meanlog = meanlog
         self.sdlog = sdlog
+        self.offset = offset
         if offset is not None:
             raise UnsupportedOperationException("Rev language does not support offset in dnLognormal !")
 
     def sample(self, id_: str = None) -> RandomVariable:
-        # not need value
-        return RandomVariable(id_, None, self)
+        meanlog = self.meanlog.value
+        sdlog = self.sdlog.value
+        # TODO check
+        # Suppose a normally distributed random variable X has mean mu and standard deviation sigma.
+        # Then Y = exp(X) is lognormally distributed with s = sigma and scale = exp(mu).
+        s = float(sdlog)
+        scale = exp(float(meanlog))
+        y = lognorm.rvs(s, scale=scale, size=1) + self._C()
+        return RandomVariable(id_, y, self)
+
+    def log_density(self, x):
+        meanlog = self.meanlog.value
+        sdlog = self.sdlog.value
+
+        return lognorm.logpdf(x - self._C(), float(sdlog), scale=exp(float(meanlog)))
+
+    def _C(self):
+        C = 0.0
+        if self.offset is not None:
+            C = float(self.offset.value)
+        return C
 
     # x ~ dnLognormal(mean=mean, sd=sd)
     def lphy_to_rev(self, var_name):
-        # TODO no offset ?
         mean = self.meanlog.value
         sd = self.sdlog.value
         return f"dnLognormal(mean={mean}, sd={sd})"
