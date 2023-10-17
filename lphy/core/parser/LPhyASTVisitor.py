@@ -31,27 +31,27 @@ univar_functions = {
 }
 
 
-def _get_value_or_function(obj, ctx, meta_parser: "LPhyMetaParser", block: str):
+def _get_value_or_function(obj, ctx, parser_dict: "LPhyParserDictionary", block: str):
     if isinstance(obj, Value):
-        meta_parser.add_to_value_set(obj, block)
+        parser_dict.add_to_value_set(obj, block)
         return obj
     if isinstance(obj, DeterministicFunction):
         func = obj
         val = func.apply()
         val.set_function(func)
-        meta_parser.add_to_value_set(val, block)
+        parser_dict.add_to_value_set(val, block)
         return val
     raise ParsingException(f"Expecting value or function but got {obj} !", ctx.getText())
 
 
 class LPhyASTVisitor(LPhyVisitor):
 
-    # type hint with forward declaration LPhyMetaParser, to avoid circular dependencies
-    def __init__(self, meta_parser: "LPhyMetaParser"):
-        from lphy.core.parser.LPhyMetaData import LPhyMetaData
+    # type hint with forward declaration LPhyParserDictionary, to avoid circular dependencies
+    def __init__(self, parser_dict: "LPhyParserDictionary"):
+        from lphy.core.parser.LPhyParserDictionary import LPhyParserDictionary
         # default to model block, e.g., free lines, update it during parsing
-        self._block = LPhyMetaData.MODEL
-        self._meta_parser = meta_parser
+        self._block = LPhyParserDictionary.MODEL
+        self._parser_dict = parser_dict
 
     # Override methods as needed for AST-specific operations
     # def visitInput(self, ctx:LPhyParser.InputContext):
@@ -66,8 +66,8 @@ class LPhyASTVisitor(LPhyVisitor):
 
     def visitDatablock(self, ctx: LPhyParser.DatablockContext):
         # change _block = DATA here
-        from lphy.core.parser.LPhyMetaData import LPhyMetaData
-        self._block = LPhyMetaData.DATA
+        from lphy.core.parser.LPhyParserDictionary import LPhyParserDictionary
+        self._block = LPhyParserDictionary.DATA
         return super().visitDatablock(ctx)
 
     # def visitDeterm_relation_list(self, ctx: LPhyParser.Determ_relation_listContext):
@@ -78,8 +78,8 @@ class LPhyASTVisitor(LPhyVisitor):
 
     def visitModelblock(self, ctx: LPhyParser.ModelblockContext):
         # change _block = MODEL here
-        from lphy.core.parser.LPhyMetaData import LPhyMetaData
-        self._block = LPhyMetaData.MODEL
+        from lphy.core.parser.LPhyParserDictionary import LPhyParserDictionary
+        self._block = LPhyParserDictionary.MODEL
         return super().visitModelblock(ctx)
 
     # def visitRelation_list(self, ctx: LPhyParser.Relation_listContext):
@@ -96,11 +96,11 @@ class LPhyASTVisitor(LPhyVisitor):
             # variable of the form NAME '[' range ']'
             o = self.visit(ctx.getChild(2))
             if isinstance(o, RangeList):
-                return Var(id_, o, self._meta_parser)
+                return Var(id_, o, self._parser_dict)
             else:
                 raise ParsingException("Expected variable id, or id and range list", ctx)
 
-        return Var(id_, self._meta_parser)
+        return Var(id_, self._parser_dict)
 
     # return a RangeList function.
     def visitRange_list(self, ctx: LPhyParser.Range_listContext):
@@ -151,8 +151,8 @@ class LPhyASTVisitor(LPhyVisitor):
         return None
 
     def visitStoch_relation(self, ctx: LPhyParser.Stoch_relationContext):
-        from .LPhyMetaData import LPhyMetaData
-        if self._block == LPhyMetaData.DATA:
+        from .LPhyParserDictionary import LPhyParserDictionary
+        if self._block == LPhyParserDictionary.DATA:
             raise ParsingException("Generative distributions are not allowed in the data block! "
                                    "Use model block for Generative distributions.", ctx)
 
@@ -161,7 +161,7 @@ class LPhyASTVisitor(LPhyVisitor):
 
         # TODO
         # if isinstance(gen_dist, VectorizedDistribution) and DataClampingUtils.is_data_clamping(var, parser):
-        #     array = self._meta_parser.data_dict[var.get_id()].value()
+        #     array = self._parser_dict.data_dict[var.get_id()].value()
         #     if isinstance(array, list):
         #         variable = DataClampingUtils.get_data_clamped_vectorized_random_variable(var.get_id(), gen_dist, array)
         #         print( "Data clamping: the value of " + var.get_id() +
@@ -174,7 +174,7 @@ class LPhyASTVisitor(LPhyVisitor):
         variable = gen_dist.sample(var.get_id())
 
         if variable is not None and not var.is_ranged_var():
-            self._meta_parser.put(variable.get_id(), variable, self._block)
+            self._parser_dict.put(variable.get_id(), variable, self._block)
             return variable
         else:
             raise ParsingException("Data clamping requires to data as array object !", ctx)
@@ -308,7 +308,7 @@ class LPhyASTVisitor(LPhyVisitor):
         if var.is_ranged_var():
             value = get_indexed_value(var.id, var.range_list).apply()
         else:
-            value = self._meta_parser.get_value(var.id, self._block)
+            value = self._parser_dict.get_value(var.id, self._block)
 
         if value is None:
             raise ParsingException(f"Value {ctx.children[0].getText()} not found for method call {method_name}", ctx)
@@ -371,12 +371,12 @@ class LPhyASTVisitor(LPhyVisitor):
         if isinstance(obj, DeterministicFunction):
             value = obj.apply()
             value.set_function(obj)
-            v = ArgumentValue(name, value, self._meta_parser, self._block)
+            v = ArgumentValue(name, value, self._parser_dict, self._block)
             return v
 
         # array construction will return a Value containing list to here
         if isinstance(obj, Value):
-            return ArgumentValue(name, obj, self._meta_parser, self._block)
+            return ArgumentValue(name, obj, self._parser_dict, self._block)
 
         return obj
 
@@ -411,8 +411,8 @@ class LPhyASTVisitor(LPhyVisitor):
                 return obj
 
             key = child_context.getText()
-            if self._meta_parser.has_value(key, self._block):
-                return self._meta_parser.get_value(key, self._block)
+            if self._parser_dict.has_value(key, self._block):
+                return self._parser_dict.get_value(key, self._block)
 
         expression = None
         if ctx.getChildCount() >= 2:
@@ -430,9 +430,9 @@ class LPhyASTVisitor(LPhyVisitor):
                     return Value(None, range(start, end + 1))
                 else:
                     obj1 = self.visit(ctx.getChild(0))
-                    f1 = _get_value_or_function(obj1, ctx, self._meta_parser, self._block)
+                    f1 = _get_value_or_function(obj1, ctx, self._parser_dict, self._block)
                     obj2 = self.visit(ctx.getChild(ctx.getChildCount() - 1))
-                    f2 = _get_value_or_function(obj2, ctx, self._meta_parser, self._block)
+                    f2 = _get_value_or_function(obj2, ctx, self._parser_dict, self._block)
                     expression = f"{f1} {s} {f2}"
                     return eval(expression)
 
@@ -456,7 +456,7 @@ class LPhyASTVisitor(LPhyVisitor):
         """
         child = self.visit(ctx.getChild(0))
 
-        array = _get_value_or_function(child, ctx, self._meta_parser, self._block)
+        array = _get_value_or_function(child, ctx, self._parser_dict, self._block)
 
         if not isinstance(array.value, (np.ndarray, list)):
             raise ParsingException(f"Expected value {array} to be an array.", ctx)
