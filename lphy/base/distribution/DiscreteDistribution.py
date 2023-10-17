@@ -1,3 +1,6 @@
+from numpy import zeros
+from scipy.stats import gamma
+
 from lphy.core.error.Errors import UnsupportedOperationException
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.model.RandomVariable import RandomVariable
@@ -5,6 +8,7 @@ from lphy.core.model.Value import Value
 from lphy.core.parser.RevBuilder import get_argument_rev_string
 
 import random
+
 
 # This is also for Site Model.
 class DiscretizeGamma(GenerativeDistribution):
@@ -16,8 +20,24 @@ class DiscretizeGamma(GenerativeDistribution):
         self.ncat = ncat
 
     def sample(self, id_: str = None) -> RandomVariable:
-        # not need value
-        return RandomVariable(id_, None, self)
+        shape = self.shape.value
+        ncat = int(self.ncat.value)
+
+        sh = float(shape)
+        gamma_distribution = gamma(sh, scale=1.0 / sh)
+
+        rates = zeros(ncat)
+        for i in range(ncat):
+            q = (2.0 * i + 1.0) / (2.0 * ncat)
+            rates[i] = gamma_distribution.ppf(q)
+        # Java between 0 (inclusive) and n (exclusive).
+        # Here range [a, b], including both end points
+        cat_index = random.randint(0, ncat-1)
+
+        return RandomVariable(id_, rates[cat_index], self)
+
+    def density(self, t):
+        raise UnsupportedOperationException("TODO")
 
     # sr := fnDiscretizeGamma( alpha, alpha, 4 )
     def rev_spec_op(self) -> str:

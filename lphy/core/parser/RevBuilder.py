@@ -13,16 +13,17 @@ class RevBuilder:
         self.data_lines = []
         self.model_lines = []
         #TODO
-        self.mcmc_lines = []
+        self.move_lines = []
+        self.monitors_lines = []
 
-    def get_code(self, meta_parser: LPhyParserDictionary):
+    def get_code(self, parser_dict: LPhyParserDictionary):
         self.visited.clear()
         self.data_lines.clear()
         self.model_lines.clear()
 
         builder = []
-        for value in meta_parser.get_model_sinks():
-            self._traverse_graphical_model(value, meta_parser, True)
+        for value in parser_dict.get_model_sinks():
+            self._traverse_graphical_model(value, parser_dict, True)
 
         if self.data_lines:
             builder += self.data_lines
@@ -30,13 +31,13 @@ class RevBuilder:
             builder += self.model_lines
         return '\n'.join(builder)
 
-    def _traverse_graphical_model(self, node: GraphicalModelNode, meta_parser: LPhyParserDictionary, post: bool):
+    def _traverse_graphical_model(self, node: GraphicalModelNode, parser_dict: LPhyParserDictionary, post: bool):
         if not post:
-            self._visit_node(node, meta_parser)
+            self._visit_node(node, parser_dict)
         # TODO Method call is added before the Random Var assigned
         if isinstance(node, Value):
             if node.get_generator() is not None:
-                self._traverse_graphical_model(node.get_generator(), meta_parser, post)
+                self._traverse_graphical_model(node.get_generator(), parser_dict, post)
         elif isinstance(node, Generator):
             # map value should be Value
             param_map = node.get_params()
@@ -44,30 +45,30 @@ class RevBuilder:
                 value = node.get_param(param_name)
                 # if optional arg not used, it will be None
                 if value is not None:
-                    self._traverse_graphical_model(value, meta_parser, post)
+                    self._traverse_graphical_model(value, parser_dict, post)
 
             from lphy.core.model.MethodCall import MethodCall
             # traverse the node value of a method call,
             # e.g. TL = ψ.treeLength(); where ψ is value of the graphical model node treeLength()
             if isinstance(node, MethodCall):
-                self._traverse_graphical_model(node.value, meta_parser, post)
+                self._traverse_graphical_model(node.value, parser_dict, post)
         else:
             raise RuntimeError("Cannot recognise the node : " + node.__str__())
 
         if post:
-            self._visit_node(node, meta_parser)
+            self._visit_node(node, parser_dict)
 
     #TODO split lphy inline code into lines of Rev
-    def _visit_node(self, node, meta_parser):
+    def _visit_node(self, node, parser_dict):
         if node not in self.visited:
             if isinstance(node, Value):
                 if not node.is_anonymous():
                     # start from named Value, and print the rest
                     str_value = node.lphy_to_rev(None)
 
-                    if meta_parser.is_named_data_value(node):
+                    if parser_dict.is_named_data_value(node):
                         self.data_lines.append(str_value)
-                    elif meta_parser.is_clamped_variable(node):
+                    elif parser_dict.is_clamped_variable(node):
                         # data clamping
                         old_id = node.get_id()
                         new_id = old_id+"_clamp"

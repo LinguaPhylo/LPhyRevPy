@@ -21,39 +21,37 @@ class Coalescent(GenerativeDistribution):
 
         tree = TimeTree()
 
-        def create_leaf_taxa(t):
-            # Implement your createLeafTaxa function as needed.
-            pass
+        #TODO def create_leaf_taxa(t):
+        #     # Implement your createLeafTaxa function as needed.
+        #     pass
+        #
+        # activeNodes = create_leaf_taxa(tree)
+        #
+        # time = 0.0
+        # theta = self.theta
+        #
+        # while len(activeNodes) > 1:
+        #     k = len(activeNodes)
+        #
+        #     def draw_random_node(active_nodes):
+        #         # Implement your drawRandomNode function as needed.
+        #         pass
+        #
+        #     a = draw_random_node(activeNodes)
+        #     b = draw_random_node(activeNodes)
+        #
+        #     rate = (k * (k - 1.0)) / (theta * 2.0)
+        #
+        #     # Random exponential variate
+        #     x = -np.log(random()) / rate
+        #     time += x
+        #
+        #     parent = TimeTreeNode(time, [a, b])
+        #     activeNodes.append(parent)
+        #
+        # tree.setRoot(activeNodes[0])
 
-        activeNodes = create_leaf_taxa(tree)
-
-        time = 0.0
-        theta = self.theta
-
-        while len(activeNodes) > 1:
-            k = len(activeNodes)
-
-            def draw_random_node(active_nodes):
-                # Implement your drawRandomNode function as needed.
-                pass
-
-            a = draw_random_node(activeNodes)
-            b = draw_random_node(activeNodes)
-
-            rate = (k * (k - 1.0)) / (theta * 2.0)
-
-            # Random exponential variate
-            x = -np.log(random()) / rate
-            time += x
-
-            parent = TimeTreeNode(time, [a, b])
-            activeNodes.append(parent)
-
-        tree.setRoot(activeNodes[0])
-
-        return RandomVariable("ψ", tree, self)
-
-        return RandomVariable(id_, TimeTree(), self)
+        return RandomVariable(id_, tree, self)
 
     # TODO https://revbayes.github.io/documentation/dnHeterochronousCoalescent.html
     def lphy_to_rev(self, var_name):

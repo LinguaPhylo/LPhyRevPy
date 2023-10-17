@@ -3,8 +3,8 @@ from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 
-from scipy.stats import beta, lognorm
-from numpy import exp, sqrt
+from scipy.stats import beta, lognorm, gamma
+from numpy import exp, sqrt, zeros, sum
 
 
 ### alphabetical order
@@ -62,8 +62,17 @@ class Dirichlet(GenerativeDistribution):
                 f"The concentration parameters for a Dirichlet distribution must be numbers ! {conc.value}")
 
     def sample(self, id_: str = None) -> RandomVariable:
-        # not need value
-        return RandomVariable(id_, None, self)
+        conc = self.conc.value
+        dirichlet = zeros(len(conc))
+
+        for i in range(len(dirichlet)):
+            dirichlet[i] = gamma.rvs(conc[i], scale=1.0, size=1)
+        dirichlet /= sum(dirichlet)
+
+        return RandomVariable(id_, dirichlet, self)
+
+    def density(self, t):
+        raise UnsupportedOperationException("TODO")
 
     # x ~ dnLognormal(mean=mean, sd=sd)
     def lphy_to_rev(self, var_name):
