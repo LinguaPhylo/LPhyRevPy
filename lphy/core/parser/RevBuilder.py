@@ -133,6 +133,17 @@ class RevBuilder:
                 mv_params = "lambda=0.1, weight=2.0"
                 self.move_lines.append(f"moves.append( mvScale({var_name}, {mv_params}) )")
 
+    # add monitors
+    # monitors.append(mnModel(filename="output/horses_iso_constant.log", printgen=THINNING))
+    # monitors.append(mnFile(filename="output/horses_iso_constant.trees", psi, printgen=THINNING))
+    # monitors.append(mnFile(filename="output/horses_iso_constant_NE.log", pop_size, printgen=THINNING))
+    # monitors.append(mnScreen(pop_size, root_age, printgen=100))
+
+    # mymcmc = mcmc(mymodel, monitors, moves, nruns=NUM_REPLICATES, combine="mixed")
+    # mymcmc.burnin(NUM_MCMC_ITERATIONS * 0.1, 100)
+    # mymcmc.run(NUM_MCMC_ITERATIONS, tuning=100)
+    # mymcmc.operatorSummary()
+
 
 def get_argument_rev_string(name, value: Value):
     """

@@ -306,9 +306,9 @@ class LPhyASTVisitor(LPhyVisitor):
         argument_values = []
 
         if var.is_ranged_var():
-            value = get_indexed_value(var.id, var.range_list).apply()
+            value = get_indexed_value(var.id_, var.range_list).apply()
         else:
-            value = self._parser_dict.get_value(var.id, self._block)
+            value = self._parser_dict.get_value(var.id_, self._block)
 
         if value is None:
             raise ParsingException(f"Value {ctx.children[0].getText()} not found for method call {method_name}", ctx)

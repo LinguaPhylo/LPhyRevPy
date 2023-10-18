@@ -15,12 +15,12 @@ def get_indexed_value(array, range_list: RangeList):
 
 class Var:
     def __init__(self, id_: str, meta_parser: "LPhyMetaParser", range_list=None):
-        self.id = id_
+        self.id_ = id_
         self.meta_parser = meta_parser
         self.range_list = range_list
 
     def get_id(self):
-        return self.id
+        return self.id_
 
     def get_range_list(self):
         return self.range_list
@@ -32,7 +32,7 @@ class Var:
         # self.meta_parser is LPhyMetaParser
         from lphy.core.parser.LPhyParserDictionary import LPhyParserDictionary
         if isinstance(self.meta_parser, LPhyParserDictionary):
-            val = self.meta_parser.get_value(self.id, block)
+            val = self.meta_parser.get_value(self.id_, block)
             if not self.is_ranged_var():
                 return val
             else:
@@ -44,11 +44,11 @@ class Var:
     def assign(self, value, function, context):
         if not self.is_ranged_var():
             if value is None:
-                raise RuntimeError(f"Cannot assign None to the Var : {self.id}")
+                raise RuntimeError(f"Cannot assign None to the Var : {self.id_}")
             if function is not None:
                 value.set_function(function)
-            value.set_id(self.id)
-            self.meta_parser.put(self.id, value, context)
+            value.set_id(self.id_)
+            self.meta_parser.put(self.id_, value, context)
             return value
         else:
             from lphy.core.error.Errors import UnsupportedOperationException
@@ -57,8 +57,8 @@ class Var:
             range_ = list(range_list.apply().value())
             max_idx = max(range_)
 
-            if self.graphical_model.hasValue(self.id, context):
-                v = self.graphical_model.get_value(self.id, context)
+            if self.graphical_model.hasValue(self.id_, context):
+                v = self.graphical_model.get_value(self.id_, context)
                 if isinstance(v.value(), list):
                     current_length = len(v.value())
                     if current_length <= max_idx:

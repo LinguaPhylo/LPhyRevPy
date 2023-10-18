@@ -14,6 +14,7 @@ def create_n_taxa(n: int, var_name: str, loop_var_name="i"):
     return f"""for ({loop_var_name} in 1:{n}) {{ {taxa_var_name}[{loop_var_name}] = taxon({loop_var_name}) }} """
 
 
+
 class CreateTaxa(DeterministicFunction, ABC):
 
     generator_info = {"name": "taxa",
@@ -101,18 +102,20 @@ class Taxon:
 
 class Taxa:
 
-    def __init__(self, taxon_list=None):
-        if taxon_list is None:
-            taxon_list = []
+    def __init__(self, taxon_list: List[Taxon] = None):
         self.taxon_list = taxon_list
 
     @method_info("The names of the taxa.")
     def taxaNames(self):
-        pass
+        return self.get_taxa_names()
 
     @method_info("gets the ages of these taxa as an array of doubles.")
     def ages(self):
-        pass
+        return self.get_ages()
+
+    @method_info("gets the species of these taxa as an array of doubles.")
+    def species(self):
+        return self.get_species()
 
     @method_info("gets the number of taxa.")
     def length(self):
@@ -123,4 +126,19 @@ class Taxa:
 
     def get_taxon(self, i):
         return self.taxon_list[i]
+
+    def get_taxa_names(self):
+        if self.taxon_list:
+            return [taxon.get_name() for taxon in self.taxon_list]
+        return []
+
+    def get_ages(self):
+        if self.taxon_list:
+            return [taxon.get_age() for taxon in self.taxon_list]
+        return []
+
+    def get_species(self):
+        if self.taxon_list:
+            return [taxon.get_species() for taxon in self.taxon_list]
+        return []
 
