@@ -1,18 +1,43 @@
+from typing import List
+
+from lphy.base.evolution.taxa.Taxa import Taxon
 from lphy.core.error.Errors import UnsupportedOperationException
 from lphy.core.model.Function import method_info
 
 
 class TimeTreeNode:
-    def __init__(self, id_: str = None, age=0.0, children=None):
-        self.children = children if children is not None else []
-        self.parent = None
-        self.index = 0
-        self.leaf_index = -1
-        self.age = age
-        self.id_ = id_
-        self.zero_branch_length_tolerance = 1e-15
-        self.meta_data = {}
-        self.tree = None
+    ZERO_BRANCH_LENGTH_TOLERANCE = 1e-15
+
+    parent = None
+    index = 0
+    leaf_index = -1
+    meta_data = {}
+
+    def __init__(self, *args):
+        from lphy.base.evolution.tree.TimeTree import TimeTree
+        if len(args) == 2 and isinstance(args[0], str) and isinstance(args[1], TimeTree):
+            # Constructor with (id, TimeTree)
+            self.id_ = args[0]
+            self.tree = args[1]
+            self.age = 0.0
+        elif len(args) == 1 and isinstance(args[0], (int, float)):
+            # Constructor with (age)
+            self.age = args[0]
+        elif len(args) == 2 and isinstance(args[0], (int, float)) and isinstance(args[1], list):
+            # Constructor with (age, children)
+            self.age = args[0]
+            self.children = args[1]
+            for child in self.children:
+                child.parent = self
+        elif len(args) == 2 and isinstance(args[0], Taxon) and isinstance(args[1], TimeTree):
+            # Constructor with (Taxon, TimeTree)
+            taxon, tree = args
+            self.age = taxon.getAge()
+            self.id_ = taxon.getName()
+            self.tree = tree
+        else:
+            raise ValueError("Invalid arguments for TimeTreeNode constructor")
+
 
     # def deep_copy(self, tree):
     #     copy = TimeTreeNode(self.id_, self.age, [])
@@ -33,7 +58,7 @@ class TimeTreeNode:
 
     def is_direct_ancestor(self):
         return self.is_single_child_non_origin() or (
-                    self.is_leaf() and (self.get_parent().age - self.age) <= self.zero_branch_length_tolerance)
+                self.is_leaf() and (self.get_parent().age - self.age) <= self.ZERO_BRANCH_LENGTH_TOLERANCE)
 
     def is_leaf(self):
         return len(self.children) == 0

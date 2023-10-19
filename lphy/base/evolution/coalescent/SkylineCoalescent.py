@@ -1,3 +1,4 @@
+from base.evolution.tree.TaxaConditionedTreeGenerator import TaxaConditionedTreeGenerator
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.parser.RevBuilder import get_argument_rev_string
 from lphy.core.model.RandomVariable import RandomVariable
@@ -5,7 +6,7 @@ from lphy.core.model.Value import Value
 from lphy.core.error.Errors import UnsupportedOperationException
 
 
-class SkylineCoalescent(GenerativeDistribution):
+class SkylineCoalescent(TaxaConditionedTreeGenerator):
 #TODO
     def __init__(self, theta: Value, groupSizes:Value = None, n: Value = None, taxa: Value = None, ages: Value = None):
         super().__init__()

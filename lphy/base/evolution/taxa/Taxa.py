@@ -14,9 +14,7 @@ def create_n_taxa(n: int, var_name: str, loop_var_name="i"):
     return f"""for ({loop_var_name} in 1:{n}) {{ {taxa_var_name}[{loop_var_name}] = taxon({loop_var_name}) }} """
 
 
-
 class CreateTaxa(DeterministicFunction, ABC):
-
     generator_info = {"name": "taxa",
                       "description": "A set of taxa with species and ages defined in parallel arrays."}
 
@@ -33,7 +31,7 @@ class CreateTaxa(DeterministicFunction, ABC):
     def apply(self) -> "Value":
         taxon_list = []
         names_list = self.names.value
-        #TODO same len?
+        # TODO same len?
         species_list = [] if self.species is None else self.species.value
         ages_list = [] if self.ages is None else self.ages.value
 
@@ -142,3 +140,21 @@ class Taxa:
             return [taxon.get_species() for taxon in self.taxon_list]
         return []
 
+
+def create_taxa(taxa: List[Taxon]):
+    return Taxa(taxa)
+
+
+def create_taxa_by_objects(objects: List):
+    taxa = [Taxon(str(obj), age=0.0) for obj in objects]
+    return Taxa(taxa)
+
+
+def create_taxa_by_ages(ages: List):
+    taxa = [Taxon(str(i), age=ages[i]) for i in range(len(ages))]
+    return Taxa(taxa)
+
+
+def create_taxa_by_n(n: int):
+    taxa = [Taxon(str(i), age=0.0) for i in range(n)]
+    return Taxa(taxa)

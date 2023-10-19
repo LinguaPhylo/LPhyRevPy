@@ -1,55 +1,53 @@
+from typing import List
+
+import numpy as np
+import random
+
+from lphy.base.evolution.tree.TaxaConditionedTreeGenerator import TaxaConditionedTreeGenerator, draw_random_node
+from lphy.base.evolution.tree.TimeTreeNode import TimeTreeNode
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.parser.RevBuilder import get_argument_rev_string
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 
 
-class Coalescent(GenerativeDistribution):
+class Coalescent(TaxaConditionedTreeGenerator):
 
     def __init__(self, theta: Value, n: Value = None, taxa: Value = None):
         # this is more restrict, to avoid requiring extra Rev code to create taxa
         if (n is not None and taxa is not None) or (n is None and taxa is None):
             raise ValueError("Either 'n' or 'taxa' should be provided to 'Coalescent', but not both or neither !")
 
-        super().__init__()
+        super().__init__(n, taxa, None)
         self.theta = theta
-        self.n = n
-        self.taxa = taxa
+        # self.n = n
+        # self.taxa = taxa
 
     def sample(self, id_: str = None) -> RandomVariable:
         from lphy.base.evolution.tree.TimeTree import TimeTree
 
         tree = TimeTree()
+        activeNodes: List[TimeTreeNode] = self.create_leaf_taxa(tree)
 
-        #TODO def create_leaf_taxa(t):
-        #     # Implement your createLeafTaxa function as needed.
-        #     pass
-        #
-        # activeNodes = create_leaf_taxa(tree)
-        #
-        # time = 0.0
-        # theta = self.theta
-        #
-        # while len(activeNodes) > 1:
-        #     k = len(activeNodes)
-        #
-        #     def draw_random_node(active_nodes):
-        #         # Implement your drawRandomNode function as needed.
-        #         pass
-        #
-        #     a = draw_random_node(activeNodes)
-        #     b = draw_random_node(activeNodes)
-        #
-        #     rate = (k * (k - 1.0)) / (theta * 2.0)
-        #
-        #     # Random exponential variate
-        #     x = -np.log(random()) / rate
-        #     time += x
-        #
-        #     parent = TimeTreeNode(time, [a, b])
-        #     activeNodes.append(parent)
-        #
-        # tree.setRoot(activeNodes[0])
+        time = 0.0
+        theta = self.theta.value
+
+        while len(activeNodes) > 1:
+            k = len(activeNodes)
+
+            a = draw_random_node(activeNodes)
+            b = draw_random_node(activeNodes)
+
+            rate = (k * (k - 1.0)) / (theta * 2.0)
+
+            # Random exponential variate
+            x = -np.log(random.random()) / rate
+            time += x
+
+            parent = TimeTreeNode(time, [a, b])
+            activeNodes.append(parent)
+
+        tree.set_root(activeNodes[0])
 
         return RandomVariable(id_, tree, self)
 
