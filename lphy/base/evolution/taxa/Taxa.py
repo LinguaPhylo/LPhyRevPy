@@ -148,8 +148,8 @@ class Taxa:
         return []
 
 
-def create_taxa(taxa: List[Taxon]) -> Taxa:
-    return Taxa(taxa)
+def create_taxa(taxon_list: List[Taxon]) -> Taxa:
+    return Taxa(taxon_list)
 
 
 def create_taxa_by_objects(objects: List) -> Taxa:

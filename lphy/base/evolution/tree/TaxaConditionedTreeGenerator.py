@@ -5,7 +5,8 @@ from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.model.Value import Value
 from lphy.core.error.Errors import UnsupportedOperationException
 from lphy.core.model.Function import method_info
-from lphy.base.evolution.taxa.Taxa import Taxa, Taxon, create_taxa_by_n, create_taxa_by_ages, create_taxa
+from lphy.base.evolution.taxa.Taxa import Taxa, Taxon, create_taxa_by_n, create_taxa_by_ages, create_taxa, \
+    create_taxa_by_objects
 from lphy.base.evolution.tree.TimeTree import TimeTree
 from lphy.base.evolution.tree.TimeTreeNode import TimeTreeNode
 
@@ -44,9 +45,11 @@ class TaxaConditionedTreeGenerator(GenerativeDistribution, ABC):
 
         elif isinstance(self.taxa_value.value, List):
             if all(isinstance(item, Taxon) for item in self.taxa_value.value):
+                # create Taxa from taxon_list
                 self.taxa = create_taxa(self.taxa_value.value)
             else:
-                self.taxa = create_taxa(self.taxa_value.value)
+                # create Taxa from object_list
+                self.taxa = create_taxa_by_objects(self.taxa_value.value)
         else:
             raise ValueError(
                 f"taxa must be of type List[Taxon] or Taxa, but it is type {type(self.taxa_value.value)}.")

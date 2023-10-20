@@ -12,11 +12,19 @@ class Alignment(Taxa):
 
     @method_info("The number of characters/sites.")
     def nchar(self):
-        pass
+        return self.nchar
 
     @method_info("the taxa of the alignment.")
-    def taxa(self):
-        return Taxa()
+    def taxa(self) -> Taxa:
+        return self.get_taxa()
+
+    @method_info("The names of the taxa.")
+    def getTaxaNames(self):
+        return self.taxa.get_taxa_names()
+
+    @method_info("get the data type of this alignment.")
+    def dataType(self):
+        return self.sequence_type
 
     def method_call_to_rev(self, method_name: str, args):
         if method_name == "nchar":
@@ -48,6 +56,15 @@ class Alignment(Taxa):
     def n_taxa(self):
         return self.taxa.n_taxa()
 
+    def get_taxa(self) -> Taxa:
+        return self.taxa
+
+    def get_taxon(self, index: int) -> Taxon:
+        return self.taxa.get_taxon(index)
+
+    def get_taxon_name(self, index: int):
+        return self.get_taxon(index).get_name()
+
     def set_state(self, taxon_index: int, position: int, state):
         if self.sequence_type is None:
             raise ValueError("Please define SequenceType, not numStates!")
@@ -56,12 +73,6 @@ class Alignment(Taxa):
                 f"Illegal to set a {self.sequence_type.__class__} state outside of "
                 f"the range [0, {self.sequence_type.get_state_count() - 1}]! state = {state}")
         self.alignment[taxon_index][position] = state
-
-    def get_taxon(self, index: int) -> Taxon:
-        return self.taxa.get_taxon(index)
-
-    def get_taxon_name(self, index: int):
-        return self.get_taxon(index).get_name()
 
     def set_state_by_taxon_name(self, taxon_name, position, state):
         taxon = self.index_of_taxon(taxon_name)
