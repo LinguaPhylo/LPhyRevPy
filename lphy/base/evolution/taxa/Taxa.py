@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import List
+from typing import List, Dict
 
 from lphy.core.model.Function import DeterministicFunction, method_info
 from lphy.core.model.Value import Value
@@ -130,6 +130,13 @@ class Taxa:
             return [taxon.get_name() for taxon in self.taxon_list]
         return []
 
+    def index_of_taxon(self, taxon_name: str):
+        names = self.get_taxa_names()
+        for i in range(len(names)):
+            if names[i] == taxon_name:
+                return i
+        return -1
+
     def get_ages(self):
         if self.taxon_list:
             return [taxon.get_age() for taxon in self.taxon_list]
@@ -141,20 +148,36 @@ class Taxa:
         return []
 
 
-def create_taxa(taxa: List[Taxon]):
+def create_taxa(taxa: List[Taxon]) -> Taxa:
     return Taxa(taxa)
 
 
-def create_taxa_by_objects(objects: List):
+def create_taxa_by_objects(objects: List) -> Taxa:
     taxa = [Taxon(str(obj), age=0.0) for obj in objects]
     return Taxa(taxa)
 
 
-def create_taxa_by_ages(ages: List):
+def create_taxa_by_ages(ages: List) -> Taxa:
     taxa = [Taxon(str(i), age=ages[i]) for i in range(len(ages))]
     return Taxa(taxa)
 
 
-def create_taxa_by_n(n: int):
+def create_taxa_by_n(n: int) -> Taxa:
     taxa = [Taxon(str(i), age=0.0) for i in range(n)]
     return Taxa(taxa)
+
+
+# key is String, value is Integer
+def create_taxa_by_id_map(id_map: Dict) -> Taxa:
+    if not id_map or len(id_map) < 2:
+        raise ValueError(f"Invalid id map that has no values : {id_map}")
+
+    taxa: List[Taxon] = [None] * len(id_map)
+    for name, index in id_map.items():
+        if 0 <= index < len(taxa):
+            taxa[index] = Taxon(name)
+        else:
+            raise ValueError(f"Index {index} for taxon '{name}' is out of range.")
+
+    return Taxa(taxa)
+
