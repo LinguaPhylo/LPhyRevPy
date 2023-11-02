@@ -53,7 +53,7 @@ class MethodCall(DeterministicFunction):
             raise RuntimeError(f"Require the object (id = {value.id}) to locate method call '{method_name}', "
                                f"but it is None !")
 
-        self.method = find_method(value.value.__class__, self.method_name, self.arguments)
+        #self.method = find_method(value.value.__class__, self.method_name, self.arguments)
         self._initialize()
 
     def _initialize(self):
@@ -84,8 +84,15 @@ class MethodCall(DeterministicFunction):
         # if self.vectorized_arguments:
         #     return self.vector_apply(args)
 
-        # call method
-        obj = self.method(self.value, *self.arguments)
+        value_obj = self.value.value
+        # find method
+        method = find_method(value_obj.__class__, self.method_name, self.arguments)
+        if method:
+            # Call the method with the arguments
+            obj = method(value_obj, *self.arguments)
+        else:
+            # Handle the case where the method doesn't exist
+            raise RuntimeError(f"Method call {self.method_name} doesn't exist in object {value_obj} !")
 
         # Unwrap if obj is an instance of Value
         if isinstance(obj, Value):

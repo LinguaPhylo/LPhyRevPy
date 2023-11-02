@@ -31,6 +31,7 @@ class BirthDeathTree(GenerativeDistribution):
     def sample(self, id_: str = None) -> RandomVariable:
         # must return a TimeTree obj, otherwise it cannot convert the method calls
         from lphy.base.evolution.tree.TimeTree import TimeTree
+        #TODO
         return RandomVariable(id_, TimeTree(), self)
 
     # https://revbayes.github.io/documentation/dnBirthDeath.html
