@@ -16,7 +16,16 @@ import random
 def draw_random_node(node_list: List):
     # Java int value between 0 (inclusive) and n (exclusive).
     # Here range [a, b], including both end points.
-    return node_list.pop(random.randint(0, len(node_list) - 2))
+    # nodeList.remove(random.nextInt(nodeList.size())) returns
+    # the removed element previously at the specified position
+
+    # Generate a random index within the range of the list
+    #random_index = random.randint(0, len(node_list) - 1)
+    # Remove the element at the random index
+    #removed_element = node_list.pop(random_index)
+
+    random_index = random.randrange(len(node_list))
+    return node_list.pop(random_index)
 
 
 class TaxaConditionedTreeGenerator(GenerativeDistribution, ABC):
@@ -24,40 +33,39 @@ class TaxaConditionedTreeGenerator(GenerativeDistribution, ABC):
     def __init__(self, n: Value, taxa_value: Value, ages: Value):
         super().__init__()
         self.n = n
-        self.taxa_value = taxa_value
+        self.taxa = taxa_value  # self.taxa is reserved to Value wrapping taxa obj
         self.ages = ages
 
-        # taxa is the value wrapped inside Value taxa_value
-        # call construct_taxa
-        self.taxa: Optional[Taxa] = None
+        # taxa_obj is the value wrapped inside Value taxa_value
+        self.taxa_obj: Optional[Taxa] = None
 
     def construct_taxa(self) -> Taxa:
-        if not self.taxa_value:
+        if not self.taxa:
             # taxa_value has no value
             if self.ages:
                 # create taxa from ages
-                self.taxa = create_taxa_by_ages(self.ages.value)
+                self.taxa_obj = create_taxa_by_ages(self.ages.value)
             else:
-                self.taxa = create_taxa_by_n(self.get_n())
+                self.taxa_obj = create_taxa_by_n(self.get_n())
 
-        elif isinstance(self.taxa_value.value, Taxa):
-            self.taxa = self.taxa_value.value
+        elif isinstance(self.taxa.value, Taxa):
+            self.taxa_obj = self.taxa.value
 
-        elif isinstance(self.taxa_value.value, List):
-            if all(isinstance(item, Taxon) for item in self.taxa_value.value):
+        elif isinstance(self.taxa.value, List):
+            if all(isinstance(item, Taxon) for item in self.taxa.value):
                 # create Taxa from taxon_list
-                self.taxa = create_taxa(self.taxa_value.value)
+                self.taxa_obj = create_taxa(self.taxa.value)
             else:
                 # create Taxa from object_list
-                self.taxa = create_taxa_by_objects(self.taxa_value.value)
+                self.taxa_obj = create_taxa_by_objects(self.taxa.value)
         else:
             raise ValueError(
-                f"taxa must be of type List[Taxon] or Taxa, but it is type {type(self.taxa_value.value)}.")
+                f"taxa must be of type List[Taxon] or Taxa, but it is type {type(self.taxa.value)}.")
 
     def get_taxa(self) -> Taxa:
-        if not self.taxa:
+        if not self.taxa_obj:
             self.construct_taxa()
-        return self.taxa
+        return self.taxa_obj
 
     def get_n(self):
         if self.n:
@@ -65,10 +73,10 @@ class TaxaConditionedTreeGenerator(GenerativeDistribution, ABC):
         return self.get_taxa().n_taxa()
 
     def create_leaf_nodes(self, tree: TimeTree) -> List[TimeTreeNode]:
-        if not self.taxa:
+        if not self.taxa_obj:
             self.construct_taxa()
-        names = self.taxa.get_taxa_names()
-        ages = self.taxa.get_ages()
+        names = self.taxa_obj.get_taxa_names()
+        ages = self.taxa_obj.get_ages()
 
         node_list = []
         for i in range(len(names)):

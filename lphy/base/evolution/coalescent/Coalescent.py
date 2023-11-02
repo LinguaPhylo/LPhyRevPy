@@ -40,9 +40,10 @@ class Coalescent(TaxaConditionedTreeGenerator):
 
             rate = (k * (k - 1.0)) / (theta * 2.0)
 
-            # Random exponential variate
+            # natural logarithm
             x = -np.log(random.random()) / rate
-            time += x
+            # x is np array
+            time += x[0]
 
             parent = TimeTreeNode(time, [a, b])
             activeNodes.append(parent)
@@ -60,7 +61,7 @@ class Coalescent(TaxaConditionedTreeGenerator):
 
         builder = [get_argument_rev_string(theta_name, theta)]
 
-        if self.taxa is not None:
+        if self.taxa_obj is not None:
             taxa = self.get_param(taxa_name)
             builder.append(get_argument_rev_string(taxa_name, taxa))
         elif self.n is not None:

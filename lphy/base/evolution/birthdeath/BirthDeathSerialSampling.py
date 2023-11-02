@@ -40,7 +40,7 @@ class BirthDeathSerialSampling(GenerativeDistribution):
         theta_name = "theta"
         taxa_name = "taxa"
         theta = self.get_param(theta_name)
-        if self.taxa is not None:
+        if self.taxa_obj is not None:
             taxa = self.get_param(taxa_name)
             #TODO https://revbayes.github.io/documentation/dnBirthDeathSamplingTreatment.html
             return f"dnBDSTP({get_argument_rev_string(theta_name, theta)}, {get_argument_rev_string(taxa_name, taxa)})"

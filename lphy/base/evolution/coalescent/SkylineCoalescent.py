@@ -52,7 +52,7 @@ class SkylineCoalescent(TaxaConditionedTreeGenerator):
             builder.append(f"""times={group_sizes}""")
 
         # taxa section
-        if self.taxa is not None:
+        if self.taxa_obj is not None:
             taxa = self.get_param(taxa_name)
             builder.append(get_argument_rev_string(taxa_name, taxa))
         elif self.n is not None:

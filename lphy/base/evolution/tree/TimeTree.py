@@ -25,24 +25,38 @@ def collect_taxon(node: TimeTreeNode, taxa: List[Taxon]):
 
 
 class TimeTree:
-    def __init__(self, taxa=None):
-        self.taxa = taxa
+    # def __init__(self, taxa=None):
+    #     self.taxa = taxa
+    #
+    #     self.root_node = None
+    #     self.nodes: List[TimeTreeNode] = []
+    #     self.n = 0
 
+    constructed_with_taxa = False
+
+    def __init__(self, taxa=None, tree_to_copy=None):
         self.root_node = None
         self.nodes: List[TimeTreeNode] = []
         self.n = 0
+
+        if tree_to_copy:
+            self.taxa = tree_to_copy.taxa_obj
+            self.set_root(tree_to_copy.get_root().deep_copy(self))
+        else:
+            self.taxa = taxa
+            self.constructed_with_taxa = True
 
     def set_root(self, root: TimeTreeNode, reindex_leaves=False):
         self.root_node = root
         self.root_node.parent = None
         self.root_node.tree = self
 
-        self.nodes = []
+        #self.nodes = []
         self.fill_node_list(self.root_node, reindex_leaves)
         self._index_nodes(self.root_node, [self.n])
 
         self.nodes.sort(key=lambda node: node.index)
-        if self.taxa is None:
+        if not self.constructed_with_taxa:
             self.taxa = create_taxa(self.root_node)
 
     def _index_nodes(self, node: TimeTreeNode, next_internal_index):

@@ -15,6 +15,8 @@ class TimeTreeNode:
 
     def __init__(self, *args):
         from lphy.base.evolution.tree.TimeTree import TimeTree
+
+        self.children: List[TimeTreeNode] = []
         if len(args) == 2 and isinstance(args[0], str) and isinstance(args[1], TimeTree):
             # Constructor with (id, TimeTree)
             self.id_ = args[0]
@@ -26,7 +28,7 @@ class TimeTreeNode:
         elif len(args) == 2 and isinstance(args[0], (int, float)) and isinstance(args[1], list):
             # Constructor with (age, children)
             self.age = args[0]
-            self.children = args[1]
+            self.children = args[1] if args[1] is not None else []
             for child in self.children:
                 child.parent = self
         elif len(args) == 2 and isinstance(args[0], Taxon) and isinstance(args[1], TimeTree):
@@ -38,14 +40,13 @@ class TimeTreeNode:
         else:
             raise ValueError("Invalid arguments for TimeTreeNode constructor")
 
-
-    # def deep_copy(self, tree):
-    #     copy = TimeTreeNode(self.id_, self.age, [])
-    #     copy.index = self.index
-    #     copy.leaf_index = self.leaf_index
-    #     for child in self.children:
-    #         copy.add_child(child.deep_copy(tree))
-    #     return copy
+    def deep_copy(self, tree):
+        copy = TimeTreeNode(self.id_, self.age, [])
+        copy.index = self.index
+        copy.leaf_index = self.leaf_index
+        for child in self.children:
+            copy.add_child(child.deep_copy(tree))
+        return copy
 
     def is_root(self):
         return self.parent is None
