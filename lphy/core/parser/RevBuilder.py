@@ -10,17 +10,21 @@ class RevBuilder:
     # Global settings
     NUM_REPLICATES = 2
     NUM_MCMC_ITERATIONS = 1000000  # 1M
+    BURN_IN = 0.1
     THINNING = 10
 
     visited = set()
 
-    def __init__(self):
+    def __init__(self, in_file):
         # TODO merge data_lines with model_lines?
         self.data_lines = []
         self.model_lines = []
         # TODO
         self.move_lines = []
-        self.monitors_lines = []
+        self.monitors_vars = []
+        self.monitors_trees = []
+
+        self.in_file = in_file
 
     def get_code(self, parser_dict: LPhyParserDictionary):
         self.visited.clear()
@@ -44,6 +48,12 @@ class RevBuilder:
 
         if self.move_lines:
             builder += self.move_lines
+
+        # build monitors
+        builder += self.build_monitors(self.in_file, self.THINNING)
+
+        # build mcmc
+        builder += build_mcmc(self.NUM_MCMC_ITERATIONS, self.BURN_IN, self.NUM_REPLICATES)
 
         return '\n'.join(builder)
 
@@ -84,6 +94,7 @@ class RevBuilder:
 
                     if isinstance(node, RandomVariable):
                         self.add_moves(node)
+                        self.add_monitors(node)
 
                     if parser_dict.is_named_data_value(node):
                         # add data lines
@@ -134,15 +145,42 @@ class RevBuilder:
                 self.move_lines.append(f"moves.append( mvScale({var_name}, {mv_params}) )")
 
     # add monitors
-    # monitors.append(mnModel(filename="output/horses_iso_constant.log", printgen=THINNING))
-    # monitors.append(mnFile(filename="output/horses_iso_constant.trees", psi, printgen=THINNING))
-    # monitors.append(mnFile(filename="output/horses_iso_constant_NE.log", pop_size, printgen=THINNING))
-    # monitors.append(mnScreen(pop_size, root_age, printgen=100))
+    def add_monitors(self, var: RandomVariable):
+        var_name = get_canonical(var.get_id())
+        generator = var.get_generator()
+        from lphy.base.evolution.likelihood.PhyloCTMC import PhyloCTMC
+        from lphy.base.evolution.tree.TimeTree import TimeTree
 
-    # mymcmc = mcmc(mymodel, monitors, moves, nruns=NUM_REPLICATES, combine="mixed")
-    # mymcmc.burnin(NUM_MCMC_ITERATIONS * 0.1, 100)
-    # mymcmc.run(NUM_MCMC_ITERATIONS, tuning=100)
-    # mymcmc.operatorSummary()
+        # TODO IID
+        if not isinstance(generator, PhyloCTMC):
+            # https://revbayes.github.io/tutorials/coalescent/constant
+            if isinstance(var.value, TimeTree):
+                self.monitors_trees.append(var_name)
+            else:
+                self.monitors_vars.append(var_name)
+
+    def build_monitors(self, in_file, print_gen):
+        output_stem = guess_output_stem(in_file)
+
+        builder = [f"""monitors.append(mnModel(filename="{output_stem}.log", printgen={print_gen}))"""]
+        for tree_name in self.monitors_trees:
+            builder.append(f"""monitors.append(mnFile(filename="{output_stem}.trees", {tree_name}, printgen={print_gen}))""")
+        # monitors.append(mnFile(filename="output/horses_iso_constant_NE.log", pop_size, printgen=THINNING))
+        screen_var = ", ".join(self.monitors_vars)
+        print_gen_10 = print_gen * 10
+        builder.append(f"""monitors.append(mnScreen({screen_var}, printgen={print_gen_10}))""")
+        return builder
+
+
+def guess_output_stem(in_file: str):
+    return in_file.replace(".lphy", "")
+
+
+def build_mcmc(chain_len, burn_in, num_rep):
+    builder = [f"""mymcmc = mcmc(mymodel, monitors, moves, nruns={num_rep}, combine="mixed")""",
+               f"""mymcmc.burnin({chain_len} * {burn_in})""", f"""mymcmc.run({chain_len})""",
+               f"""mymcmc.operatorSummary()"""]
+    return builder
 
 
 def get_argument_rev_string(name, value: Value):

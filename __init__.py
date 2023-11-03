@@ -31,7 +31,8 @@ def parse_args(argv):
 def main():
     argsdict = parse_args(sys.argv[1:])
 
-    with open(argsdict["in"], 'r') as f:
+    in_file = argsdict["in"]
+    with open(in_file, 'r') as f:
         input_string = f.read()
     # print lphy script
     print(input_string)
@@ -60,7 +61,7 @@ def main():
     #print("\nReconstruct LPhy script below:\n")
     #print(code)
 
-    rev_builder = RevBuilder()
+    rev_builder = RevBuilder(in_file)
     rev = rev_builder.get_code(parser_dict)
 
     print("\nConvert to the Rev script below:\n")
