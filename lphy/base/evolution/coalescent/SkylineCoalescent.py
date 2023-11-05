@@ -1,4 +1,4 @@
-from base.evolution.tree.TaxaConditionedTreeGenerator import TaxaConditionedTreeGenerator
+from lphy.base.evolution.tree.TaxaConditionedTreeGenerator import TaxaConditionedTreeGenerator
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.parser.RevBuilder import get_argument_rev_string
 from lphy.core.model.RandomVariable import RandomVariable

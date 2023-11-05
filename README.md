@@ -3,7 +3,8 @@ Convert LPhy models to RevBayes script.
 
 ## Usage
 
-Python 3.9 or higher
+Python 3.9 or higher. Depend on `numpy`, `scipy`, `typing`, `inspect`, 
+`pprint`, and `Bio` (Biopython).
 
 This project is currently in development. 
 Please check out the source code to run __init__.py under the project root.
