@@ -1,5 +1,6 @@
 import math
-from typing import List
+
+import numpy as np
 
 from lphy.core.model.Generator import Generator
 from lphy.core.model.GraphicalModelNode import GraphicalModelNode
@@ -8,6 +9,10 @@ from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.parser.LPhyParserDictionary import LPhyParserDictionary
 from lphy.core.parser.UnicodeConverter import get_canonical
 from lphy.core.vectorization.IID import IID
+
+
+def isinstance_or_iid_of_instance(generator: Generator, class_):
+    return isinstance(generator, class_) or (isinstance(generator, IID) and isinstance(generator.base_distribution, class_))
 
 
 class RevBuilder:
@@ -25,8 +30,8 @@ class RevBuilder:
         self.model_lines = []
         # TODO
         self.move_lines = []
-        self.monitors_vars = []
         self.monitors_trees = []
+        self.screen_vars = []
 
         self.in_file = in_file
 
@@ -143,7 +148,9 @@ class RevBuilder:
         from lphy.base.evolution.tree.TimeTree import TimeTree
 
         # TODO IID
-        if not isinstance(generator, PhyloCTMC):
+        if isinstance_or_iid_of_instance(generator, PhyloCTMC):
+            self.add_up_down_moves(generator)
+        else:
             # https://revbayes.github.io/tutorials/coalescent/constant
             if isinstance(var.value, TimeTree):
                 n_taxa = var.value.leafCount()
@@ -159,24 +166,49 @@ class RevBuilder:
             elif len(var.value) > 1:  # moves for rev vectors
                 # ignore DiscretizeGamma
                 from lphy.base.distribution.DiscreteDistribution import DiscretizeGamma
-                if (not isinstance(generator, DiscretizeGamma) and
-                        not (isinstance(generator, IID) and isinstance(generator.base_distribution, DiscretizeGamma))):
+                if not isinstance_or_iid_of_instance(generator, DiscretizeGamma):
                     w = math.ceil(len(var.value) / 2)
                     self.move_lines.append(f"moves.append( mvBetaSimplex({var_name}, weight={w}) )")
                     self.move_lines.append(f"moves.append( mvDirichletSimplex({var_name}, weight=1.0) )")
 
-            else: # the value must not be rev vector
+            else:  # the value must not be rev vector
+                # make sure no [] printed
+                var_val = var.value
+                val = var_val[0] if isinstance(var_val, np.ndarray) and var_val.size == 1 else var_val
+                # setValue to simulated value
+                self.move_lines.append(f"{var_name}.setValue({val})")
                 # TODO better weights?
                 self.move_lines.append(f"moves.append( mvScale({var_name}, lambda=0.1, weight=2.0) )")
 
-            # TODO
-            # up_down_move = mvUpDownScale(weight=5.0)
-            # up_down_move.addVariable(clock, up=TRUE)
-            # up_down_move.addVariable(psi, up=FALSE)
-            # moves.append(up_down_move)
-            # TODO
+            # TODO Inv not available in lphy yet
             # p_inv ~ dnBeta(1, 1)
             # moves.append(mvSlide(p_inv))
+
+    # TODO IID
+    def add_up_down_moves(self, generator):
+        from lphy.base.evolution.likelihood.PhyloCTMC import PhyloCTMC
+        # TODO recognise clock rate and tree from PhyloCTMC
+        if isinstance(generator, PhyloCTMC):
+            self.add_up_down_move(generator)
+        elif isinstance(generator, IID) and isinstance(generator.base_distribution, PhyloCTMC):
+            from lphy.core.error.Errors import UnsupportedOperationException
+            raise UnsupportedOperationException(f"IID of PhyloCTMC is not supported yet ! {generator}")
+
+    def add_up_down_move(self, generator: "PhyloCTMC"):
+        # TODO branchRates
+        if generator.get_param("branchRates"):
+            from lphy.core.error.Errors import UnsupportedOperationException
+            raise UnsupportedOperationException(f"Not support to add up_down_move for branchRates in PhyloCTMC ! {generator}")
+
+        clock_param: Value = generator.get_param("mu")
+        clock_name = get_canonical(clock_param.get_id())
+        tree_param: Value = generator.get_param("tree")
+        tree_name = get_canonical(tree_param.get_id())
+        up_down_move_name = f"up_down_move_{clock_name}_{tree_name}"
+        self.move_lines.append(f"{up_down_move_name} = mvUpDownScale(weight=5.0)")
+        self.move_lines.append(f"{up_down_move_name}.addVariable({clock_name}, up=TRUE)")
+        self.move_lines.append(f"{up_down_move_name}.addVariable({tree_name}, up=FALSE)")
+        self.move_lines.append(f"moves.append({up_down_move_name})")
 
     # add monitors
     def add_monitors(self, var: RandomVariable):
@@ -186,15 +218,14 @@ class RevBuilder:
         from lphy.base.evolution.tree.TimeTree import TimeTree
         from lphy.base.distribution.DiscreteDistribution import DiscretizeGamma
 
-        # TODO IID
-        if not isinstance(generator, PhyloCTMC):
+        # also check IID
+        if not isinstance_or_iid_of_instance(generator, PhyloCTMC):
             # https://revbayes.github.io/tutorials/coalescent/constant
             if isinstance(var.value, TimeTree):
                 self.monitors_trees.append(var_name)
-            elif (not isinstance(generator, DiscretizeGamma) and
-                  not (isinstance(generator, IID) and isinstance(generator.base_distribution, DiscretizeGamma))):
-                # ignore DiscretizeGamma
-                self.monitors_vars.append(var_name)
+            elif len(var.value) == 1 and not isinstance_or_iid_of_instance(generator, DiscretizeGamma):
+                # add screen monitors, but ignore DiscretizeGamma and vectors
+                self.screen_vars.append(var_name)
 
     def build_monitors(self, in_file, print_gen):
         output_stem = guess_output_stem(in_file)
@@ -204,7 +235,7 @@ class RevBuilder:
             builder.append(
                 f"""monitors.append(mnFile(filename="{output_stem}.trees", {tree_name}, printgen={print_gen}))""")
         # monitors.append(mnFile(filename="output/horses_iso_constant_NE.log", pop_size, printgen=THINNING))
-        screen_var = ", ".join(self.monitors_vars)
+        screen_var = ", ".join(self.screen_vars)
         print_gen_10 = print_gen * 10
         builder.append(f"""monitors.append(mnScreen({screen_var}, printgen={print_gen_10}))""")
         return builder
