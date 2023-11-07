@@ -102,7 +102,8 @@ class IID(GenerativeDistribution):
         replicates = self.get_replicates()
 
         # exclude DiscretizeGamma because of diff implementation of this model between lphy and rev
-        if dist_name == "DiscretizeGamma":
+        from lphy.base.distribution.DiscreteDistribution import DiscretizeGamma
+        if isinstance(self.base_distribution, DiscretizeGamma):
             return self.base_distribution.lphy_to_rev(var_name)
 
         loop_var = "i"
@@ -110,7 +111,7 @@ class IID(GenerativeDistribution):
         return f"""for ({loop_var} in 1:{replicates}) {{ {get_canonical(var_name)}[{loop_var}] {self.base_distribution.rev_spec_op()} {self.base_distribution.lphy_to_rev(var_name)} }} """
 
     def get_param(self, name_) -> Value:
-        self.base_distribution.get_param(name_)
+        return self.base_distribution.get_param(name_)
 
     def get_params(self) -> ItemsView:
         return self.params.items()
