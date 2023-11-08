@@ -12,19 +12,18 @@ from lphy.core.vectorization.IID import IID
 
 
 def isinstance_or_iid_of_instance(generator: Generator, class_):
-    return isinstance(generator, class_) or (isinstance(generator, IID) and isinstance(generator.base_distribution, class_))
+    return isinstance(generator, class_) or (
+                isinstance(generator, IID) and isinstance(generator.base_distribution, class_))
 
 
 class RevBuilder:
     # Global settings
     NUM_REPLICATES = 2
-    NUM_MCMC_ITERATIONS = 1000000  # default 1M
-    BURN_IN = 0.1
-    THINNING = int(NUM_MCMC_ITERATIONS / 2000)  # log 2000 samples
+    N_SAMPLES = 2000  # log 2000 samples
 
     visited = set()
 
-    def __init__(self, in_file):
+    def __init__(self, in_file, chain_length=1000000, burn_in=0.1):
         # TODO merge data_lines with model_lines?
         self.data_lines = []
         self.model_lines = []
@@ -34,6 +33,9 @@ class RevBuilder:
         self.screen_vars = []
 
         self.in_file = in_file
+        self.chain_length = chain_length  # default 1M
+        self.burn_in = burn_in
+        self.log_every = int(chain_length / self.N_SAMPLES)  # log 2000 samples
 
     def get_code(self, parser_dict: LPhyParserDictionary):
         self.visited.clear()
@@ -67,11 +69,11 @@ class RevBuilder:
         # build monitors
         builder.append("")  # will add a new line
         builder.append("monitors = VectorMonitors()")
-        builder += self.build_monitors(self.in_file, self.THINNING)
+        builder += self.build_monitors(self.in_file, self.log_every)
 
         # build mcmc
         builder.append("")  # will add a new line
-        builder += build_mcmc(self.NUM_MCMC_ITERATIONS, self.BURN_IN, self.NUM_REPLICATES)
+        builder += build_mcmc(self.chain_length, self.burn_in, self.NUM_REPLICATES)
 
         return '\n'.join(builder)
 
@@ -141,7 +143,7 @@ class RevBuilder:
                         self.model_lines.append(f"root_age_{tree_id} := {tree_id}.rootAge()")
                         # print to screen
                         self.screen_vars.append(f"root_age_{tree_id}")
-                        #TODO total branch lengths?
+                        # TODO total branch lengths?
 
                 self.visited.add(node)
 
@@ -209,17 +211,20 @@ class RevBuilder:
         # TODO branchRates
         if generator.get_param("branchRates"):
             from lphy.core.error.Errors import UnsupportedOperationException
-            raise UnsupportedOperationException(f"Not support to add up_down_move for branchRates in PhyloCTMC ! {generator}")
+            raise UnsupportedOperationException(
+                f"Not support to add up_down_move for branchRates in PhyloCTMC ! {generator}")
 
         clock_param: Value = generator.get_param("mu")
-        clock_name = get_canonical(clock_param.get_id())
-        tree_param: Value = generator.get_param("tree")
-        tree_name = get_canonical(tree_param.get_id())
-        up_down_move_name = f"up_down_move_{clock_name}_{tree_name}"
-        self.move_lines.append(f"{up_down_move_name} = mvUpDownScale(weight=5.0)")
-        self.move_lines.append(f"{up_down_move_name}.addVariable({clock_name}, up=TRUE)")
-        self.move_lines.append(f"{up_down_move_name}.addVariable({tree_name}, up=FALSE)")
-        self.move_lines.append(f"moves.append({up_down_move_name})")
+        # TODO default clock rate
+        if clock_param:
+            clock_name = get_canonical(clock_param.get_id())
+            tree_param: Value = generator.get_param("tree")
+            tree_name = get_canonical(tree_param.get_id())
+            up_down_move_name = f"up_down_move_{clock_name}_{tree_name}"
+            self.move_lines.append(f"{up_down_move_name} = mvUpDownScale(weight=5.0)")
+            self.move_lines.append(f"{up_down_move_name}.addVariable({clock_name}, up=TRUE)")
+            self.move_lines.append(f"{up_down_move_name}.addVariable({tree_name}, up=FALSE)")
+            self.move_lines.append(f"moves.append({up_down_move_name})")
 
     # add monitors
     def add_monitors(self, var: RandomVariable):
