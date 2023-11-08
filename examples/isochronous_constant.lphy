@@ -12,12 +12,12 @@ model {
   rates ~ Dirichlet(conc=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0]);
   Q=gtr(freq=π, rates=rates);
 
-  γ ~ LogNormal(meanlog=0.0, sdlog=2.0);
-  r ~ DiscretizeGamma(shape=γ, ncat=4, replicates=L);
+  α ~ LogNormal(meanlog=0.0, sdlog=2.0);
+  r ~ DiscretizeGamma(shape=α, ncat=4, replicates=L);
 
 //TODO overload
   //pInv ~ Beta(alpha=1.0, beta=1.0);
-  //r ~ DiscretizeGammaI(shape=γ, ncat=4, pinv=pInv, replicates=L);
+  //r ~ DiscretizeGammaI(shape=α, ncat=4, pinv=pInv, replicates=L);
 
   clock ~ LogNormal(meanlog=-16.9, sdlog=5.0);
   D ~ PhyloCTMC(tree=ψ, siteRates=r, Q=Q, mu=clock);

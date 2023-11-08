@@ -18,9 +18,9 @@ def isinstance_or_iid_of_instance(generator: Generator, class_):
 class RevBuilder:
     # Global settings
     NUM_REPLICATES = 2
-    NUM_MCMC_ITERATIONS = 1000000  # 1M
+    NUM_MCMC_ITERATIONS = 1000000  # default 1M
     BURN_IN = 0.1
-    THINNING = 10
+    THINNING = int(NUM_MCMC_ITERATIONS / 2000)  # log 2000 samples
 
     visited = set()
 
@@ -132,6 +132,17 @@ class RevBuilder:
                     else:
                         # add model lines
                         self.model_lines.append(str_value)
+
+                    # TODO better way to log tree stats?
+                    from lphy.base.evolution.tree.TimeTree import TimeTree
+                    if isinstance(node.value, TimeTree):
+                        tree_id = get_canonical(node.get_id())
+                        # root age
+                        self.model_lines.append(f"root_age_{tree_id} := {tree_id}.rootAge()")
+                        # print to screen
+                        self.screen_vars.append(f"root_age_{tree_id}")
+                        #TODO total branch lengths?
+
                 self.visited.add(node)
 
             elif isinstance(node, Generator):
@@ -228,6 +239,9 @@ class RevBuilder:
                 self.screen_vars.append(var_name)
 
     def build_monitors(self, in_file, print_gen):
+        if print_gen < 1:
+            raise ValueError(f"print_gen in monitors can be < 1 : {print_gen} !")
+
         output_stem = guess_output_stem(in_file)
 
         builder = [f"""monitors.append(mnModel(filename="{output_stem}.log", printgen={print_gen}))"""]
@@ -246,10 +260,17 @@ def guess_output_stem(in_file: str):
 
 
 def build_mcmc(chain_len, burn_in, num_rep):
-    builder = [f"""mymcmc = mcmc(mymodel, monitors, moves, nruns={num_rep}, combine="mixed")""",
-               # Running burn-in phase of Monte Carlo sampler for 100 iterations.
-               f"""mymcmc.burnin({chain_len} * {burn_in}, 100)""", f"""mymcmc.run({chain_len})""",
-               f"""mymcmc.operatorSummary()"""]
+    builder = [f"""mymcmc = mcmc(mymodel, monitors, moves, nruns={num_rep}, combine="mixed")"""]
+    burn_in_tuning = int(chain_len * burn_in / 10)
+    if burn_in_tuning < 10:
+        builder.append(f"""mymcmc.burnin({chain_len} * {burn_in})""")
+    else:
+        # Running burn-in phase with tuning intervals
+        builder.append(f"""mymcmc.burnin({chain_len} * {burn_in}, {burn_in_tuning})""")
+
+    # TODO tuning? mymcmc.run(NUM_MCMC_ITERATIONS, tuning = 100)
+    builder.append(f"""mymcmc.run({chain_len})""")
+    builder.append(f"""mymcmc.operatorSummary()""")
     return builder
 
 
