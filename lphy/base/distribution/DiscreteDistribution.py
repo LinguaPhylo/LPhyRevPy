@@ -79,6 +79,15 @@ class Bernoulli(GenerativeDistribution):
         p = self.p.value
         return f"dnBernoulli(p={p})"
 
+def Categorical_sample(p, random):
+    U = random.random()
+
+    # Create cumulative probability distribution
+    cum_prob = np.cumsum(p)
+
+    # Use binary search to find the index
+    i = np.searchsorted(cum_prob, U, side="right")
+    return i
 
 class Categorical(GenerativeDistribution):
 
