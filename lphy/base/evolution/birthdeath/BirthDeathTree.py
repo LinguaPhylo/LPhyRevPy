@@ -1,10 +1,23 @@
-from lphy.core.model.GenerativeDistribution import GenerativeDistribution
+import math
+import random
+from lphy.base.evolution.tree.TaxaConditionedTreeGenerator import draw_random_node, TaxaConditionedTreeGenerator
+from lphy.base.evolution.tree.TimeTreeNode import TimeTreeNode
 from lphy.core.parser.RevBuilder import get_argument_rev_string
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 
 
-class BirthDeathTree(GenerativeDistribution):
+def birth_death_internal_q(p, lambda_val, mu_val, root_height):
+    if lambda_val == mu_val:
+        return p * root_height / (1 + lambda_val * root_height * (1 - p))
+    h = lambda_val - mu_val
+    e1 = math.exp(-h * root_height)
+    a1 = lambda_val - mu_val * e1
+    a2 = p * (1 - e1)
+    return (1 / h) * math.log((a1 - mu_val * a2) / (a1 - lambda_val * a2))
+
+
+class BirthDeathTree(TaxaConditionedTreeGenerator):
     """
     Joseph Heled, Alexei J. Drummond, Calibrated Birth–Death Phylogenetic Time-Tree Priors for Bayesian Inference,
     Systematic Biology, Volume 64, Issue 3, May 2015. https://doi.org/10.1093/sysbio/syu089
@@ -20,7 +33,7 @@ class BirthDeathTree(GenerativeDistribution):
         if (n is not None and taxa is not None) or (n is None and taxa is None):
             raise ValueError("Either 'n' or 'taxa' should be provided to 'BirthDeathTree', but not both or neither !")
 
-        super().__init__()
+        super().__init__(n, taxa, None)
         self.lambda_ = lambda_  # per-lineage birth rate.
         self.mu = mu  # per-lineage death rate.
         self.rootAge = rootAge  # the age of the root.
@@ -29,10 +42,29 @@ class BirthDeathTree(GenerativeDistribution):
         self.taxa = taxa
 
     def sample(self, id_: str = None) -> RandomVariable:
-        # must return a TimeTree obj, otherwise it cannot convert the method calls
         from lphy.base.evolution.tree.TimeTree import TimeTree
-        #TODO
-        return RandomVariable(id_, TimeTree(), self)
+
+        tree = TimeTree(self.get_taxa())
+        active_nodes = self.create_leaf_taxa(tree)
+
+        lambda_val = float(self.lambda_.value)
+        mu_val = float(self.mu.value)
+        root_age_val = float(self.rootAge.value)
+
+        times = [birth_death_internal_q(random.random(), lambda_val, mu_val, root_age_val) for _ in
+                 range(len(active_nodes) - 1)]
+        times[-1] = root_age_val
+        times.sort()
+
+        for i in range(len(times)):
+            a = draw_random_node(active_nodes)
+            b = draw_random_node(active_nodes)
+            parent = TimeTreeNode(times[i], [a, b])
+            active_nodes.append(parent)
+
+        tree.set_root(active_nodes[0])
+
+        return RandomVariable(id_, tree, self)
 
     # https://revbayes.github.io/documentation/dnBirthDeath.html
     def lphy_to_rev(self, var_name):

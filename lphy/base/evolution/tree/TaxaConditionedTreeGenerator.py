@@ -3,8 +3,6 @@ from typing import List, Optional
 
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.model.Value import Value
-from lphy.core.error.Errors import UnsupportedOperationException
-from lphy.core.model.Function import method_info
 from lphy.base.evolution.taxa.Taxa import Taxa, Taxon, create_taxa_by_n, create_taxa_by_ages, create_taxa, \
     create_taxa_by_objects
 from lphy.base.evolution.tree.TimeTree import TimeTree
@@ -39,7 +37,26 @@ class TaxaConditionedTreeGenerator(GenerativeDistribution, ABC):
         # taxa_obj is the value wrapped inside Value taxa_value
         self.taxa_obj: Optional[Taxa] = None
 
-    def construct_taxa(self) -> Taxa:
+    def check_taxa_parameters(self, at_least_one_required: bool):
+        if at_least_one_required and self.taxa is None and self.n is None and self.ages is None:
+            raise ValueError(f"At least one of 'n', 'taxa', 'ages' must be specified.")
+
+        if self.taxa is not None and self.n is not None:
+            t = self.get_taxa()
+            if t.n_taxa() != self.n.value():
+                raise ValueError(f"'n' and 'taxa' values are incompatible.")
+
+        if self.ages is not None and self.n is not None:
+            if len(self.ages.value()) != self.n.value():
+                raise ValueError(f"'n' and 'ages' values are incompatible.")
+
+        if self.ages is not None and self.taxa is not None:
+            raise ValueError(f"Only one of 'taxa' and 'ages' may be specified.")
+
+    def construct_taxa(self):
+        """
+        This fills in taxa_obj: Taxa
+        """
         if not self.taxa:
             # taxa_value has no value
             if self.ages:
@@ -65,11 +82,14 @@ class TaxaConditionedTreeGenerator(GenerativeDistribution, ABC):
     def get_taxa(self) -> Taxa:
         if not self.taxa_obj:
             self.construct_taxa()
+        # validate taxa_obj: Taxa
+        if not self.taxa_obj or self.taxa_obj.n_taxa() < 2:
+            raise RuntimeError("It must have at least 2 taxa to construct a tree !")
         return self.taxa_obj
 
     def get_n(self):
         if self.n:
-            return self.n
+            return self.n.value
         return self.get_taxa().n_taxa()
 
     def create_leaf_nodes(self, tree: TimeTree) -> List[TimeTreeNode]:

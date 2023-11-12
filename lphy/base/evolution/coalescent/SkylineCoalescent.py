@@ -21,6 +21,10 @@ class SkylineCoalescent(TaxaConditionedTreeGenerator):
             raise ValueError("Only one of 'n' or 'taxa' or 'ages' should be provided to 'SkylineCoalescent' !")
 
     def sample(self, id_: str = None) -> RandomVariable:
+        # TODO
+        from lphy.core.error.Errors import UnsupportedOperationException
+        raise UnsupportedOperationException()
+
         # must return a TimeTree obj, otherwise it cannot convert the method calls
         from lphy.base.evolution.tree.TimeTree import TimeTree
         #TODO

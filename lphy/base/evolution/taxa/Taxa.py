@@ -162,8 +162,8 @@ def create_taxa_by_ages(ages: List) -> Taxa:
     return Taxa(taxa)
 
 
-def create_taxa_by_n(n: int) -> Taxa:
-    taxa = [Taxon(str(i), age=0.0) for i in range(n)]
+def create_taxa_by_n(n) -> Taxa:
+    taxa = [Taxon(str(i), age=0.0) for i in range(int(n))]
     return Taxa(taxa)
 
 

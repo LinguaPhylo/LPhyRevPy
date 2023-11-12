@@ -135,15 +135,15 @@ class RevBuilder:
                         # add model lines
                         self.model_lines.append(str_value)
 
-                    # TODO better way to log tree stats?
-                    from lphy.base.evolution.tree.TimeTree import TimeTree
-                    if isinstance(node.value, TimeTree):
-                        tree_id = get_canonical(node.get_id())
-                        # root age
-                        self.model_lines.append(f"root_age_{tree_id} := {tree_id}.rootAge()")
-                        # print to screen
-                        self.screen_vars.append(f"root_age_{tree_id}")
-                        # TODO total branch lengths?
+                    # TODO smart way to log tree stats? perhaps, just rely on lphy code to add rootAge
+                    # from lphy.base.evolution.tree.TimeTree import TimeTree
+                    # if isinstance(node.value, TimeTree):
+                    #     tree_id = get_canonical(node.get_id())
+                    #     # root age
+                    #     self.model_lines.append(f"root_age_{tree_id} := {tree_id}.rootAge()")
+                    #     # print to screen
+                    #     self.screen_vars.append(f"root_age_{tree_id}")
+                    #     # TODO total branch lengths?
 
                 self.visited.add(node)
 
@@ -282,8 +282,9 @@ def build_mcmc(chain_len, burn_in, num_rep):
 def get_argument_rev_string(name, value: Value):
     """
     for named arg, for example, (mean=3.0, sd=1.0)
-    :param name:   Rev arg name
-    :param value:  Value
+    :param name:   Rev arg name, which could be diff to the python var name in __init__()
+                   that supposes to represent a lphy var.
+    :param value:  the python var to store the Value in __init__
     :return: the argument string in rev
     """
     prefix = ""

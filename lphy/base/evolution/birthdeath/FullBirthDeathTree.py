@@ -1,10 +1,10 @@
-from lphy.core.model.GenerativeDistribution import GenerativeDistribution
+from lphy.base.evolution.tree.TaxaConditionedTreeGenerator import TaxaConditionedTreeGenerator
 from lphy.core.parser.RevBuilder import get_argument_rev_string
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 
 
-class FullBirthDeathTree(GenerativeDistribution):
+class FullBirthDeathTree(TaxaConditionedTreeGenerator):
     """
     David G. Kendall. On the Generalized "Birth-and-Death" Process,
     The Annals of Mathematical Statistics, Ann. Math. Statist. 19(1), 1-15, March, 1948.
@@ -33,6 +33,10 @@ class FullBirthDeathTree(GenerativeDistribution):
 
     # https://revbayes.github.io/documentation/dnBirthDeath.html
     def lphy_to_rev(self, var_name):
+        # TODO
+        from lphy.core.error.Errors import UnsupportedOperationException
+        raise UnsupportedOperationException()
+
         # TODO Rev requires taxa ?
         from lphy.core.error.Errors import UnsupportedOperationException
         raise UnsupportedOperationException("in dev !")

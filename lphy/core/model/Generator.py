@@ -61,7 +61,9 @@ class Generator(GraphicalModelNode, ABC):
 
     def get_param(self, name_) -> Value:
         """
-        :param name_:  lphy arg name, also the param name in __init__
+        :param name_:  the python var to store the Value in __init__,
+                       which must be same as the arg name of __init__(),
+                       otherwise the PGM node for this argument may not be built properly.
         :return:       the parameter value declared in __init__
         """
         if name_ == "lambda":

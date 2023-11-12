@@ -1,10 +1,10 @@
-from lphy.core.model.GenerativeDistribution import GenerativeDistribution
+from lphy.base.evolution.tree.TaxaConditionedTreeGenerator import TaxaConditionedTreeGenerator
 from lphy.core.parser.RevBuilder import get_argument_rev_string
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 
 
-class Yule(GenerativeDistribution):
+class Yule(TaxaConditionedTreeGenerator):
     """
     death rate = 0
     """
@@ -26,6 +26,10 @@ class Yule(GenerativeDistribution):
         self.taxa = taxa
 
     def sample(self, id_: str = None) -> RandomVariable:
+        # TODO
+        from lphy.core.error.Errors import UnsupportedOperationException
+        raise UnsupportedOperationException()
+
         # must return a TimeTree obj, otherwise it cannot convert the method calls
         from lphy.base.evolution.tree.TimeTree import TimeTree
         return RandomVariable(id_, TimeTree(), self)

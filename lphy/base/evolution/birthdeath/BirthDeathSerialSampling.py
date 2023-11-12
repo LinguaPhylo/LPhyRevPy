@@ -1,10 +1,10 @@
-from lphy.core.model.GenerativeDistribution import GenerativeDistribution
+from lphy.base.evolution.tree.TaxaConditionedTreeGenerator import TaxaConditionedTreeGenerator
 from lphy.core.parser.RevBuilder import get_argument_rev_string
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 
 
-class BirthDeathSerialSampling(GenerativeDistribution):
+class BirthDeathSerialSampling(TaxaConditionedTreeGenerator):
     """
     A tree of extant species and those sampled through time, which is conceptually embedded
     in a full species tree produced by a speciation-extinction (birth-death) branching process.
@@ -28,6 +28,10 @@ class BirthDeathSerialSampling(GenerativeDistribution):
         self.rootAge = rootAge
 
     def sample(self, id_: str = None) -> RandomVariable:
+        # TODO
+        from lphy.core.error.Errors import UnsupportedOperationException
+        raise UnsupportedOperationException()
+
         # must return a TimeTree obj, otherwise it cannot convert the method calls
         from lphy.base.evolution.tree.TimeTree import TimeTree
         return RandomVariable(id_, TimeTree(), self)
