@@ -4,9 +4,12 @@ data {
   L = D.nchar();
 }
 model {
-  // do not use Uniform
-  Θ ~ LogNormal(meanlog=3.0, sdlog=1.0);
-  ψ ~ Coalescent(theta=Θ, taxa=taxa);
+  // 300 species / 375 k years
+  λ ~ LogNormal(meanlog=-0.22, sdlog=2);
+  mu ~ LogNormal(meanlog=-2, sdlog=1);
+  // mean 365 k years ago, HPD95 = [137 972] k years
+  tmrca ~ LogNormal(meanlog=5.9, sdlog=0.5);
+  ψ ~ BirthDeath(lambda=λ, mu=mu, taxa=taxa, rootAge=tmrca);
 
   π ~ Dirichlet(conc=[1.0,1.0,1.0,1.0]);
   rates ~ Dirichlet(conc=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0]);

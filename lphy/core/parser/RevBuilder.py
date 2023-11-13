@@ -163,7 +163,7 @@ class RevBuilder:
         # TODO IID
         if isinstance_or_iid_of_instance(generator, PhyloCTMC):
             self.add_up_down_moves(generator)
-        else:
+        elif var.value is not None:
             # https://revbayes.github.io/tutorials/coalescent/constant
             if isinstance(var.value, TimeTree):
                 n_taxa = var.value.leafCount()
@@ -196,6 +196,8 @@ class RevBuilder:
             # TODO Inv not available in lphy yet
             # p_inv ~ dnBeta(1, 1)
             # moves.append(mvSlide(p_inv))
+        else:
+            raise ValueError(f"{var_name} is given to an invalid value : {var.value} !")
 
     # TODO IID
     def add_up_down_moves(self, generator):

@@ -41,32 +41,33 @@ class PhyloCTMC(GenerativeDistribution, ABC):
 
     def sample(self, id_: str = None) -> "RandomVariable":
         # setup
-        self.compute_p_and_root_freqs()
+        #self.compute_p_and_root_freqs()
 
         # TODO
-
         # Default to nucleotide
-        dt = SequenceType.NUCLEOTIDE if self.data_type is None else self.data_type
+        # dt = SequenceType.NUCLEOTIDE if self.data_type is None else self.data_type
+        #
+        # length = self.get_site_count()
+        #
+        # a = Alignment(self.id_map, length, dt)
+        #
+        # mu = 1.0 if self.clock_rate is None else float(self.clock_rate)
+        #
+        # for i in range(length):
+        #     if self.root_seq is not None:
+        #         # Use simulated or user-specified root sequence
+        #         root_state = self.root_seq.get_state(0, i)  # Root taxon is 0
+        #         self.traverse_tree(self.tree.get_root(), root_state, a, i, self.trans_prob, mu,
+        #                            1.0 if self.site_rates is None else self.site_rates[i])
+        #     else:
+        #         from lphy.base.distribution.DiscreteDistribution import Categorical
+        #         root_state = Categorical.sample(self.root_freqs)
+        #         self.traverse_tree(self.tree.get_root(), root_state, a, i, self.trans_prob, mu,
+        #                            1.0 if self.site_rates is None else self.site_rates[i])
+        #
+        # return RandomVariable(id_, a, self)
 
-        length = self.get_site_count()
-
-        a = Alignment(self.id_map, length, dt)
-
-        mu = 1.0 if self.clock_rate is None else float(self.clock_rate)
-
-        for i in range(length):
-            if self.root_seq is not None:
-                # Use simulated or user-specified root sequence
-                root_state = self.root_seq.get_state(0, i)  # Root taxon is 0
-                self.traverse_tree(self.tree.get_root(), root_state, a, i, self.trans_prob, mu,
-                                   1.0 if self.site_rates is None else self.site_rates[i])
-            else:
-                from lphy.base.distribution.DiscreteDistribution import Categorical
-                root_state = Categorical.sample(self.root_freqs)
-                self.traverse_tree(self.tree.get_root(), root_state, a, i, self.trans_prob, mu,
-                                   1.0 if self.site_rates is None else self.site_rates[i])
-
-        return RandomVariable(id_, a, self)
+        return RandomVariable(id_, None, self)
 
     # dnPhyCTMC siteRates are the rates of each category not each site, which has the same length of ncat
     def lphy_to_rev(self, var_name):

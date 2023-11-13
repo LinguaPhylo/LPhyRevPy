@@ -3,7 +3,7 @@ from lphy.core.model.GenerativeDistribution import GenerativeDistribution
 from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 
-from scipy.stats import beta, lognorm, gamma
+from scipy.stats import beta, lognorm, gamma, norm, uniform, expon
 from numpy import exp, sqrt, zeros, sum
 
 
@@ -18,10 +18,9 @@ class Beta(GenerativeDistribution):
         self.beta = beta
 
     def sample(self, id_: str = None) -> RandomVariable:
-        alpha = self.alpha.value
-        beta = self.beta.value
+        alpha = float(self.alpha.value)
+        beta = float(self.beta.value)
         x = beta.rvs(alpha, beta, size=1)
-        # not need value
         return RandomVariable(id_, x, self)
 
     def lphy_to_rev(self, var_name):
@@ -66,7 +65,7 @@ class Dirichlet(GenerativeDistribution):
         dirichlet = zeros(len(conc))
 
         for i in range(len(dirichlet)):
-            dirichlet[i] = gamma.rvs(conc[i], scale=1.0, size=1)
+            dirichlet[i] = gamma.rvs(float(conc[i]), scale=1.0, size=1)
         dirichlet /= sum(dirichlet)
 
         return RandomVariable(id_, dirichlet, self)
@@ -91,8 +90,10 @@ class Exp(GenerativeDistribution):
         self.mean = mean
 
     def sample(self, id_: str = None) -> RandomVariable:
-        # not need value
-        return RandomVariable(id_, None, self)
+        mean = float(self.mean.value)
+        # scale = 1 / lambda, where lambda is the rate parameter
+        x = expon.rvs(scale=mean, size=1)
+        return RandomVariable(id_, x, self)
 
     def lphy_to_rev(self, var_name):
         mean = self.mean.value
@@ -108,8 +109,11 @@ class Gamma(GenerativeDistribution):
         self.scale = scale
 
     def sample(self, id_: str = None) -> RandomVariable:
-        # not need value
-        return RandomVariable(id_, None, self)
+        shape = float(self.shape.value)
+        scale = float(self.scale.value)
+        # rvs(a, loc=0, scale=1, size=1) where a is shape
+        x = beta.rvs(shape, scale=scale, size=1)
+        return RandomVariable(id_, x, self)
 
     def lphy_to_rev(self, var_name):
         shape = self.shape.value
@@ -144,8 +148,11 @@ class Normal(GenerativeDistribution):
         self.sd = sd
 
     def sample(self, id_: str = None) -> RandomVariable:
-        # not need value
-        return RandomVariable(id_, None, self)
+        mean = float(self.mean.value)
+        sd = float(self.sd.value)
+        # loc is mean and scale is standard deviation of the normal distribution
+        x = norm.rvs(loc=mean, scale=sd, size=1)
+        return RandomVariable(id_, x, self)
 
     # TODO: x <- rnorm(n=10,mean=5,sd=10)
     def lphy_to_rev(self, var_name):
@@ -185,9 +192,9 @@ class LogNormal(GenerativeDistribution):
             raise UnsupportedOperationException("Rev language does not support offset in dnLognormal !")
 
     def sample(self, id_: str = None) -> RandomVariable:
-        meanlog = self.meanlog.value
-        sdlog = self.sdlog.value
-        # TODO check
+        meanlog = float(self.meanlog.value)
+        sdlog = float(self.sdlog.value)
+        # TODO check, not sure if correct !!!
         # Suppose a normally distributed random variable X has mean mu and standard deviation sigma.
         # Then Y = exp(X) is lognormally distributed with s = sigma and scale = exp(mu).
         s = float(sdlog)
@@ -222,8 +229,12 @@ class Uniform(GenerativeDistribution):
         self.upper = upper
 
     def sample(self, id_: str = None) -> RandomVariable:
-        # not need value
-        return RandomVariable(id_, None, self)
+        # loc is the lower boundary of the output interval.
+        loc = float(self.lower.value)
+        # Upper boundary of the output interval will be (loc + scale). Must be non-negative.
+        scale = loc + float(self.upper.value)
+        x = uniform.rvs(loc=loc, scale=scale, size=1)
+        return RandomVariable(id_, x, self)
 
     def lphy_to_rev(self, var_name):
         lower = self.lower.value

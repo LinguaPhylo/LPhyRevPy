@@ -38,8 +38,7 @@ class BirthDeathTree(TaxaConditionedTreeGenerator):
         self.mu = mu  # per-lineage death rate.
         self.rootAge = rootAge  # the age of the root.
 
-        self.n = n
-        self.taxa = taxa
+        self.check_taxa_parameters(True)
 
     def sample(self, id_: str = None) -> RandomVariable:
         from lphy.base.evolution.tree.TimeTree import TimeTree
@@ -76,8 +75,6 @@ class BirthDeathTree(TaxaConditionedTreeGenerator):
         mu = self.get_param(mu_name)
         root_age = self.get_param(root_age_name)
 
-        #TODO Rev dnBDP : The condition of the process. Default : time
-
         builder = [get_argument_rev_string("lambda", lambda_), get_argument_rev_string(mu_name, mu),
                    get_argument_rev_string(root_age_name, root_age)]
 
@@ -90,6 +87,10 @@ class BirthDeathTree(TaxaConditionedTreeGenerator):
             builder.append(f"taxa={taxa_var_name}")
         else:
             raise ValueError("Either 'n' or 'taxa' should be provided to 'BirthDeathTree', but not both or neither !")
+
+        # TODO Rev dnBDP : The condition of the process. Default : time
+        # hard code to set condition
+        builder.append('samplingStrategy="uniform", condition="survival"')
 
         args = ", ".join(builder)
         return f"dnBDP({args})"
