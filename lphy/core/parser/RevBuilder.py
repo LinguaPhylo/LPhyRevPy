@@ -121,16 +121,24 @@ class RevBuilder:
                         self.add_moves(node)
                         self.add_monitors(node)
 
+                    from lphy.base.evolution.likelihood.PhyloCTMC import PhyloCTMC
+                    gen = node.get_generator()
                     if parser_dict.is_named_data_value(node):
                         # add data lines
                         self.data_lines.append(str_value)
-                    elif parser_dict.is_clamped_variable(node):
-                        # data clamping
-                        old_id = node.get_id()
-                        new_id = old_id + "_clamp"
-                        str_clamp = str_value.replace(old_id, new_id)
-                        self.model_lines.append(str_clamp)
-                        self.model_lines.append(f"{new_id}.clamp({old_id})")
+                    elif isinstance(gen, PhyloCTMC):
+                        old_id = get_canonical(node.get_id())
+                        if parser_dict.is_clamped_variable(node):
+                            # data clamping
+                            new_id = old_id + "_clamp"
+                            str_clamp = str_value.replace(old_id, new_id)
+                            self.model_lines.append(str_clamp)
+                            self.model_lines.append(f"{new_id}.clamp({old_id})")
+                        else:
+                            self.model_lines.append(str_value)
+                            # simulated data
+                            self.model_lines.append("# clamp simulated data for mcmc runs")
+                            self.model_lines.append(f"{old_id}.clamp({old_id})")
                     else:
                         # add model lines
                         self.model_lines.append(str_value)

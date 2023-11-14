@@ -19,8 +19,8 @@ class Beta(GenerativeDistribution):
 
     def sample(self, id_: str = None) -> RandomVariable:
         alpha = float(self.alpha.value)
-        beta = float(self.beta.value)
-        x = beta.rvs(alpha, beta, size=1)
+        beta_ = float(self.beta.value)
+        x = beta.rvs(alpha, beta_, size=1)
         return RandomVariable(id_, x, self)
 
     def lphy_to_rev(self, var_name):

@@ -43,7 +43,7 @@ class PhyloCTMC(GenerativeDistribution, ABC):
         # setup
         #self.compute_p_and_root_freqs()
 
-        # TODO
+        # TODO It looks not required, if using D.clamp(D) in Rev.
         # Default to nucleotide
         # dt = SequenceType.NUCLEOTIDE if self.data_type is None else self.data_type
         #
@@ -91,8 +91,9 @@ class PhyloCTMC(GenerativeDistribution, ABC):
             site_rates = self.get_param("siteRates")
             builder.append(get_argument_rev_string("siteRates", site_rates))
         if self.dataType is not None:
-            data_type = self.get_param("dataType")
-            builder.append(get_argument_rev_string("type", data_type))
+            # data_type = self.get_param("dataType")
+            # builder.append(get_argument_rev_string("type", data_type))
+            raise UnsupportedOperationException(f"Only DNA data type is available at the moment ! Data type = {self.dataType}")
         if self.root is not None:
             raise UnsupportedOperationException("dnPhyloCTMC does not support root sequence !\n"
                                                 "https://revbayes.github.io/documentation/dnPhyloCTMC.html")

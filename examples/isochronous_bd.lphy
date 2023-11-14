@@ -10,6 +10,8 @@ model {
   // mean 365 k years ago, HPD95 = [137 972] k years
   tmrca ~ LogNormal(meanlog=5.9, sdlog=0.5);
   ψ ~ BirthDeath(lambda=λ, mu=mu, taxa=taxa, rootAge=tmrca);
+  TL = ψ.treeLength();
+  rootAge = ψ.rootAge();
 
   π ~ Dirichlet(conc=[1.0,1.0,1.0,1.0]);
   rates ~ Dirichlet(conc=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0]);
