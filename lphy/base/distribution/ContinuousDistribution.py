@@ -4,8 +4,14 @@ from lphy.core.model.RandomVariable import RandomVariable
 from lphy.core.model.Value import Value
 
 from scipy import stats
-from numpy import exp, sqrt, zeros, sum
+from numpy import exp, zeros, sum
 
+
+# Developer guide:
+# 1. argument names must be exactly same to lphy definition in @ParameterInfo
+# 2. The field variable storing values, e.g. self.meanlog_val, must have the diff name with argument name,
+#    in order to generate graphical model nodes.
+#    But if it is Value object, then it can have the same name as the argument.
 
 # alphabetical order
 
@@ -14,17 +20,17 @@ class Beta(GenerativeDistribution):
     # parameter names must be exactly same to lphy definition in @ParameterInfo
     def __init__(self, alpha: Value, beta: Value):
         super().__init__()
-        self.alpha = float(alpha.value)
-        self.beta = float(beta.value)
+        self.alpha_val = float(alpha.value)
+        self.beta_val = float(beta.value)
 
-        self.dist = stats.beta(self.alpha, self.beta)
+        self.dist = stats.beta(self.alpha_val, self.beta_val)
 
     def sample(self, id_: str = None) -> RandomVariable:
         x = self.dist.rvs(size=1)
         return RandomVariable(id_, x, self)
 
     def lphy_to_rev(self, var_name):
-        return f"dnBeta(alpha={self.alpha}, beta={self.beta})"
+        return f"dnBeta(alpha={self.alpha_val}, beta={self.beta_val})"
 
 
 class Binomial(GenerativeDistribution):
@@ -32,10 +38,10 @@ class Binomial(GenerativeDistribution):
     # parameter names must be exactly same to lphy definition in @ParameterInfo
     def __init__(self, p: Value, n: Value):
         super().__init__()
-        self.p = float(p.value)  # the probability of a success
-        self.n = float(n.value)  # number of trials
+        self.p_val = float(p.value)  # the probability of a success
+        self.n_val = float(n.value)  # number of trials
         # loc is the location of the distribution. offset?
-        self.dist = stats.binom(self.n, self.p, loc=0)
+        self.dist = stats.binom(self.n_val, self.p_val, loc=0)
 
     def sample(self, id_: str = None) -> RandomVariable:
         x = self.dist.rvs(size=1)
@@ -43,7 +49,7 @@ class Binomial(GenerativeDistribution):
 
     def lphy_to_rev(self, var_name):
         # Rev uses size not n
-        return f"dnBinomial(p={self.p}, size={self.n})"
+        return f"dnBinomial(p={self.p_val}, size={self.n_val})"
 
 
 class Dirichlet(GenerativeDistribution):
@@ -78,23 +84,23 @@ class Dirichlet(GenerativeDistribution):
 
 
 class Cauchy(GenerativeDistribution):
-    pass #TODO
+    pass  # TODO
 
 
 class Exp(GenerativeDistribution):
     # parameter names must be exactly same to lphy definition in @ParameterInfo
     def __init__(self, mean: Value):
         super().__init__()
-        self.mean = float(mean.value)
+        self.mean_val = float(mean.value)
         # scale = 1 / lambda, where lambda is the rate parameter
-        self.dist = stats.expon(scale=self.mean)
+        self.dist = stats.expon(scale=self.mean_val)
 
     def sample(self, id_: str = None) -> RandomVariable:
         x = self.dist.rvs(size=1)
         return RandomVariable(id_, x, self)
 
     def lphy_to_rev(self, var_name):
-        rate = 1 / float(self.mean)
+        rate = 1 / float(self.mean_val)
         return f"dnExp(lambda={rate})"
 
 
@@ -102,10 +108,10 @@ class Gamma(GenerativeDistribution):
     # parameter names must be exactly same to lphy definition in @ParameterInfo
     def __init__(self, shape: Value, scale: Value):
         super().__init__()
-        self.shape = float(shape.value)
-        self.scale = float(scale.value)
+        self.shape_val = float(shape.value)
+        self.scale_val = float(scale.value)
 
-        self.dist = stats.gamma(self.shape, scale=self.scale)
+        self.dist = stats.gamma(self.shape_val, scale=self.scale_val)
 
     def sample(self, id_: str = None) -> RandomVariable:
         # rvs(a, loc=0, scale=1, size=1) where a is shape
@@ -113,20 +119,20 @@ class Gamma(GenerativeDistribution):
         return RandomVariable(id_, x, self)
 
     def lphy_to_rev(self, var_name):
-        rate = 1 / float(self.scale)
-        return f"dnGamma(shape={self.shape}, rate={rate})"
+        rate = 1 / float(self.scale_val)
+        return f"dnGamma(shape={self.shape_val}, rate={rate})"
 
 
 class InverseGamma(GenerativeDistribution):
     # parameter names must be exactly same to lphy definition in @ParameterInfo
     def __init__(self, alpha: Value, beta: Value):
         super().__init__()
-        self.alpha = float(alpha.value)
+        self.alpha_val = float(alpha.value)
         # a rate parameter, also called inverse scale parameter, beta = 1 / scale
-        self.beta = float(beta.value)
-        scale = 1 / self.beta
+        self.beta_val = float(beta.value)
+        scale = 1 / self.beta_val
         # Create an Inverse Gamma distribution object
-        self.dist = stats.invgamma(self.alpha, scale=scale)
+        self.dist = stats.invgamma(self.alpha_val, scale=scale)
 
     def sample(self, id_: str = None) -> RandomVariable:
         # Generate random numbers from the Inverse Gamma distribution
@@ -134,17 +140,17 @@ class InverseGamma(GenerativeDistribution):
         return RandomVariable(id_, x, self)
 
     def lphy_to_rev(self, var_name):
-        return f"dnInverseGamma(shape={self.alpha}, rate={self.beta})"
+        return f"dnInverseGamma(shape={self.alpha_val}, rate={self.beta_val})"
 
 
 class Normal(GenerativeDistribution):
     # parameter names must be exactly same to lphy definition in @ParameterInfo
     def __init__(self, mean: Value, sd: Value):
         super().__init__()
-        self.mean = float(mean.value)
-        self.sd = float(sd.value)
+        self.mean_val = float(mean.value)
+        self.sd_val = float(sd.value)
         # loc is mean and scale is standard deviation of the normal distribution
-        self.dist = stats.norm(loc=self.mean, scale=self.sd)
+        self.dist = stats.norm(loc=self.mean_val, scale=self.sd_val)
 
     def sample(self, id_: str = None) -> RandomVariable:
         x = self.dist.rvs(size=1)
@@ -152,7 +158,7 @@ class Normal(GenerativeDistribution):
 
     # TODO: x <- rnorm(n=10,mean=5,sd=10)
     def lphy_to_rev(self, var_name):
-        return f"dnNormal(mean={self.mean}, sd={self.sd})"
+        return f"dnNormal(mean={self.mean_val}, sd={self.sd_val})"
 
 
 class MVN(GenerativeDistribution):
@@ -176,52 +182,51 @@ class MVN(GenerativeDistribution):
 
 class LogNormal(GenerativeDistribution):
 
-    # parameter names must be exactly same to lphy definition in @ParameterInfo
     def __init__(self, meanlog: Value, sdlog: Value, offset: Value = None):
         super().__init__()
-        self.meanlog = float(meanlog.value)
-        self.sdlog = float(sdlog.value)
+        self.meanlog_val = float(meanlog.value)
+        self.sdlog_val = float(sdlog.value)
         if offset is not None:
             raise UnsupportedOperationException("Rev language does not support offset in dnLognormal !")
         # optional, could be None
-        self.offset = float(offset.value) if offset is not None else None
+        self.offset_val = float(offset.value) if offset is not None else None
 
         # TODO check, not sure if correct !!!
         # Suppose a normally distributed random variable X has mean mu and standard deviation sigma.
         # Then Y = exp(X) is lognormally distributed with s = sigma and scale = exp(mu).
-        scale = exp(self.meanlog)
-        self.dist = stats.lognorm(self.sdlog, scale=scale)
+        scale = exp(self.meanlog_val)
+        self.dist = stats.lognorm(self.sdlog_val, scale=scale)
 
     def sample(self, id_: str = None) -> RandomVariable:
         x = self.dist.rvs(size=1) + self._C()
         return RandomVariable(id_, x, self)
 
     def log_density(self, x):
-        return self.dist.logpdf(x - self._C(), self.sdlog, scale=exp(self.meanlog))
+        return self.dist.logpdf(x - self._C(), self.sdlog_val, scale=exp(self.meanlog_val))
 
     def _C(self):
-        return self.offset if self.offset is not None else 0.0
+        return self.offset_val if self.offset_val is not None else 0.0
 
     def lphy_to_rev(self, var_name):
         # Rev mean in log-space (observed mean is exp(m)).
         # sd, standard deviation, also in log-space.
-        return f"dnLognormal(mean={self.meanlog}, sd={self.sdlog})"
+        return f"dnLognormal(mean={self.meanlog_val}, sd={self.sdlog_val})"
 
 
 class Uniform(GenerativeDistribution):
     # parameter names must be exactly same to lphy definition in @ParameterInfo
     def __init__(self, lower: Value, upper: Value):
         super().__init__()
-        self.lower = float(lower.value)
-        self.upper = float(upper.value)
+        self.lower_val = float(lower.value)
+        self.upper_val = float(upper.value)
         # loc is the lower boundary of the output interval.
         # Upper boundary of the output interval will be (loc + scale). Must be non-negative.
-        scale = self.lower + self.upper
-        self.dist = stats.uniform(loc=self.lower, scale=scale)
+        scale = self.lower_val + self.upper_val
+        self.dist = stats.uniform(loc=self.lower_val, scale=scale)
 
     def sample(self, id_: str = None) -> RandomVariable:
         x = self.dist.rvs(size=1)
         return RandomVariable(id_, x, self)
 
     def lphy_to_rev(self, var_name):
-        return f"dnUniform(lower={self.lower}, upper={self.upper})"
+        return f"dnUniform(lower={self.lower_val}, upper={self.upper_val})"
