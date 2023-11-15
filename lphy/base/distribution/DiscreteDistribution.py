@@ -1,5 +1,5 @@
 from numpy import zeros
-from scipy.stats import gamma
+from scipy import stats
 
 from lphy.core.error.Errors import UnsupportedOperationException
 from lphy.core.model.GenerativeDistribution import GenerativeDistribution
@@ -16,23 +16,22 @@ class DiscretizeGamma(GenerativeDistribution):
     # parameter names must be exactly same to lphy definition in @ParameterInfo
     def __init__(self, shape: Value, ncat: Value):
         super().__init__()
+        # keep Value objects for get_argument_rev_string(rev_name, value: Value)
         self.shape = shape
         self.ncat = ncat
+        # create distribution
+        self.shape_val = float(shape.value)
+        self.ncat_val = int(ncat.value)
+        self.dist = stats.gamma(self.shape_val, scale=1.0 / self.shape_val)
 
     def sample(self, id_: str = None) -> RandomVariable:
-        shape = self.shape.value
-        ncat = int(self.ncat.value)
-
-        sh = float(shape)
-        gamma_distribution = gamma(sh, scale=1.0 / sh)
-
-        rates = zeros(ncat)
-        for i in range(ncat):
-            q = (2.0 * i + 1.0) / (2.0 * ncat)
-            rates[i] = gamma_distribution.ppf(q)
+        rates = zeros(self.ncat_val)
+        for i in range(self.ncat_val):
+            q = (2.0 * i + 1.0) / (2.0 * self.ncat_val)
+            rates[i] = self.dist.ppf(q)
         # Java between 0 (inclusive) and n (exclusive).
         # Here range [a, b], including both end points
-        cat_index = random.randint(0, ncat-1)
+        cat_index = random.randint(0, self.ncat_val-1)
 
         return RandomVariable(id_, rates[cat_index], self)
 
@@ -49,11 +48,9 @@ class DiscretizeGamma(GenerativeDistribution):
         shape_name = "shape"
         rate_name = "rate"
         ncat_name = "numCats"
-        shape = self.get_param(shape_name)
-        ncat = self.get_param("ncat")
-        return (f"fnDiscretizeGamma({get_argument_rev_string(shape_name, shape)}, "
-                f"{get_argument_rev_string(rate_name, shape)}, "
-                f"{get_argument_rev_string(ncat_name, ncat)})")
+        return (f"fnDiscretizeGamma({get_argument_rev_string(shape_name, self.shape)}, "
+                f"{get_argument_rev_string(rate_name, self.shape)}, "
+                f"{get_argument_rev_string(ncat_name, self.ncat)})")
 
 
 # TODO ignore replicates=L in DiscretizeGamma, or better solution?

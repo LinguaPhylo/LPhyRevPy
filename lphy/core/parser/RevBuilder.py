@@ -289,10 +289,10 @@ def build_mcmc(chain_len, burn_in, num_rep):
     return builder
 
 
-def get_argument_rev_string(name, value: Value):
+def get_argument_rev_string(rev_name, value: Value):
     """
     for named arg, for example, (mean=3.0, sd=1.0)
-    :param name:   Rev arg name, which could be diff to the python var name in __init__()
+    :param rev_name:   Rev arg name, which could be diff to the python var name in __init__()
                    that supposes to represent a lphy var.
     :param value:  the python var to store the Value in __init__
     :return: the argument string in rev
@@ -300,11 +300,11 @@ def get_argument_rev_string(name, value: Value):
     prefix = ""
     import re
     pattern = r'^arg_\d+$'  # unnamed arg
-    if not re.match(pattern, name):  # named arg
-        prefix = name + "="
+    if not re.match(pattern, rev_name):  # named arg
+        prefix = rev_name + "="
 
     if value is None:
-        raise RuntimeError("Value of " + name + " is None!")
+        raise RuntimeError("Value of " + rev_name + " is None!")
 
     if value.is_anonymous():
         # TODO split lphy inline code into lines of Rev
