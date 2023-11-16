@@ -227,18 +227,19 @@ class LogNormal(GenerativeDistribution):
         if offset is not None: #TODO
             raise UnsupportedOperationException("Rev language does not support offset in dnLognormal !")
 
-        # TODO check, not sure if correct !!!
         # Suppose a normally distributed random variable X has mean mu and standard deviation sigma.
         # Then Y = exp(X) is lognormally distributed with s = sigma and scale = exp(mu).
         scale = exp(self.meanlog_val)
         self.dist = stats.lognorm(self.sdlog_val, scale=scale)
 
     def sample(self, id_: str = None) -> RandomVariable:
+        # TODO cannot pass 2nd test log_normal(-1, 2), not sure if correct !!!
         x = self.dist.rvs(size=1) + self._C()
         return RandomVariable(id_, x, self)
 
     def log_density(self, x):
-        return self.dist.logpdf(x - self._C(), self.sdlog_val, scale=exp(self.meanlog_val))
+        #scale = exp(self.meanlog_val)
+        return self.dist.logpdf(x - self._C())
 
     def _C(self):
         return float(self.offset.value) if self.offset is not None else 0.0
