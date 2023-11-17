@@ -12,7 +12,7 @@ class SequenceType:
         pass
 
     @abstractmethod
-    def get_state_index(self, state_code: str) -> int:
+    def get_state_int(self, state_code: str) -> int:
         pass
 
     @abstractmethod
@@ -34,15 +34,27 @@ class Nucleotide(SequenceType):
     # 14 15  Unknown       16 gap
                  'N', '?', '-']
 
-    # Convert the upper case sequences into a list of integer states
     def get_states(self, sequence_str: str) -> List:
-        return [self.get_state_index(char) for index, char in enumerate(sequence_str)]
+        """
+        Convert the upper case sequences into a list of integer states, for Alignment object.
+        :param sequence_str: a string in upper case
+        :return:  a list of states as integer
+        """
+        return [self.get_state_int(char) for index, char in enumerate(sequence_str)]
 
-    def get_state_code(self, state_index: int) -> str:
-        return self.dna_to_int[state_index]
+    def get_state_code(self, state_int: int) -> str:
+        """
+        :param state_int:  integer state
+        :return:  the character matching to the given integer state
+        """
+        return self.dna_to_int[state_int]
 
-    def get_state_index(self, state_code: str) -> int:
-        # Return first index of value. Raises ValueError if the value is not present.
+    def get_state_int(self, state_code: str) -> int:
+        """
+        :param state_code:  the character
+        :return:  the integer state matching to the given character
+        """
+        # index() returns first index of value. Raises ValueError if the value is not present.
         return self.dna_to_int.index(state_code)
 
     # 17
