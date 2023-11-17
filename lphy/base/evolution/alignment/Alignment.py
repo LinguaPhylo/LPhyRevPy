@@ -38,6 +38,7 @@ class Alignment(Taxa):
 
     VAR_SITE_STATE = -1  # TODO for marking the constant sites.
 
+    # TODO only available to DNA now
     def __init__(self, taxa_or_id_map, nchar, sequence_type: SequenceType = Nucleotide()):
         super().__init__()
         if isinstance(taxa_or_id_map, dict):
@@ -47,7 +48,7 @@ class Alignment(Taxa):
         else:
             raise ValueError("It must be either taxon id dict or taxa object !")
         self.nchar = nchar
-        self.sequence_type = sequence_type
+        self.sequence_type = sequence_type  # default to DNA
 
         # Create a NumPy 2D array filled with zeros
         self.alignment = np.zeros((self.n_taxa(), self.nchar), dtype=int)

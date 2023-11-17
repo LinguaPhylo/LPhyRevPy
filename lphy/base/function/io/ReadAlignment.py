@@ -10,6 +10,46 @@ from Bio import SeqIO
 
 
 # Bio.AlignIO.FastaIO
+def load_sequence_from_file(file_path, format_="fasta"):
+    """
+    :param file_path:
+    :param format_: biopy file format
+    :return: Alignment obj
+    """
+    sequence_type: SequenceType = Nucleotide()
+    taxon_list = []
+    state_num_list_list = []
+    site_count = 0
+    # can be used for nexus as well
+    for seq in SeqIO.parse(file_path, format_):
+        taxon_list.append(Taxon(seq.id))
+        # must be upper case
+        j = seq.seq.upper()
+        # convert A,C,G,T to int
+        state_num_list = sequence_type.get_states(j)
+        # 2d here
+        state_num_list_list.append(state_num_list)
+
+        if site_count <= 0:
+            site_count = len(seq)
+        elif site_count != len(seq):
+            logging.warning(f"{file_path} contain a sequence {seq.id} not match the length ({site_count}) "
+                            f"of other sequences !")
+    # create taxa
+    taxa: Taxa = create_taxa(taxon_list)
+    # TODO only available to DNA now
+    alig = Alignment(taxa, site_count)
+    # fill in states
+    for i in range(len(state_num_list_list)):
+        # a list of int
+        state_num_list = state_num_list_list[i]
+        for j in range(len(state_num_list)):
+            # Set the state number in the NumPy array
+            alig.set_state(i, j, state_num_list[j])
+
+    return alig
+
+
 class ReadFasta(DeterministicFunction, ABC):
 
     generator_info = {"name": "readFasta",
@@ -30,37 +70,9 @@ class ReadFasta(DeterministicFunction, ABC):
 
         # TODO options
 
-        sequence_type : SequenceType = Nucleotide();
-        taxon_list = []
-        state_num_list_list = []
-        site_count = 0
+        alignment: Alignment = load_sequence_from_file(file_path, format_="fasta")
 
-        for seq in SeqIO.parse(file_path, "fasta"):
-            taxon_list.append(Taxon(seq.id))
-            # must be upper case
-            j = seq.seq.upper()
-            # convert A,C,G,T to int
-            state_num_list = sequence_type.get_states(j)
-            # 2d here
-            state_num_list_list.append(state_num_list)
-
-            if site_count <= 0:
-                site_count = len(seq)
-            elif site_count != len(seq):
-                logging.warning(f"{file_path} contain a sequence {seq.id} not match the length ({site_count}) "
-                                f"of other sequences !")
-
-        taxa: Taxa = create_taxa(taxon_list)
-        alig = Alignment(taxa, site_count) #TODO deafult to DNA now
-
-        for i in range(len(state_num_list_list)):
-            # a list of int
-            state_num_list = state_num_list_list[i]
-            for j in range(len(state_num_list)):
-                # Set the state number in the NumPy array
-                alig.set_state(i, j, state_num_list[j])
-
-        return Value(None, alig, self)
+        return Value(None, alignment, self)
 
     # D <- readDiscreteCharacterData("data/horses_isochronous_sequences.fasta")
     def rev_spec_op(self) -> str:
@@ -89,8 +101,14 @@ class ReadNexus(DeterministicFunction, ABC):
             logging.warning(f"Options in {self.generator_info['name']} is ignored, options = {options}")
 
     def apply(self) -> "Value":
-        # TODO Alignment?
-        return Value(None, Alignment(), self)
+
+        file_path = self.file.value
+
+        # TODO options
+
+        alignment: Alignment = load_sequence_from_file(file_path, format_="nexus")
+
+        return Value(None, alignment, self)
 
     # data <- readDiscreteCharacterData("data/primates_and_galeopterus_cytb.nex")
     def rev_spec_op(self) -> str:

@@ -174,6 +174,11 @@ class RevBuilder:
         elif var.value is not None:
             # https://revbayes.github.io/tutorials/coalescent/constant
             if isinstance(var.value, TimeTree):
+                #TODO how to setValue to simulated tree ?
+                init_tree = var.value.to_newick(True)
+                self.move_lines.append(f"init_{var_name} <- {init_tree}")
+                self.move_lines.append(f"{var_name}.setValue(init_{var_name})")
+
                 n_taxa = var.value.leafCount()
                 # add default moves that change the tree
                 self.move_lines.append(f"moves.append( mvNarrow({var_name}, weight={n_taxa}) )")
