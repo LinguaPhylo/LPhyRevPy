@@ -6,6 +6,7 @@ from typing import List
 from antlr4.tree.Tree import ParseTree
 
 from lphy.core.model.Generator import Generator
+from lphy.core.model.MapFunction import MapFunction
 from lphy.core.model.MethodCall import MethodCall
 from lphy.core.model.RangedVar import Var, get_indexed_value
 from lphy.core.parser.antlr.LPhyParser import LPhyParser
@@ -230,11 +231,10 @@ class LPhyASTVisitor(LPhyVisitor):
         #  ArgumentValue[]
         argument_objects = self.visit(ctx1)
         if isinstance(argument_objects, list):
-            # Create dict, key is argumentValue.name, value is argumentValue.value
-            generator = {argval.name: argval.value for argval in argument_objects}
+            # A dict containing name=value pairs
+            return MapFunction(argument_objects)
         else:
-            raise ParsingException(f"Expect a list of ArgumentValue objects, but get {argument_objects} !")
-        return generator
+            raise ParsingException(f"Expect a list of ArgumentValue objects, but get {argument_objects} !", ctx1)
 
     def visitFunction(self, ctx: LPhyParser.FunctionContext):
         """
