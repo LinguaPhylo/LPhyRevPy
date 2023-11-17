@@ -98,7 +98,7 @@ class MethodCall(DeterministicFunction):
         if isinstance(obj, Value):
             obj = obj.value()
 
-        return Value(None, obj, self);
+        return Value(None, obj, self)
 
     def vector_apply(self, args: List[Any]) -> Any:
         # Implement vectorized apply logic here

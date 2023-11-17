@@ -86,7 +86,7 @@ class Alignment(Taxa):
         sequence = ""
         # state is int
         for state in self.alignment[taxon_index]:
-            sequence += self.sequence_type.get_state(state)
+            sequence += self.sequence_type.get_state_code(state)
         return sequence
 
     def get_constant_sites_mark(self):
@@ -126,6 +126,6 @@ class Alignment(Taxa):
         mark = self.get_constant_sites_mark()
         for j in range(len(self.alignment[taxon_index])):
             if mark[j] == self.VAR_SITE_STATE:
-                sequence += self.sequence_type.get_state(self.alignment[taxon_index][j])
+                sequence += self.sequence_type.get_state_code(self.alignment[taxon_index][j])
         return sequence
 
