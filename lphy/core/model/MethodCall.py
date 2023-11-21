@@ -89,7 +89,9 @@ class MethodCall(DeterministicFunction):
         method = find_method(value_obj.__class__, self.method_name, self.arguments)
         if method:
             # Call the method with the arguments
-            obj = method(value_obj, *self.arguments)
+            # if self.arguments contains Value, then decompose to v.value
+            # TODO vectorization ?
+            obj = method(value_obj, *[arg_val.value if isinstance(arg_val, Value) else arg_val for arg_val in self.arguments])
         else:
             # Handle the case where the method doesn't exist
             raise RuntimeError(f"Method call {self.method_name} doesn't exist in object {value_obj} !")

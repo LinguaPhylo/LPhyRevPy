@@ -2,8 +2,11 @@ from .GraphicalModelNode import GraphicalModelNode
 from ..parser.UnicodeConverter import get_canonical
 
 
-# Value could be generated from Function
 class Value(GraphicalModelNode):
+    """
+    Value is generated from Generator.
+    Note: .value() is reserved by python, use .value
+    """
 
     REV_CONST_OP = "<-"
 

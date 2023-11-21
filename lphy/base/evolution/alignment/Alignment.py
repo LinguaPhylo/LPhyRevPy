@@ -1,3 +1,4 @@
+import re
 from typing import Dict
 
 import numpy as np
@@ -6,6 +7,18 @@ from lphy.base.evolution.SequenceType import SequenceType, Nucleotide
 from lphy.base.evolution.taxa.Taxa import Taxa, create_taxa_by_id_map, Taxon
 from lphy.core.error.Errors import UnsupportedOperationException
 from lphy.core.model.Function import method_info
+
+
+def parse_charset(charset: str):
+    #TODO hard code
+    #codon_str = ["1-.\3", "2-.\3", "3-.\3"]
+
+    # Regular expression pattern to match the given string
+    regx = re.compile(r"([1-3])-\\.\\3")
+    result = regx.match(charset)
+    if result:
+        return result.group(1)
+    return None
 
 
 class Alignment(Taxa):
@@ -20,11 +33,15 @@ class Alignment(Taxa):
 
     @method_info("The names of the taxa.")
     def getTaxaNames(self):
-        return self.taxa.get_taxa_names()
+        return self.get_taxa_names()
 
     @method_info("get the data type of this alignment.")
     def dataType(self):
         return self.sequence_type
+
+    @method_info("get the data type of this alignment.")
+    def charset(self, charset: str):
+        return parse_charset(charset)
 
     def method_call_to_rev(self, method_name: str, args):
         if method_name == "nchar":
@@ -33,6 +50,8 @@ class Alignment(Taxa):
             return f"taxa()"
         elif method_name == "taxaNames":  # Rev taxa has no names()
             return f"names()"
+        elif method_name == "charset":  # D.setCodonPartition(1)
+            return f"setCodonPartition({args})"
         else:
             raise UnsupportedOperationException("")
 
@@ -63,6 +82,9 @@ class Alignment(Taxa):
     def get_taxon(self, index: int) -> Taxon:
         return self.taxa.get_taxon(index)
 
+    def get_taxa_names(self):
+        return self.taxa.get_taxa_names()
+
     def get_taxon_name(self, index: int):
         return self.get_taxon(index).get_name()
 
@@ -89,6 +111,7 @@ class Alignment(Taxa):
             sequence += self.sequence_type.get_state_code(state)
         return sequence
 
+    # TODO to check or not need?
     def get_constant_sites_mark(self):
         if self.constant_sites_mark is not None:
             return self.constant_sites_mark

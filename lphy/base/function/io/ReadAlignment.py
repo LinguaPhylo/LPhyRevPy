@@ -4,6 +4,8 @@ from abc import ABC
 from lphy.base.evolution.SequenceType import SequenceType, Nucleotide
 from lphy.base.evolution.taxa.Taxa import Taxon, create_taxa, Taxa
 from lphy.base.evolution.alignment.Alignment import Alignment
+from lphy.base.function.io.ReadOptions import ReadOptions
+from lphy.core.error.Errors import UnsupportedOperationException
 from lphy.core.model.Function import DeterministicFunction
 from lphy.core.model.Value import Value
 from Bio import SeqIO
@@ -51,7 +53,6 @@ def load_sequence_from_file(file_path, format_="fasta"):
 
 
 class ReadFasta(DeterministicFunction, ABC):
-
     generator_info = {"name": "readFasta",
                       "description": "A function that parses an alignment from a fasta file."}
 
@@ -65,7 +66,6 @@ class ReadFasta(DeterministicFunction, ABC):
             logging.warning(f"Options in {self.generator_info['name']} is ignored, options = {options}")
 
     def apply(self) -> "Value":
-
         file_path = self.file.value
 
         # TODO options
@@ -79,7 +79,7 @@ class ReadFasta(DeterministicFunction, ABC):
         return '<-'
 
     def lphy_to_rev(self, var_name):
-        #TODO how to handle options?
+        # TODO how to handle options?
         return f"""readDiscreteCharacterData("{self.file}")"""
 
 
@@ -95,18 +95,22 @@ class ReadNexus(DeterministicFunction, ABC):
         super().__init__()
         # deal with None later
         self.file = file
-        self.options = options
-        # TODO how to handle options?
-        if options is not None:
-            logging.warning(f"Options in {self.generator_info['name']} is ignored, options = {options}")
+        #self.options = options
+        self.options = ReadOptions(self.file, options)
+
+        # if options is not None:
+        #     logging.warning(f"Options in {self.generator_info['name']} is ignored, options = {options}")
 
     def apply(self) -> "Value":
-
         file_path = self.file.value
-
-        # TODO options
-
         alignment: Alignment = load_sequence_from_file(file_path, format_="nexus")
+
+        # options
+        if self.options.species_regx:
+            raise UnsupportedOperationException("Species parser is not available !")
+
+        if self.options.age_regx:
+            self.options.write_ages_to_file(alignment)
 
         return Value(None, alignment, self)
 
@@ -117,3 +121,12 @@ class ReadNexus(DeterministicFunction, ABC):
     def lphy_to_rev(self, var_name):
         # TODO how to handle options?
         return f"""readDiscreteCharacterData("{self.file}")"""
+
+    def rev_code_before(self, var_name):
+        if self.options.age_regx:
+            ages_file_name = self.options.get_ages_file_name()
+            return f"""{var_name}_taxa_ages <- readTaxonData("{ages_file_name}")"""
+        else:
+            pass
+
+
