@@ -184,6 +184,7 @@ class LPhyASTVisitor(LPhyVisitor):
         text = ctx.getText()
         if text.startswith('"'):
             if text.endswith('"'):
+                #TODO make sure text is raw, no \x is added by python
                 return Value(None, text[1:-1])
             else:
                 raise RuntimeError(f"Attempted to strip quotes, but the string {text} was not quoted.")
@@ -200,6 +201,7 @@ class LPhyASTVisitor(LPhyVisitor):
 
     # An expression_list consists of one or more named_expressions separated by commas.
     def visitExpression_list(self, ctx: LPhyParser.Expression_listContext) -> List[ArgumentValue]:
+        # delist and go to visitNamed_expression
         list_values = [self.visit(ctx.getChild(i)) for i in range(0, ctx.getChildCount(), 2)]
         return list_values
 
@@ -209,6 +211,7 @@ class LPhyASTVisitor(LPhyVisitor):
         """
         values = []
         for i in range(0, ctx.getChildCount(), 2):
+            # go to visitExpression
             obj = self.visit(ctx.getChild(i))
             if isinstance(obj, DeterministicFunction):
                 value = obj.apply()
@@ -228,7 +231,7 @@ class LPhyASTVisitor(LPhyVisitor):
         """
         ctx1: ParseTree = ctx.getChild(1)
         logging.debug("parsing a map expression: " + ctx1.getText())
-        #  ArgumentValue[]
+        #  ArgumentValue[] parsed by visitExpression_list
         argument_objects = self.visit(ctx1)
         if isinstance(argument_objects, list):
             # A dict containing name=value pairs
@@ -303,7 +306,6 @@ class LPhyASTVisitor(LPhyVisitor):
         # TODO
         var = self.visit(ctx.children[0])
         method_name = ctx.children[2].getText()
-        argument_values = []
 
         if var.is_ranged_var():
             value = get_indexed_value(var.id_, var.range_list).apply()
@@ -313,12 +315,10 @@ class LPhyASTVisitor(LPhyVisitor):
         if value is None:
             raise ParsingException(f"Value {ctx.children[0].getText()} not found for method call {method_name}", ctx)
 
+        argument_values = [] # no args
         ctx2 = ctx.getChild(4)
-        if ctx2.getText() == ')':
-            # no args
-            argument_values = []
-        else:
-            # contain args
+        if ctx2.getText() != ')':
+            # contain args, and visitUnnamed_expression_list
             argument_object = self.visit(ctx2)
 
             if isinstance(argument_object, list) and all(isinstance(item, Value) for item in argument_object):
@@ -386,14 +386,21 @@ class LPhyASTVisitor(LPhyVisitor):
             s = ctx.getChild(0).getText()
             if s == "[":
                 try:
-                    # only numbers, convert to python list
-                    arr = ast.literal_eval(ctx.getText())
+                    arr_str = ctx.getText()
+                    # convert to python list
+                    lst = ast.literal_eval(arr_str)
+                    # TODO literal_eval bug to add \x0 if \ exists, what about other escape char?
+                    if isinstance(lst, list):
+                        # remove [ ]
+                        arr_str2 = ctx.getChild(1).getText()
+                        lst = arr_str2.split(",")
+
                 except ValueError:
                     # get unnamed expression list and return Value[],
                     # e.g. vector contains func, e.g. dim = [length(z), length(z[0])];
-                    arr = self.visit(ctx.getChild(1))
+                    lst = self.visit(ctx.getChild(1))
 
-                return Value(None, arr)
+                return Value(None, lst)
 
             raise ValueError(f"[ ] are required ! {ctx.getText()}")
 
