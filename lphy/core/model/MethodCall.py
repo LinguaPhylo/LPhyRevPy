@@ -28,6 +28,8 @@ def find_method(class_obj, method_name, arguments: List[Value]):
             sig = inspect.signature(method)
             # deal with vectorized argument whose value is a list, used to be ArrayValue in Java
             for arg in arguments:
+                #TODO this is wrong, freqs can be a list.
+                # need add type, or perhaps just dim info for the args
                 if isinstance(arg.value, list):
                     return None
             # exclude self
@@ -70,8 +72,7 @@ class MethodCall(DeterministicFunction):
     def _initialize(self):
         cls = self.value.value.__class__
         try:
-            # Check for exact match
-            method = getattr(cls, self.method_name)
+            # Check for exact match. If arguments[i].value is a list, then return None and go to vectorization part
             self.method = find_method(cls, self.method_name, self.arguments)
         except AttributeError:
             self.method = None
