@@ -5,6 +5,7 @@ from typing import List
 from lphy.core.parser.argument import ArgumentUtils
 from lphy.core.model.Generator import Generator, get_generator_name
 from lphy.core.parser.argument.ArgumentUtils import matching_parameter_types
+from lphy.core.vectorization import VectorMatchUtils
 from lphy.core.vectorization.IID import IID, iid_match
 
 MAX_UNNAMED_ARGS = 3
@@ -161,7 +162,7 @@ def _construct_generator(name, params, generator_class, args_map, arg_values):
     :param params:            parameters are parsed from lphy script
     :param generator_class:   generator_class name
     :param args_map:          Parameter objects extracted from the parameters of python class __init__,
-                              using ArgumentUtils.get_arguments(constructor)
+                              using `<ArgumentUtils.get_arguments(constructor, excl_self=True)>`
     :param arg_values:        init values, which are Value objs pulled from "params"
     :return: an object of Generator matching the arguments, also including IID and VectorMatch
     """
@@ -175,9 +176,8 @@ def _construct_generator(name, params, generator_class, args_map, arg_values):
     elif iid_match(generator_class, args_map, arg_values, params):
         iid = IID(generator_class, arg_values, params)
         return iid
-    # elif VectorMatchUtils.vector_match(args_map, arg_values) > 0:
-    #     return VectorMatchUtils.vector_generator(constructor, args_map, arg_values)
-    # else:
-    #   from lphy.core.error.Errors import UnsupportedOperationException
-    #     raise UnsupportedOperationException(f"Cannot find a match in '{name}' constructor arguments : " + params)
-    # raise RuntimeError(f"ERROR! No match in '{name}' constructor arguments, including vector match! ")
+    elif VectorMatchUtils.vector_match(args_map, arg_values) > 0:
+        return VectorMatchUtils.vector_generator(generator_class, args_map, arg_values)
+    else:
+        raise RuntimeError(f"Cannot find a match in '{name}' constructor arguments, including vector match : {params}")
+

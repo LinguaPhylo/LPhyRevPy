@@ -10,11 +10,11 @@ from lphy.core.model.Function import method_info
 
 
 def parse_charset(charset: str):
-    #TODO hard code
-    #codon_str = ["1-.\3", "2-.\3", "3-.\3"]
-
+    # TODO hard code
+    # codon_str = ["1-.\3", "2-.\3", "3-.\3"]
     # Regular expression pattern to match the given string
-    regx = re.compile(r"([1-3])-\\.\\3")
+    regx = re.compile(r'([1-3])-\.\\3')
+    # charset cannot be list here, must be a string
     result = regx.match(charset)
     if result:
         return result.group(1)
@@ -151,4 +151,3 @@ class Alignment(Taxa):
             if mark[j] == self.VAR_SITE_STATE:
                 sequence += self.sequence_type.get_state_code(self.alignment[taxon_index][j])
         return sequence
-
